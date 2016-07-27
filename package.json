@@ -1,0 +1,18 @@
+{
+  "name": "prosepair-io",
+  "version": "1.0.0",
+  "description": "craft stories with either your friends or strangers in real time",
+  "main": "index.js",
+  "scripts": {
+    "test": "command"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "mongoose": "^4.5.7",
+    "express": "^4.13.4",
+    "express-session": "^1.14.0",
+    "socket.io": "^1.4.5"
+  },
+  "author": "philip cheek",
+  "license": "MIT"
+}
