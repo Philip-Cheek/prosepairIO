@@ -1,3 +1,3 @@
-angular.module('prosePair').controller(function($scope, 'socketFactory'){
-	$scope.header = "Guess, what?"
+angular.module('prosePair').controller('omniOptionsController', function($scope, socketFactory){
+	$scope.head = "Guess, what?"
 });

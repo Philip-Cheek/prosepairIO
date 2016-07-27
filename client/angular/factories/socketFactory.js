@@ -1,5 +1,5 @@
-angular.module('prosePair').factory('SocketFactory', ['$rootScope', function ($rootScope) {
-	var socket = io.connect();
+angular.module('prosePair').factory('socketFactory', ['$rootScope', function ($rootScope) {
+  var socket = io.connect();
 	var factory = {};
 
 	factory.on = function(eventName, callback){

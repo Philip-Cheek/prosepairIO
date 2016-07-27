@@ -1,10 +1,23 @@
 <html>
 	<head>
-		<link rel="stylesheet" type="text/css" href= "resources/styles.css">
-		<script type = "text/javascript" src = "angular/app.js"></script>
-	</head>
+		<link rel='stylesheet' type='text/css' href='resources/styles.css'>
 
-	<body>
+		<script type='text/javascript' src ='bower_components/angular/angular.min.js'></script>
+		<script type='text/javascript' src ='bower_components/angular-route/angular-route.min.js'></script>
+		<script type='text/javascript' src='/socket.io/socket.io.js'></script>
+
+		<script type='text/javascript' src='angular/app.js'></script>
+		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
+		<script type='text/javascript' src ='angular/controllers/omniOptionsController.js'></script>
+
+		<title>ProsePair I/O</title>
+
+		<meta charset='UTF-8'>
+		<meta name='description' content='Craft stories, turn-based-style, with friends and strangers'>
+		<meta name='keywords' content='prose, pair, i/o, socket, web, application, writing, prompt, game'>
+		<meta name='author' conent='Philip Cheek'>
+	</head>
+	<body ng-app='prosePair'>
 		<div ng-controller = "omniOptionsController">
 			<p>This should be: {{head}}</p>
 		</div>
