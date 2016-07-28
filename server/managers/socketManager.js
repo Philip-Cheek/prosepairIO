@@ -4,7 +4,6 @@ module.exports = function(server){
 
 	io.sockets.on('connection', function(socket){
 		console.log('User ' + socket.id + ' connected');
-
 	});
 
 	return io

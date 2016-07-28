@@ -1,4 +1,68 @@
 *{
 	padding:0;
 	font-family: "Lucida Console", Monaco, monospace;
+	margin:0;
 }
+
+#outerContainer{
+	position:relative;
+}
+#header{
+	height:6em;
+	width: 100%;
+	border-top:4px solid;
+	border-bottom:4px solid;
+	margin:0 auto;
+}
+	#header h1{
+		text-align: center;
+		margin-top:1em;
+	}
+
+
+#menuRow{
+	border: 2px dashed #444;
+    height: 4em;
+    text-align: justify;
+    -ms-text-justify: distribute-all-lines;
+    text-justify: distribute-all-lines;
+    word-spacing:-10px;
+    max-width:42em;
+    min-width: 26em;
+    margin:0 auto;
+}
+	.menuItem{
+		width: 6.5em;
+    	height: 4em;
+    	vertical-align: top;
+    	display: inline-block;
+    	*display: inline;
+    	zoom: 1;
+    	cursor:pointer;
+	}
+		#library, #login{
+			background-color: gray;
+		}
+
+		#proseGo, #moreMenu{
+			background-color: lightgray;
+		}
+
+		.menuIcon{
+			font-size: 3.3em;
+			text-align: center;
+			margin-top: .12em;
+		}
+
+		.menuAlt{
+			font-size:1em;
+			margin-top:1em;
+			text-align:center;
+		}
+
+	#stretch {
+    	width: 100%;
+    	display: inline-block;
+    	font-size: 0;
+    	line-height: 0
+	}

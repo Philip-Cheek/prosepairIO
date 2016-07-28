@@ -1,9 +1,11 @@
 <html>
 	<head>
 		<link rel='stylesheet' type='text/css' href='resources/styles.css'>
+		<link rel="stylesheet" type='text/css' href='bower_components/font-awesome/css/font-awesome.min.css'>
 
 		<script type='text/javascript' src ='bower_components/angular/angular.min.js'></script>
 		<script type='text/javascript' src ='bower_components/angular-route/angular-route.min.js'></script>
+
 		<script type='text/javascript' src='/socket.io/socket.io.js'></script>
 
 		<script type='text/javascript' src='angular/app.js'></script>
@@ -18,8 +20,31 @@
 		<meta name='author' conent='Philip Cheek'>
 	</head>
 	<body ng-app='prosePair'>
-		<div ng-controller = "omniOptionsController">
-			<p>This should be: {{head}}</p>
+		<div id = "outerContainer">
+			<div ng-controller = "omniOptionsController">
+				<div id = "header">
+					<h1>Prose Pair I/O</h1>
+				</div>
+				<div id = 'menuRow'>
+					<div class = "menuItem" id ='library' ng-mouseover = "hoverU = true" ng-mouseleave = "hoverU = false">
+						<p class = "menuIcon" ng-if = "!hoverU">
+							<i class = 'fa fa-university' aria-hidden='true'></i>
+						</p>
+						<p ng-if = "hoverU" class = "menuAlt">Browse</p>
+					</div>
+					<div class = "menuItem" id="proseGo" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
+						<p class = "menuIcon" ng-if="!hoverP">
+							<i class="fa fa-pencil" aria-hidden="true"></i>
+						</p>
+						<p  ng-if = "hoverP" class = "menuAlt">Prose Go</p>
+					</div>
+					<div class = "menuItem" id="logIn">
+					</div>
+					<div class = "menuItem" id="moreMenu">
+					</div>
+					<span id = "stretch"></span>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
