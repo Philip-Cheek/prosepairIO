@@ -1,4 +1,4 @@
-angular.module('prosePair').controller('connectOptionsController', function($scope, $location, socketFactory, peerService){
+angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, socketFactory, peerService){
 	var optionsTimer;
 
 	$scope.prosepair = true;
@@ -32,7 +32,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 
 	socketFactory.on('successConnect', function(roomList){
 		if (optionsTimer){
-			clearInterval(optionsTimer);
+			$interval.cancel(optionsTimer);
 		}
 		var url;
 
@@ -58,31 +58,32 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		setLoadingText(loadingString);
 	});
 
-	function setLoadingText(loadingString, interval){
-		if (!interval){
-			interval = 400;
+	function setLoadingText(loadingString, intervalLength){
+		if (!intervalLength){
+			intervalLength = 400;
 		}
 
 		$scope.options.loading = true;
 
 		if (optionsTimer){
-			clearInterval(optionsTimer);
+			$interval.cancel(optionsTimer);
 		}
 
 		$scope.loadingText = loadingString;
 
-		optionsTimer = setInterval(function(){
+		optionsTimer = $interval(function(){
 			var idx = $scope.loadingText.length - 1;
 			while ($scope.loadingText[idx] == "." && idx > $scope.loadingText.length - 4){
 				idx--;
 			}
 
+			console.log("loadingText", $scope.loadingText)
 			if (idx == $scope.loadingText.length - 4){
-				$scope.loadingString.slice(0, idx)
+				$scope.loadingText = $scope.loadingText.slice(0, idx + 1)
 			}else{
-				$scope.loadingString += "."
+				$scope.loadingText += "."
 			}
 
-		}, interval);
+		}, intervalLength);
 	}
 });

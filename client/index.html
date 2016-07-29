@@ -9,6 +9,7 @@
 		<script type='text/javascript' src='/socket.io/socket.io.js'></script>
 
 		<script type='text/javascript' src='angular/app.js'></script>
+		<script type='text/javascript' src='angular/directives/dialogDirective.js'></script>
 		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
 		<script type='text/javascript' src='angular/services/peerService.js'></script>
 		<script type='text/javascript' src ='angular/controllers/omniOptionsController.js'></script>
@@ -46,6 +47,14 @@
 					</div>
 					<span id = "stretch"></span>
 				</div>
+				<div id = "thing">
+					<h3>Pop up Test</h3>
+					<button ng-click = "testModal()">pop up</button>
+					<dialog-directive show='modalShown' width='750px' height='60%'>
+ 						 <p>Modal Content Goes here<p>
+					</dialog-directive>
+
+  				</div>
 			</div>
 			<div class = 'partial' ng-view = "">
 			</div>

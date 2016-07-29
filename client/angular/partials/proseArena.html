@@ -1,0 +1,17 @@
+<div ng-controller='proseArenaController'>
+	<div id = 'buttonBox'>
+		<button id = "next" class = "butt">Next</button>
+	</div>
+	<div id = 'title'>
+		<input ng-disabled = "!title" type = "text" ng-model = "title" value = "Enter Title Here"...>
+	</div>
+	<div id = 'proseBox'>
+	</div>
+
+	<div ng-if = "pair" id = "peercomment"></div>
+		<p>You have been connected with {{peer}}.
+	<div ng-if = "!pair" id = "peerList">
+		<p ng-repeat = "p in peers">{{p}}</p>
+	</div>
+
+</div>
