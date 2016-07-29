@@ -1,13 +1,14 @@
 angular.module('prosePair').factory('socketFactory', ['$rootScope', function ($rootScope) {
-  var socket = io.connect();
+    var socket = io.connect();
 	var factory = {};
 
 	factory.on = function(eventName, callback){
-			socket.on(eventName, callback);
+		socket.on(eventName, callback);
 	}
 
 	factory.emit = function(eventName, data){
-			socket.emit(eventName, data);
+		console.log(eventName)
+		socket.emit(eventName, data);
 	}
 
   return factory;

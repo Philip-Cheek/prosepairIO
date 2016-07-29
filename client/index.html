@@ -10,7 +10,9 @@
 
 		<script type='text/javascript' src='angular/app.js'></script>
 		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
+		<script type='text/javascript' src='angular/services/peerService.js'></script>
 		<script type='text/javascript' src ='angular/controllers/omniOptionsController.js'></script>
+		<script type='text/javascript' src ='angular/controllers/connectOptionsController.js'></script>
 
 		<title>ProsePair I/O</title>
 
@@ -32,7 +34,7 @@
 						</p>
 						<p ng-if = "hoverU" class = "menuAlt">Browse</p>
 					</div>
-					<div class = "menuItem" id="proseGo" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
+					<div class = "menuItem" id="proseGo" ng-click = "omniSwitch(p)" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
 						<p class = "menuIcon" ng-if="!hoverP">
 							<i class="fa fa-pencil" aria-hidden="true"></i>
 						</p>
@@ -44,6 +46,8 @@
 					</div>
 					<span id = "stretch"></span>
 				</div>
+			</div>
+			<div class = 'partial' ng-view = "">
 			</div>
 		</div>
 	</body>
