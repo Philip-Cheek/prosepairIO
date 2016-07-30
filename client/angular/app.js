@@ -4,4 +4,7 @@ angular.module('prosePair', ['ngRoute'])
         	.when('/connect',{
             	templateUrl: 'angular/partials/connect.html'
     		})
+    		.when('/prose/:mode',{
+    			templateUrl: 'angular/partials/proseArena.html'
+    		})
 	}]);

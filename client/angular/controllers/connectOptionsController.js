@@ -28,21 +28,23 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			socketFactory.emit('connectProse', data)
 			setLoadingText('connecting')
 		}
-	}
+	};
 
 	socketFactory.on('successConnect', function(roomList){
+		console.log('success connect')
 		if (optionsTimer){
 			$interval.cancel(optionsTimer);
 		}
 		var url;
 
-		if (!$scope.prosePair){
+		if (!$scope.prosepair){
 			url = 'lightning'
 		}else{
 			url = "pair"
 		}
 
-		peerService.addPeers
+		peerService.addPeers(roomList)
+		$location.path('/prose/' + url)
 
 	});
 
@@ -77,11 +79,10 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 				idx--;
 			}
 
-			console.log("loadingText", $scope.loadingText)
 			if (idx == $scope.loadingText.length - 4){
-				$scope.loadingText = $scope.loadingText.slice(0, idx + 1)
+				$scope.loadingText = $scope.loadingText.slice(0, idx + 1);
 			}else{
-				$scope.loadingText += "."
+				$scope.loadingText += ".";
 			}
 
 		}, intervalLength);

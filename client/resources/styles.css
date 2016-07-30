@@ -109,3 +109,9 @@
 	  font-weight: bold;
 	  font-family: 'arial', 'sans-serif';
 	}
+
+#sentenceBox{
+  width:50em;
+  height:7em;
+  resize:none;
+}

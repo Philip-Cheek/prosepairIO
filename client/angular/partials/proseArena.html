@@ -8,10 +8,25 @@
 	<div id = 'proseBox'>
 	</div>
 
-	<div ng-if = "pair" id = "peercomment"></div>
-		<p>You have been connected with {{peer}}.
-	<div ng-if = "!pair" id = "peerList">
-		<p ng-repeat = "p in peers">{{p}}</p>
+	<div id = 'friendBox'>
+		<div ng-if = "mode == 'pair'" id = "peercomment"></div>
+			<p>You have been connected with {{peer}}.</p>
+		<div ng-if = "mode == 'lightning'" id = "peerList">
+			<p ng-repeat = "p in peers">{{p}}</p>
+		</div>
+	</div>
+
+	<div id = 'timeBox'>
+		<h4 id = 'time'>{{timeLeft}}</h4>
+	</div>
+
+	<div id = "enterArea">
+		<div id = "explanationArea">
+			<p id = "explanationText">{{explanationText}}</p>
+		</div>
+		<textarea id = "sentenceBox" ng-model = 'userSentence'></textarea>
+		<p id = "charLeft">{{charLeft}}</p>
+		<button id = "enter">Enter</button>
 	</div>
 
 </div>

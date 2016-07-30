@@ -30,20 +30,24 @@ clientManager.connectClient = function(data, socket, callback){
 	}
 
 	if (proceed){
-		var room = socket.id
-		socket.join(room)
+		var room = socket.id;
+		socket.join(room);
 		var roomList = [socket.id]
 
 		for (var i = 0; i < max; i ++){
-			var peer = clientManager[connectType].pop; 
+			var peer = clientManager[connectType].pop();
+			console.log('peer id', peer.id) 
 			var peerName = clientManager.allSocketsConnected[peer.id];
 			peer.join(room)
 			roomList.push(peer.id);
 		}
 
-		callback({'success':true, 'room': room, 'roomList': roomlist});
+		callback({'success':true, 'room': room, 'roomList': roomList});
 	}else{
-		clientManager[connectType].push(socket.id)
+		console.log(socket.id)
+		console.log('whaaat')
+		console.log(connectType)
+		clientManager[connectType].push(socket)
 		callback({'success':false})
 	}
 }

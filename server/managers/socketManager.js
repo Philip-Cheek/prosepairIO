@@ -16,7 +16,7 @@ module.exports = function(server){
 						nameList.push(clientManager.allSocketsConnected[info.roomList[i]]);
 					}
 
-					io.sockets.in(room).emit('successConnect', nameList)
+					io.sockets.in(info.room).emit('successConnect', nameList)
 				}else{
 					socket.emit('queued')
 				}
