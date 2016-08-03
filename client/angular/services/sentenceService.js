@@ -36,11 +36,22 @@ angular.module('prosePair').service('sentenceService', function(){
 				}
 			};
 
-			if (quoteOpen == false || (quoteOpen == true && !midway)) || (!twoSent)){
-				if (isEndingPunct(sentence[ch]) && isNotEllipsis(sentence, ch) && isNotDecimal(sentence, ch)) &&
-					isNotInitial(sentence, ch) && isLikelyNotFullStop(sentence, ch){
-					errors.push("Only one sentence at a time.");
-					twoSent = true;
+			if ((quoteOpen == false || (quoteOpen == true && !midway)) && (!twoSent)){
+				if (isEndingPunct(sentence[ch])){
+					console.log('we are endingPunct')
+					var isNotChecks = [isNotEllipsis, isNotDecimal, isNotInitial, isLikelyNotFullStop]
+					for (var run = 0; run < isNotChecks.length; run++){
+						if (isNotChecks[run](sentence, ch) == false){
+							break;
+						}
+
+						console.log('we are checking run', run)
+					}
+
+					if (run == isNotChecks.length){
+						errors.push("Only one sentence at a time.");
+						twoSent = true;
+					}
 				}
 			}
 		}
@@ -60,7 +71,7 @@ angular.module('prosePair').service('sentenceService', function(){
 
 	function isNotDecimal(sentence, index){
 		if (sentence.length >= 2 && index != sentence.length){
-			if (!isNaN(sentenc[index + 1])){
+			if (isNaN(sentence[index + 1])){
 				return false;
 			}
 		}
@@ -72,7 +83,8 @@ angular.module('prosePair').service('sentenceService', function(){
 		if (index == 1 || (sentence.length > 2 && (sentence[index - 2] == " " || sentence[index - 2] == "."))){
 			return /[A-Z]/.test(sentence[index - 1]);
 		}
-		return false;
+
+		return true;
 	}
 
 	function isLikelyNotFullStop(sentence, index){
@@ -85,7 +97,7 @@ angular.module('prosePair').service('sentenceService', function(){
 			if (sentence.length > titleLength){
 				checkSubStr = sentence.substring(sentence - titleLength, index + 1)
 				if (checkSubStr == titles[title]){
-					return true; 
+					return false; 
 				}
 			}
 		}
@@ -97,8 +109,8 @@ angular.module('prosePair').service('sentenceService', function(){
 			return true;
 		}
 
-		for (var inc = 0; < inc < 3; inc++){
-			if (sentence[index + inc]) != "."{
+		for (var inc = 0; inc < 3; inc++){
+			if (sentence[index + inc] != "."){
 				return true;
 			}
 		}
