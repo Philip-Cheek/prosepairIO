@@ -1,54 +1,132 @@
 angular.module('prosePair').service('sentenceService', function(){
 	var service = {};
 
+
 	service.isValid = function(sentence, midway){
 		var errors = [];
 
 		if (!midway){
-			if (sentence.length > 115){
-				errors.push('Sentence exceeds character limit of 115');
-			}
-
-			if (sentence.length < 5){
-				errors.push('Your input has to be longer than that.')
-			}
+			testLength(errors);
+			midway = false;
 		}
 
+		isLikelyOneSentence(sentence, midway, errors);
+
+		if (errors.length > 0){
+			return {'status': false, 'errors': errors};
+		}
+			
+		return {'status': true};
+	}
+
+	function isLikelyOneSentence(sentence, midway, errors){
 		var quoteOpen = false;
-		contractionMostLikely = ["d", "l", "m", "r", "s", "t", "v"]
-		var endingPunct = [".", "!", "?"]
 		var twoSent = false;
-		for(var ch = 0; ch < sentence.length; ch++){
+
+		for(var ch = 0; ch < sentence.length - 1; ch++){
 			if (sentence[ch] == '"' || sentence[ch] == "'"){
 				if (ch < sentence.length - 1){
-					for (var c in contractionMostLikely){
-						if (sentence[ch + 1] == contractionMostLikely[c]){
-							break;
+					if (sentence[ch] == "'"){
+						if (isLikelyContraction(sentenc[ch + 1])){
+							quoteOpen = !quoteOpen;
 						}
-					}
-
-					if (c == contractionMostLikely.length){
+					}else{
 						quoteOpen = !quoteOpen;
 					}
 				}
 			};
 
-			for (var p in endingPunct){
-				if (sentence[ch] == endingPunct && ch < sentence.length - 2 && sentence[ch + 2] != "." && sentence[ch + 1] != "."){
-					if ((!quoteOpen || !midway) && (!twoSent){
-						errors.push("Only one sentence at a time.");
-						twoSent = true;
-					}
+			if (quoteOpen == false || (quoteOpen == true && !midway)) || (!twoSent)){
+				if (isEndingPunct(sentence[ch]) && isNotEllipsis(sentence, ch) && isNotDecimal(sentence, ch)) &&
+					isNotInitial(sentence, ch) && isLikelyNotFullStop(sentence, ch){
+					errors.push("Only one sentence at a time.");
+					twoSent = true;
 				}
 			}
-
-			if (errors.length > 0){
-				return {'status': false, 'errors': errors};
-			}
-			
-			return {'status': true};
 		}
 	}
 
+	function isEndingPunct(letter){
+		var endingPunct = [".", "!", "?"];
+
+		for (var punc in endingPunct){
+			if (endingPunct[punc] == letter){
+				return true;
+			}
+		};
+
+		return false;
+	}
+
+	function isNotDecimal(sentence, index){
+		if (sentence.length >= 2 && index != sentence.length){
+			if (!isNaN(sentenc[index + 1])){
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	function isNotInitial(sentence, index){
+		if (index == 1 || (sentence.length > 2 && (sentence[index - 2] == " " || sentence[index - 2] == "."))){
+			return /[A-Z]/.test(sentence[index - 1]);
+		}
+		return false;
+	}
+
+	function isLikelyNotFullStop(sentence, index){
+		var titles = ['Mr.', 'Mrs.', 'Dr.', "Snr.", "Prof.", "Ms.", "etc.", "Sgt.", "viz."];
+		var checkSubStr;
+		var titleLength;
+
+		for (var title in titles){
+			titleLength = titles[title].length
+			if (sentence.length > titleLength){
+				checkSubStr = sentence.substring(sentence - titleLength, index + 1)
+				if (checkSubStr == titles[title]){
+					return true; 
+				}
+			}
+		}
+
+		return true;
+	}
+	function isNotEllipsis(sentence, index){
+		if (index != sentence.length - 3){
+			return true;
+		}
+
+		for (var inc = 0; < inc < 3; inc++){
+			if (sentence[index + inc]) != "."{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function isLikelyContraction(nextLetter){
+		contractionMostLikely = ["d", "l", "m", "r", "s", "t", "v"];
+
+		for (var c in contractionMostLikely){
+			if (netLetter == contractionMostLikely[c]){
+				return true
+			}
+		};
+
+		return false;
+	}
+
+	function testLength(errorArr){
+		if (sentence.length > 115){
+			errorArr.push('Sentence exceeds character limit of 115');
+		}
+
+		if (sentence.length < 5){
+			errorArr.push('Your input has to be longer than that.')
+		};
+	}
+
 	return service;
-}
+});

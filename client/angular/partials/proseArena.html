@@ -24,7 +24,7 @@
 		<div id = "explanationArea">
 			<p id = "explanationText">{{explanationText}}</p>
 		</div>
-		<textarea id = "sentenceBox" ng-model = 'userSentence'></textarea>
+		<textarea id = "sentenceBox" ng-model = 'userSentence' ng-change = 'validateMidway()'></textarea>
 		<p id = "charLeft">{{charLeft}}</p>
 		<button id = "enter">Enter</button>
 	</div>
