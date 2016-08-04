@@ -7,7 +7,6 @@ angular.module('prosePair').factory('socketFactory', ['$rootScope', function ($r
 	}
 
 	factory.emit = function(eventName, data){
-		console.log(eventName)
 		socket.emit(eventName, data);
 	}
 

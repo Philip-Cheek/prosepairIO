@@ -1,7 +1,6 @@
 angular.module('prosePair').service('sentenceService', function(){
 	var service = {};
 
-
 	service.isValid = function(sentence, midway){
 		var errors = [];
 
@@ -27,8 +26,9 @@ angular.module('prosePair').service('sentenceService', function(){
 			if (sentence[ch] == '"' || sentence[ch] == "'"){
 				if (ch < sentence.length - 1){
 					if (sentence[ch] == "'"){
-						if (isLikelyContraction(sentenc[ch + 1])){
+						if (!(isLikelyContraction(sentence[ch + 1]))){
 							quoteOpen = !quoteOpen;
+							console.log(quoteOpen)
 						}
 					}else{
 						quoteOpen = !quoteOpen;
@@ -38,14 +38,14 @@ angular.module('prosePair').service('sentenceService', function(){
 
 			if ((quoteOpen == false || (quoteOpen == true && !midway)) && (!twoSent)){
 				if (isEndingPunct(sentence[ch])){
-					console.log('we are endingPunct')
-					var isNotChecks = [isNotEllipsis, isNotDecimal, isNotInitial, isLikelyNotFullStop]
+					console.log('we are endingPunct');
+					var isNotChecks = [isNotEllipsis, isNotDecimal, isNotInitial, isLikelyNotFullStop];
 					for (var run = 0; run < isNotChecks.length; run++){
 						if (isNotChecks[run](sentence, ch) == false){
 							break;
 						}
 
-						console.log('we are checking run', run)
+						console.log('we are checking run', run);
 					}
 
 					if (run == isNotChecks.length){
@@ -92,11 +92,12 @@ angular.module('prosePair').service('sentenceService', function(){
 		var checkSubStr;
 		var titleLength;
 
-		for (var title in titles){
+		for (var title = 0; title < titles.length; title++){
 			titleLength = titles[title].length
-			if (sentence.length > titleLength){
-				checkSubStr = sentence.substring(sentence - titleLength, index + 1)
-				if (checkSubStr == titles[title]){
+			if (index > titleLength){
+				checkSubStr = sentence.substring(index - titleLength, index + 1)
+				if (checkSubStr.trim() == titles[title].trim()){
+					console.log('we are the same')
 					return false; 
 				}
 			}
@@ -119,10 +120,12 @@ angular.module('prosePair').service('sentenceService', function(){
 	}
 
 	function isLikelyContraction(nextLetter){
-		contractionMostLikely = ["d", "l", "m", "r", "s", "t", "v"];
+		contractionMostLikely = ["d", "l", "m", "n", "r", "s", "t", "v"];
 
 		for (var c in contractionMostLikely){
-			if (netLetter == contractionMostLikely[c]){
+			console.log('checking next letter and cont', nextLetter, contractionMostLikely[c])
+			if (nextLetter == contractionMostLikely[c]){
+				console.log("we are are a match!")
 				return true
 			}
 		};

@@ -30,8 +30,8 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		}
 	};
 
-	socketFactory.on('successConnect', function(roomList){
-		console.log('success connect')
+	socketFactory.on('successConnect', function(info){
+		console.log('success connect butletsjust', info.nameList)
 		if (optionsTimer){
 			$interval.cancel(optionsTimer);
 		}
@@ -43,7 +43,9 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			url = "pair"
 		}
 
-		peerService.addPeers(roomList)
+		console.log('this should clue you in', info.nameList)
+
+		peerService.addPeersNTag(info.nameList, info.tag)
 		$location.path('/prose/' + url)
 
 	});
@@ -56,7 +58,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			partner = 'partner';
 		}
 
-		var loadingString = "Place in queue. Awaiting " + partner;
+		var loadingString = "Placed in queue. Awaiting " + partner;
 		setLoadingText(loadingString);
 	});
 

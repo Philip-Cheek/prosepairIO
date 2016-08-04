@@ -5,6 +5,7 @@ clientManager.allSocketsConnected = {};
 
 clientManager.pairQueue = [];
 clientManager.lightingQueue = [];
+clientManager.roomByTag = {};
 
 clientManager.connectClient = function(data, socket, callback){
 	if (!(data.name in clientManager.allUsersConnected )){
@@ -31,18 +32,22 @@ clientManager.connectClient = function(data, socket, callback){
 
 	if (proceed){
 		var room = socket.id;
+		var turn = clientManager.allSocketsConnected[socket.id];
+
 		socket.join(room);
-		var roomList = [socket.id]
+		var roomList = [data.name];
+		var roomTag = generateRoomTag();
 
 		for (var i = 0; i < max; i ++){
 			var peer = clientManager[connectType].pop();
 			console.log('peer id', peer.id) 
 			var peerName = clientManager.allSocketsConnected[peer.id];
 			peer.join(room)
-			roomList.push(peer.id);
+			roomList.push(peerName);
 		}
 
-		callback({'success':true, 'room': room, 'roomList': roomList});
+		clientManager.roomByTag[roomTag] = room;
+		callback({'success':true, 'room': room, 'roomList': roomList, 'turn': turn, 'roomTag': roomTag});
 	}else{
 		console.log(socket.id)
 		console.log('whaaat')
@@ -51,6 +56,24 @@ clientManager.connectClient = function(data, socket, callback){
 		callback({'success':false})
 	}
 }
+
+function generateRoomTag(){
+    var charList = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    var tag;
+
+    for (var finite = 0; finite < 800; finite++){
+    	tag = "";
+
+    	for (var c = 0; c < 8; c++){
+        	tag += charList.charAt(Math.floor(Math.random() * charList.length));
+    	}
+
+    	if (!(tag in clientManager.roomByTag)){
+    		return tag
+    	}
+    }
+}
+
 
 
 module.exports = clientManager

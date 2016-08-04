@@ -11,17 +11,33 @@ module.exports = function(server){
 			console.log('incoming data via socket', data.name)
 			clientManager.connectClient(data, socket, function(info){
 				if (info.success){
-					var nameList = [];
+					var  reInfo = {
+						'tag': info.roomTag,
+						'nameList': {}
+					};
+
 					for (var i in info.roomList){
-						nameList.push(clientManager.allSocketsConnected[info.roomList[i]]);
+						var roomie = info.roomList[i];
+
+
+						if (roomie == info.turn){
+							reInfo.nameList[roomie] = true;
+						}else{
+							reInfo.nameList[roomie] = false;
+						}
 					}
 
-					io.sockets.in(info.room).emit('successConnect', nameList)
+					io.sockets.in(info.room).emit('successConnect', reInfo);
 				}else{
-					socket.emit('queued')
+					socket.emit('queued');
 				}
 			})
 		});
+
+		socket.on("trigger next turn", function(info){
+			var roomForSure = clientManager.roomByTag[info.tag];
+			io.sockets.in(roomForSure).emit('turnChange', info.person)
+		})
 
 	});
 
