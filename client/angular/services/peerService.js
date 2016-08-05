@@ -15,12 +15,21 @@ angular.module('prosePair').service('peerService', function(){
 		roomies[peer] = turnStatus;
 	}
 
+	service.removePeer = function(peerName){
+		for (var peer in roomies){
+			if (peer == peerName){
+				delete roomies[peer];
+			}
+		}
+	}
+
 	service.turnChange = function(callback){
 		var roomiesArr = Object.keys(roomies);
 		var mIndex = roomiesArr.indexOf(me);
 		var personWhoseTurn;
-
-		if (mIndex > roomiesArr.length - 1){
+		console.log("just testing mindex", mIndex)
+		console.log("justTesting roomies",roomiesArr)
+		if (mIndex == roomiesArr.length - 1){
 			personWhoseTurn = roomiesArr[0];
 		}else{
 			personWhoseTurn = roomiesArr[mIndex + 1];
@@ -36,6 +45,10 @@ angular.module('prosePair').service('peerService', function(){
 		}
 
 		callback(personWhoseTurn, instanceTag)
+	}
+
+	service.showTag = function(){
+		return instanceTag;
 	}
 
 	service.getPeers = function(){

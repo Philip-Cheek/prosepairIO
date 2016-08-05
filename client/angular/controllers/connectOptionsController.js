@@ -43,8 +43,6 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			url = "pair"
 		}
 
-		console.log('this should clue you in', info.nameList)
-
 		peerService.addPeersNTag(info.nameList, info.tag)
 		$location.path('/prose/' + url)
 

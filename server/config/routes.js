@@ -1,5 +1,7 @@
+//var books = require('./../controllers/books.js')
+
 module.exports = function(app){
-	app.get('/', function(req, res){
-		return res.sendFile('../../client/index.html')
+	app.post('/saveBookEntry', function(req, res){
+		console.log('save book entry reached')
 	})
 }

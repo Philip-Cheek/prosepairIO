@@ -2,10 +2,18 @@
 	<div id = 'buttonBox'>
 		<button id = "next" class = "butt">Next</button>
 	</div>
-	<div id = 'title'>
-		Title <input ng-disabled = "!title" type = "text" ng-model = "title" value = "Enter Title Here"...>
-	</div>
+	<div id = 'titleBox'>
+		<div id = 'title'>
+			Title: <input ng-disabled = "!bookText || bookText.length < 220" type = "text" ng-model = "title" value = "Enter Title Here"...>
+		</div>
+		<div id = "titlePoll" ng-if = "privatePoll">
+			<button><i class="fa fa-times" aria-hidden="true" ng-click = 'titlePoll(false)'></i></button>
+			<button><i class="fa fa-check" aria-hidden="true" ng-click = 'titlePoll(true)'></i></button>
+		</div>
+
+
 	<div id = 'proseBox'>
+		<p>{{bookText}}</p>
 	</div>
 
 	<div id = 'friendBox'>
@@ -24,9 +32,13 @@
 		<div id = "explanationArea">
 			<p id = "explanationText">{{explanationText}}</p>
 		</div>
-		<textarea id = "sentenceBox" ng-model = 'userSentence' ng-change = 'validateMidway()'></textarea>
-		<p id = "charLeft">{{charLeft}}</p>
-		<button id = "enter">Enter</button>
+		<div id = "explanPoll" ng-if = "openPoll">
+			<button><i ng-click = "pollAnswer('nay')"class="fa fa-times" aria-hidden="true"></i></button>
+			<button ng-click="pollAnswer('yay')"><i class="fa fa-check" aria-hidden="true"></i></button>
+		</div>
+		<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'userSentence' ng-change = 'userTyping()'></textarea>
+		<p id = "charLeft">{{charLeft}} characters left</p>
+		<button id = "enter" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">Enter</button>
 	</div>
 
 </div>

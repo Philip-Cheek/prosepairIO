@@ -5,7 +5,12 @@ angular.module('prosePair').service('sentenceService', function(){
 		var errors = [];
 
 		if (!midway){
-			testLength(errors);
+			testLength(sentence, errors);
+			var lastLetter = sentence[sentence.length - 1]
+			if (!isEndingPunct(lastLetter)){
+				errors.push("You must punctuate your sentence");
+			}
+
 			midway = false;
 		}
 
@@ -88,7 +93,7 @@ angular.module('prosePair').service('sentenceService', function(){
 	}
 
 	function isLikelyNotFullStop(sentence, index){
-		var titles = ['Mr.', 'Mrs.', 'Dr.', "Snr.", "Prof.", "Ms.", "etc.", "Sgt.", "viz."];
+		var titles = ['Mr.', 'Mrs.', 'Dr.', "Snr.", "Sr.", "Prof.", "Ms.", "etc.", "Sgt.", "viz."];
 		var checkSubStr;
 		var titleLength;
 
@@ -133,7 +138,7 @@ angular.module('prosePair').service('sentenceService', function(){
 		return false;
 	}
 
-	function testLength(errorArr){
+	function testLength(sentence, errorArr){
 		if (sentence.length > 115){
 			errorArr.push('Sentence exceeds character limit of 115');
 		}
