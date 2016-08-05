@@ -4,7 +4,7 @@
 	</div>
 	<div id = 'titleBox'>
 		<div id = 'title'>
-			Title: <input ng-disabled = "!bookText || bookText.length < 220" type = "text" ng-model = "title" value = "Enter Title Here"...>
+			Title: <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
 		</div>
 		<div id = "titlePoll" ng-if = "privatePoll">
 			<button><i class="fa fa-times" aria-hidden="true" ng-click = 'titlePoll(false)'></i></button>

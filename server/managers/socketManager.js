@@ -46,6 +46,7 @@ module.exports = function(server){
 		});
 
 		socket.on("titleBeingChanged", function(info){
+			console.log('title is being changed')
 			var roomForSure = clientManager.roomByTag[info.tag];
 			socket.broadcast.to(roomForSure).emit("titleChangedByOther", info);
 		});

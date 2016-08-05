@@ -10,7 +10,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 
-
 	//Listen for Socket Emition From Server
 
 	socketFactory.on('turnChange', function(info){
@@ -25,7 +24,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		docTitleExclaim();
 		setTimeLeftFromTop();
 
-		if ($scope.bookText.length > 270 && !$scope.titleAllowed){
+		console.log($scope.bookText.length)
+		if ($scope.bookText.length > 10 && !$scope.titleAllowed){
 			$scope.titleAllowed = true; 
 		}
 
@@ -69,10 +69,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	});
 
 
-	socketFactory.on("titleBeingChanged", function(info){
-		$scope.title = info.text;
+	socketFactory.on("titleChangedByOther", function(info){
 		$scope.titleAllowed = false;
-		determineExplanationText('titleBeingChanged', info.person);
+		$scope.title = info.titleText;
+		$scope.explanationText = info.person + " is trying out a Title.";
+
+		$timeout.cancel(explanationPromise);
+		explanationPromise = $timeout(function(){
+			determineExplanationText('turn');
+			$scope.titleAllowed = true;
+		},1500)
 	});
 
 	socketFactory.on('peerLeft'), function(peerName){
@@ -80,32 +86,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	}
 
 	socketFactory.on('pollTitle', function(info){
+		$scope.openPoll = true;
 		if (info.submitStatus){
-			$scope.openPoll = true;
-			$scope.pollTime = 12;
-
-			pollTimer = $interval(function(){
-				if ($scope.pollTime <= 0){
-					$scope.openPoll = false;
-
-					var person;
-
-					if ($scope.mode == 'pair'){
-						if ($scope.myTurn){
-							person = peer.revealMyself();
-						}else{
-							person = $scope.peer + "'s";
-						}
-
-					}
-
-					$interval.cancel(pollTimer);
-					$scope.explanationText = "It is " + person + " turn.";
-				}
-
-				$scope.pollTime--;
-			}, 1000);
-
+			setPolltimer();
 			determineExplanationText('titlePoll', info)
 		}else{
 			determineExplanationText('turn')
@@ -118,6 +101,31 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Functions Triggered By DOM
 
+	function setPolltimer(){
+		$scope.openPoll = true;
+		$scope.pollTime = 12;
+		pollTimer = $interval(function(){
+			if ($scope.pollTime <= 0){
+				$scope.openPoll = false;
+
+				var person;
+
+				if ($scope.mode == 'pair'){
+					if ($scope.myTurn){
+						person = peer.revealMyself();
+					}else{
+						person = $scope.peer + "'s";
+					}
+
+				}
+
+				$interval.cancel(pollTimer);
+				$scope.explanationText = "It is " + person + " turn.";
+			}
+
+			$scope.pollTime--;
+		}, 1000);
+	}
 
 	$scope.userTyping = function(){
 		socketFactory.emit("userType", peerService.showTag());
@@ -137,7 +145,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		validateSentence(false);
 
 		if ($scope.validEntry){
-			if (!$scope.title || $scope.title.length < 5){
+			if (!$scope.title || $scope.title.length < 50){
 				var titleErr;
 				if (!$scope.title){
 					titleErr = "There must be an agreed upon title"
@@ -151,29 +159,35 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	}
 
  	$scope.titleChanging = function(){
- 		var info = {
- 			'titleText': $scope.title,
- 			'tag': peerService.showTag(),
- 			'person': peerService.revealMyself()
- 		}
+ 		console.log("HeyWE ARE DOING some neat Stuff")
+ 		if ($scope.titleAllowed){
+			var info = {
+				'titleText': $scope.title,
+				'tag': peerService.showTag(),
+				'person': peerService.revealMyself()
+			}
 
- 		$scope.privatePoll = true;
- 		socketFactory.emit("titleBeingChanged", info)
+			$scope.privatePoll = true;
+			socketFactory.emit("titleBeingChanged", info)
+		}else{
+			console.log('title is not allowed for whatever reason!')
+		}
  	}
 
 
  	$scope.titlePoll = function(submit){
+ 		console.log('what is submit', submit)
  		if (!submit){
  			$scope.title = "";
- 		}else{
-	 		info = {
-	 			'submitStatus': submit,
-	 			'person': peerService.revealMyself(),
-	 			'tag': peerService.showTag()
-	 		}
+ 		};
 
-	 		socketFactory.emit('titleUpdate', info);
-	 	}
+ 		info = {
+ 			'submitStatus': submit,
+ 			'person': peerService.revealMyself(),
+ 			'tag': peerService.showTag()
+ 		}
+
+ 		socketFactory.emit('titleUpdate', info);
  	}
 
  	$scope.pollAnswer = function(answer){
@@ -223,7 +237,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.charLeft = 115;
 		$scope.bookText = "";
 
-		$scope.titleByOther = false;
+		$scope.titleAllowed = false;
 		$scope.privatePoll = false;
 		$scope.openPoll = false;
 
@@ -248,7 +262,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		if (!time){
-			time = 5;
+			time = 75;
 		}
 
 		$scope.timeLeft = time;
@@ -334,18 +348,15 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			$scope.explanationText = "Time limit reached";
 		}else if (reason == 'error'){
 			$scope.explanationText = info;
-		}else if (reason == 'titleBeingChanged'){
-			resetExplanationLater(turnDefault.join(person + "'s"), 600, function(){
-				$scope.titleByOther = false;
-			});
-
-			$scope.explanationText = info + " is entering a title";
+		}else if (reason == 'titlePoll'){
+			$scope.explanationText = info.person + " would like to change the title to " + info.titleText;
 		}
 	}
 
 
 	function concedeTurn(reason, text, notMe){
 		$scope.myTurn = false;
+		$scope.userSentence = "";
 
 		if (reason == 'ranOutOfTime'){
 			determineExplanationText('time')
