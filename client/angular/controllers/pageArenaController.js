@@ -13,17 +13,23 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Listen for Socket Emition From Server
 
-
 	socketFactory.on('turnChange', function(info){
-		console.log("we are on turn change, let\'s look at info", info)
+		$timeout.cancel(explanationPromise);
+
 		if (info.person == peerService.revealMyself()){
 			$scope.myTurn = true;
+		}else{
+			$scope.myTurn = false;
 		}
 
 		docTitleExclaim();
 		setTimeLeftFromTop();
 
-		if (info.reason != "ranOutOfTime"){
+		if ($scope.bookText.length > 270 && !$scope.titleAllowed){
+			$scope.titleAllowed = true; 
+		}
+
+		if (info.reason != "ranOutOfTime" || info.text != peerService.revealMyself()){
 			var textToAdd = info.text;
 
 			if ($scope.myTurn){
@@ -37,19 +43,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}
 
 			$scope.bookText += textToAdd;
-			console.log('testing explanatin text', $scope.explanationText)
-		}else if (!$scope.myTurn){
-			console.log("this shold almost never be called")
-			$scope.explanationText = "It is " + info.person + "'s turn.";
+
+		}else if (!$scope.myTurn && peerService.revealMyself() == info.text){
+			$scope.$apply(function(){
+				$timeout(function(){
+					$scope.explanationText = "It is " + info.person + "'s turn.";
+				}, 1600);
+			});
 		}
 
 	});
 
-
 	socketFactory.on("otherUserIsTyping", function(){
 		var personTyping;
 
-		if ($scope.mode == 'pair'){
+		if ($scope.mode == 'pair' && !$scope.myTurns){
 			personTyping = $scope.peer;
 		}
 
@@ -63,7 +71,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	socketFactory.on("titleBeingChanged", function(info){
 		$scope.title = info.text;
-		$scope.titleByOther = true;
+		$scope.titleAllowed = false;
 		determineExplanationText('titleBeingChanged', info.person);
 	});
 
@@ -119,11 +127,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	$scope.submitTextChunk = function(){
 		validateSentence(false);
-		console.log("will this work")
 		if ($scope.validEntry){
 			concedeTurn('sentenceSubmit', $scope.userSentence)
-		}else{
-			console.log("what")
 		}
 	}
 
@@ -197,12 +202,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		var validCheck = sentenceService.isValid($scope.userSentence, midWayStatus);
-		console.log('this will be valid check',validCheck)
 		$scope.validEntry = validCheck.status;
 		if (!$scope.validEntry){
 			if (!mostPressingError){
 				mostPressingError = validCheck.errors[validCheck.errors.length - 1]
 			}
+
 			determineExplanationText('error', mostPressingError)
 		}else{
 			determineExplanationText('turn')
@@ -243,7 +248,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		if (!time){
-			time = 75;
+			time = 5;
 		}
 
 		$scope.timeLeft = time;
@@ -252,7 +257,11 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			if ($scope.timeLeft > 0){
 				$scope.timeLeft -= 1;
 			}else{
-				concedeTurn('ranOutOfTime');
+				$interval.cancel(countDown);
+
+				if ($scope.myTurn == true){
+					concedeTurn('ranOutOfTime');
+				};
 			}
 
 		}, 1000)
@@ -263,9 +272,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		var exclaim = "(!)"
 		var currentTitle = document.title;
 
-		if (!$scope.myTurn && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length).trim() == exclaim.trim()){
+	
+		if (!$scope.myTurn && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) == exclaim){
 			document.title = currentTitle.substring(exclaim.length + 1, currentTitle.length);
-		}else if ($scope.myTurn){
+		}else if ($scope.myTurn && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) != exclaim){
 			document.title = exclaim + " " + currentTitle;
 		}
 
@@ -313,16 +323,14 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			person = $scope.peer;
 		};
 
+
 		if (reason == "turn"){
-			console.log('our REAsoning is very Much Turn', $scope.myTurn)
 			if ($scope.myTurn){
 				$scope.explanationText = turnDefault.join("your")
 			}else if ($scope.mode == 'pair'){
 				$scope.explanationText = turnDefault.join(person + "'s");
 			}
 		}else if (reason == 'time'){
-			console.log('our REAsoning time for some freaking reason!!', $scope.myTurn)
-			resetExplanationLater(false)
 			$scope.explanationText = "Time limit reached";
 		}else if (reason == 'error'){
 			$scope.explanationText = info;
@@ -345,7 +353,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		peerService.turnChange(function(personForTurn, roomTag){
-			console.log('personForTurns', personForTurn)
 			var info = {
 				'person': personForTurn,
 				'tag': roomTag,

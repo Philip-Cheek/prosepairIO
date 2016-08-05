@@ -33,7 +33,6 @@ angular.module('prosePair').service('sentenceService', function(){
 					if (sentence[ch] == "'"){
 						if (!(isLikelyContraction(sentence[ch + 1]))){
 							quoteOpen = !quoteOpen;
-							console.log(quoteOpen)
 						}
 					}else{
 						quoteOpen = !quoteOpen;
@@ -43,14 +42,12 @@ angular.module('prosePair').service('sentenceService', function(){
 
 			if ((quoteOpen == false || (quoteOpen == true && !midway)) && (!twoSent)){
 				if (isEndingPunct(sentence[ch])){
-					console.log('we are endingPunct');
 					var isNotChecks = [isNotEllipsis, isNotDecimal, isNotInitial, isLikelyNotFullStop];
 					for (var run = 0; run < isNotChecks.length; run++){
 						if (isNotChecks[run](sentence, ch) == false){
 							break;
 						}
 
-						console.log('we are checking run', run);
 					}
 
 					if (run == isNotChecks.length){
@@ -102,7 +99,6 @@ angular.module('prosePair').service('sentenceService', function(){
 			if (index > titleLength){
 				checkSubStr = sentence.substring(index - titleLength, index + 1)
 				if (checkSubStr.trim() == titles[title].trim()){
-					console.log('we are the same')
 					return false; 
 				}
 			}
@@ -128,9 +124,7 @@ angular.module('prosePair').service('sentenceService', function(){
 		contractionMostLikely = ["d", "l", "m", "n", "r", "s", "t", "v"];
 
 		for (var c in contractionMostLikely){
-			console.log('checking next letter and cont', nextLetter, contractionMostLikely[c])
 			if (nextLetter == contractionMostLikely[c]){
-				console.log("we are are a match!")
 				return true
 			}
 		};

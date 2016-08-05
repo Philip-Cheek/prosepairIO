@@ -35,6 +35,7 @@ module.exports = function(server){
 		});
 
 		socket.on("trigger next turn", function(info){
+			console.log("trigger next turn hit!", info.text)
 			var roomForSure = clientManager.roomByTag[info.tag];
 			io.sockets.in(roomForSure).emit('turnChange', info)
 		});
