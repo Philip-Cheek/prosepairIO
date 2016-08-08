@@ -7,6 +7,7 @@
 			Title: <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
 		</div>
 		<div id = "titlePoll" ng-if = "privatePoll">
+			{{titleLeft}} characters left;
 			<button><i class="fa fa-times" aria-hidden="true" ng-click = 'titlePoll(false)'></i></button>
 			<button><i class="fa fa-check" aria-hidden="true" ng-click = 'titlePoll(true)'></i></button>
 		</div>
@@ -32,9 +33,10 @@
 		<div id = "explanationArea">
 			<p id = "explanationText">{{explanationText}}</p>
 		</div>
-		<div id = "explanPoll" ng-if = "openPoll">
-			<button><i ng-click = "pollAnswer('nay')"class="fa fa-times" aria-hidden="true"></i></button>
-			<button ng-click="pollAnswer('yay')"><i class="fa fa-check" aria-hidden="true"></i></button>
+		<div id = "explainPoll" ng-if = "openPoll">
+			<p>You have {{pollTime}}s to answer.</p>
+			<button><i ng-click = "pollAnswer(false)"class="fa fa-times" aria-hidden="true"></i></button>
+			<button ng-click="pollAnswer(true)"><i class="fa fa-check" aria-hidden="true"></i></button>
 		</div>
 		<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'userSentence' ng-change = 'userTyping()'></textarea>
 		<p id = "charLeft">{{charLeft}} characters left</p>

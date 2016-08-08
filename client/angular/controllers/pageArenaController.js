@@ -1,10 +1,19 @@
 angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, peerService, bookFactory, sentenceService, socketFactory){
-	//Initialize Arena App
+
+
+	//Controller-wide timers and bool
 
 
 	var countDown;
 	var explanationPromise;
 	var pollTimer;
+	var titleConfirm = false;
+
+
+
+
+	//Initialize Arena App;
+
 
 	initArena();
 
@@ -24,8 +33,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		docTitleExclaim();
 		setTimeLeftFromTop();
 
-		console.log($scope.bookText.length)
-		if ($scope.bookText.length > 10 && !$scope.titleAllowed){
+		if ($scope.bookText.length > 10 && !$scope.titleAllowed && !titleConfirm){
 			$scope.titleAllowed = true; 
 		}
 
@@ -53,6 +61,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 	});
+
+	$scope.$watch('openPoll', function(){
+		console.log($scope.openPoll);
+	})
 
 	socketFactory.on("otherUserIsTyping", function(){
 		var personTyping;
@@ -86,10 +98,17 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	}
 
 	socketFactory.on('pollTitle', function(info){
-		$scope.openPoll = true;
+		var otherPerson = info.person != peerService.revealMyself();
+		$scope.titleOwner = !otherPerson;
+
 		if (info.submitStatus){
-			setPolltimer();
-			determineExplanationText('titlePoll', info)
+
+			if (otherPerson){
+				$timeout.cancel(explanationPromise);
+				determineExplanationText('titlePoll', info);
+			}
+			
+			setPolltimer(otherPerson);
 		}else{
 			determineExplanationText('turn')
 			$scope.openPoll = false; 
@@ -101,31 +120,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Functions Triggered By DOM
 
-	function setPolltimer(){
-		$scope.openPoll = true;
-		$scope.pollTime = 12;
-		pollTimer = $interval(function(){
-			if ($scope.pollTime <= 0){
-				$scope.openPoll = false;
-
-				var person;
-
-				if ($scope.mode == 'pair'){
-					if ($scope.myTurn){
-						person = peer.revealMyself();
-					}else{
-						person = $scope.peer + "'s";
-					}
-
-				}
-
-				$interval.cancel(pollTimer);
-				$scope.explanationText = "It is " + person + " turn.";
-			}
-
-			$scope.pollTime--;
-		}, 1000);
-	}
 
 	$scope.userTyping = function(){
 		socketFactory.emit("userType", peerService.showTag());
@@ -158,8 +152,15 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		};
 	}
 
+
  	$scope.titleChanging = function(){
- 		console.log("HeyWE ARE DOING some neat Stuff")
+
+ 		if ($scope.title.length > 30){
+ 			$scope.title = $scope.title.slice(0,30);
+ 		}
+
+ 		$scope.titleLeft = 30 - $scope.title.length;
+ 
  		if ($scope.titleAllowed){
 			var info = {
 				'titleText': $scope.title,
@@ -175,13 +176,23 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	}
 
 
+ 	$scope.finPoll = function(submit){
+ 		determineExplanationText('finSubmit');
+ 	}
+
+
  	$scope.titlePoll = function(submit){
+ 		$scope.privatePoll = false;
+ 		$scope.titleAllowed = false;
+
  		console.log('what is submit', submit)
  		if (!submit){
  			$scope.title = "";
+ 		}else{
+ 			determineExplanationText('privatePoll')
  		};
 
- 		info = {
+  		info = {
  			'submitStatus': submit,
  			'person': peerService.revealMyself(),
  			'tag': peerService.showTag()
@@ -190,8 +201,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		socketFactory.emit('titleUpdate', info);
  	}
 
- 	$scope.pollAnswer = function(answer){
- 		socketFactory.emit('')
+ 	$scope.pollAnswer = function(confirm){
+ 		if (confirm){
+ 			$scope.titleConfirm = true;
+ 			$scope.titleAllowed = false;
+ 		}else{
+ 			var bool = !$scope.titleOwner;
+ 			rejectTitle(bool);
+ 			$scope.titleOwner = false;
+ 		}
+ 		
  	}
 
 
@@ -209,9 +228,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		$scope.charLeft = 115 - $scope.userSentence.length
-		if ($scope.charLeft == 0){
+		if ($scope.charLeft < 0){
 			$scope.validEntry = false;
-			$scope.mostPressingError = ['Maximum character limit reached'];
+			$scope.mostPressingError = ['Maximum character limit exceeded'];
 			return;
 		}
 
@@ -236,6 +255,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.myTurn = peerService.getMyInitTurn();
 		$scope.charLeft = 115;
 		$scope.bookText = "";
+		$scope.titleLeft = 30;
 
 		$scope.titleAllowed = false;
 		$scope.privatePoll = false;
@@ -256,6 +276,61 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	}
 
 
+	function setPolltimer(otherPerson){
+		$scope.openPoll = otherPerson;
+		$scope.pollTime = 12;
+
+		pollTimer = $interval(function(){
+			
+			if ($scope.pollTime < 1){
+				rejectTitle(otherPerson)
+				$interval.cancel(pollTimer);
+			}
+
+			$scope.pollTime--;
+		}, 1000);
+	}
+
+
+	function rejectTitle(otherPerson){
+		$scope.title = ""
+
+		if (otherPerson){
+			$scope.openPoll = false;
+			$scope.explanationText = "It is " + personWhoseTurn(true) + " turn.";
+		}else{
+			$scope.title = ""
+
+			if ($scope.mode == 'pair'){
+				$scope.explanationText = "Title rejected by " + $scope.peer;
+			}else{
+				$scope.explanationText = "Title rejected by partners";
+			}
+
+			explanationPromise = $timeout(function(){
+				$scope.explanationText = "It is " + personWhoseTurn(true) + " turn.";
+			}, 1600);
+		}
+	}
+
+	function personWhoseTurn(turnTime){
+		if ($scope.mode == 'pair'){
+			if ($scope.myTurn){
+				if (!turnTime){
+					return peerService.revealMyself();
+				}else{
+					return "your"
+				}
+			}else{
+				if (!turnTime){
+					return $scope.peer
+				}else{
+					return $scope.peer + "'s"
+				}
+			}
+		}
+	}
+
 	function setTimeLeftFromTop(time){
 		if (countDown){
 			$interval.cancel(countDown);
@@ -273,6 +348,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}else{
 				$interval.cancel(countDown);
 
+				console.log("what is going on")
 				if ($scope.myTurn == true){
 					concedeTurn('ranOutOfTime');
 				};
@@ -304,25 +380,23 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			specInterval = 1600;
 		}
 
-		if (!specText){
-			specText = $scope.explanationText;
-		}
-
 		if (callback){
 			explanationPromise = $timeout(function(callback){
 				if (specText != false){
 					$scope.explanationText = specText;
 					callback()
 				}else{
-					$scope.determineExplanationText('turn');
+					determineExplanationText('turn');
 				}
 			}, specInterval)
 		}else{
+			console.log('this should work')
 			explanationPromise = $timeout(function(){
-				if (specText != false){
+				console.log('we are called at all')
+				if (specText){
 					$scope.explanationText = specText;
 				}else{
-					$scope.determineExplanationText('turn');
+					determineExplanationText('turn');
 				}
 			}, specInterval)
 		}
@@ -339,17 +413,44 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 		if (reason == "turn"){
+
 			if ($scope.myTurn){
 				$scope.explanationText = turnDefault.join("your")
 			}else if ($scope.mode == 'pair'){
 				$scope.explanationText = turnDefault.join(person + "'s");
 			}
+
 		}else if (reason == 'time'){
 			$scope.explanationText = "Time limit reached";
+
 		}else if (reason == 'error'){
 			$scope.explanationText = info;
+
 		}else if (reason == 'titlePoll'){
-			$scope.explanationText = info.person + " would like to change the title to " + info.titleText;
+			$scope.explanationText = info.person + " would like to change the title to " + $scope.title;
+
+		}else if (reason == 'privatePoll'){
+
+			var explan = ["Polling other "," on Title"]
+
+			if ($scope.mode == 'pair'){
+				$scope.explanationText = explan.join($scope.peer);
+			}else{
+				$scope.explanationText = explan.join("prose partners");
+			}
+
+			resetExplanationLater();
+
+		}else if (reason == 'finSubmit'){
+			var explan = ["Polling other "," on conclusion"];
+			
+			if ($scope.mode == 'pair'){
+				$scope.explanationText = explan.join($scope.peer);
+			}else{
+				$scope.explanationText = explan.join("prose partners");
+			}
+			
+			resetExplanationLater();
 		}
 	}
 

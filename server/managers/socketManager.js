@@ -52,8 +52,9 @@ module.exports = function(server){
 		});
 
 		socket.on('titleUpdate', function(info){
+			console.log('title UPdate reachedsss', info)
 			var roomForSure = clientManager.roomByTag[info.tag];
-			socket.broadcast.to(roomForSure).emit('pollTitle', info)
+			io.sockets.in(roomForSure).emit('pollTitle', info)
 		});
 
 		socket.on('disconnect', function(){
