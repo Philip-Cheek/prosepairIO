@@ -2,6 +2,7 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 
 	var service = {};
 	var explanationPromise;
+	var overlapText;
 
 
 	service.setExplanationText = function(reason, setScope, info){
@@ -9,18 +10,38 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 
 		switch(reason){
 			case 'turn':
+
 				setScope(determineTurnText());
+
+				if (overlapText && overlapText.length > 0){
+					handleTimeStampOverlap(setScope);
+				}
+
 				break;
+
 			case 'time':
 				setScope("Time limit reached");
-				this.resetExplanationLater(setScope);
+
+				if (overlapText && overlapText.length > 0){
+					handleTimeStampOverlap(setScope);
+				}else{
+					this.resetExplanationLater(setScope);
+				};
+
 				break;
+
 			case 'error':
 				console.log('we an error')
 				setScope(info);
 				break;
+				
+			case 'titleChange':
+				setScope(info + " is trying a Title.");
+				this.resetExplanationLater(setScope);
+				break;
 			case 'titlePoll':
-				setScope(info.person + " would like to change the title to " + info.title);
+				overlapText = info.person + " would like to change the title to " + info.title;
+				setScope(overlapText);
 				break;
 			case 'otherTyping':
 				console.log('wooHoo!!')
@@ -57,30 +78,20 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 	};
 
 
-	service.resetExplanationLater = function(setScope, specInterval, specText, callback){
+	service.resetExplanationLater = function(setScope, specInterval, callback){
 		$timeout.cancel(explanationPromise);
 		
-		if (!specInterval){
+		if (!specInterval || specInterval == 'default'){
 			specInterval = 1600;
 		}
 
 		if (callback){
 			explanationPromise = $timeout(function(){
-				if (specText != false){
-					setScope(specText);
-					callback();
-				}else{
-					service.setExplanationText('turn', setScope);
-				}
+				callback(setScope);
 			}, specInterval)
 		}else{
 			explanationPromise = $timeout(function(){
-				console.log('we are called at all')
-				if (specText){
-					setScope(specText);
-				}else{
-					service.setExplanationText('turn', setScope);
-				}
+				service.setExplanationText('turn', setScope);
 			}, specInterval)
 		}
 	};
@@ -119,6 +130,32 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 		}
 	}
 
+	function handleTimeStampOverlap(setScope){
+		currentTimeStamp = new Date();
+
+		service.resetExplanationLater(setScope, 'default', function(){
+
+			var futureTimeStamp = new Date();
+
+			var timeDiff = (futureTimeStamp - currentTimeStamp)
+			timeDiff /= 1000;
+
+			var seconds = Math.round(timeDiff % 60);
+
+			console.log('seconds elapsed', seconds);
+
+			if (seconds < 12){
+				console.log('overlapText', overlapText);
+				setScope(overlapText);
+				var overlapTime = (12 - seconds) * 1000
+				service.resetExplanationLater(setScope, overlapTime);
+			}else{
+				service.setExplanationText('turn');
+			};
+
+			overlapText = "";
+		});
+	}
 
 	function determineTurnText(){
 		var turnDefault = ["It is ", " turn"];
@@ -126,7 +163,7 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 		if (peerService.isMyTurn()){
 			return turnDefault.join("your")
 		}else{
-			return turnDefault.join(peerService.whoseTurn())
+			return turnDefault.join(peerService.whoseTurn() + "'s")
 		}
 	}
 

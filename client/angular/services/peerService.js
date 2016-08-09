@@ -7,12 +7,9 @@ angular.module('prosePair').service('peerService', function(){
 
 	var service = {};
 
-	service.manualSetTurn = function(person){
-		if (person == "me"){
-			personWhoseTurn = me;
-		}else{
-			personWhoseTurn = person;
-		}
+	service.setNextTurn = function(person, callback){
+		personWhoseTurn = person;
+		return personWhoseTurn == me;
 	};
 
 	service.whoseTurn = function(){
@@ -24,7 +21,6 @@ angular.module('prosePair').service('peerService', function(){
 	};
 
 	service.isMyTurn = function(){
-		console.log('let\'s investigate, personwhose turn should equal me sometimes', personWhoseTurn, me)
 		return personWhoseTurn == me;
 	};
 
@@ -40,7 +36,6 @@ angular.module('prosePair').service('peerService', function(){
 				personWhoseTurn = turn;
 			}
 		}
-		console.log('this might lead the roomie  way', roomies)
 	};
 
 	service.addPeer = function(peer, turnStatus){
@@ -58,8 +53,7 @@ angular.module('prosePair').service('peerService', function(){
 	service.turnChange = function(callback){
 		var roomiesArr = Object.keys(roomies);
 		var mIndex = roomiesArr.indexOf(me);
-		console.log("just testing mindex", mIndex)
-		console.log("justTesting roomies",roomiesArr)
+	
 		if (mIndex == roomiesArr.length - 1){
 			personWhoseTurn = roomiesArr[0];
 		}else{
@@ -91,15 +85,11 @@ angular.module('prosePair').service('peerService', function(){
 			}
 		};
 
-		console.log("lets look for missing peers,",peers)
-
 		return peers;
 	}
 
 	service.informMyself = function(mineSelf){
 		me = mineSelf;
-
-		console.log("let us CHECK ON MYSELFs", me)
 	}
 
 	service.revealMyself = function(){

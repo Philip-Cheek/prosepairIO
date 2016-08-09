@@ -10,11 +10,15 @@ angular.module('prosePair').service('pollService', function($interval){
 		timeLeft = 12;
 		scopeTime(timeLeft);
 
+		$interval.cancel(pollTimer);
 		pollTimer = $interval(function(){
 			
 			if (timeLeft < 1){
-				timeRanOut();
+				console.log('time rand out');
+				console.log('polTimerBefore', pollTimer);
 				$interval.cancel(pollTimer);
+				console.log('polltimerAfert', pollTimer);
+				timeRanOut();
 			}
 
 			timeLeft--;
@@ -37,9 +41,12 @@ angular.module('prosePair').service('pollService', function($interval){
 
 	service.handlePollResult = function(confirm, callback){
 		$interval.cancel(pollTimer);
+		console.log(pollTimer)
 
 		var tempPoll = currentPoll;
 		currentPoll = "";
+
+		console.log('tempPoll', tempPoll);
 
 		if (confirm){
 
@@ -50,6 +57,7 @@ angular.module('prosePair').service('pollService', function($interval){
  		}else{
 
  			if (tempPoll == 'title'){
+ 				console.log('we should reject title')
 	 			callback(rejectTitle());
 	 		}
 
@@ -69,10 +77,11 @@ angular.module('prosePair').service('pollService', function($interval){
 		var answerKey = {
 			'title': "",
 			'titleAllowed': true,
-	 		'openBool': false,
+	 		'openPoll': false,
 	 		'titleOwner': false
 		};
 
+		console.log(answerKey);
 	 	return answerKey;
 	}
 

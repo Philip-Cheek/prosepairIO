@@ -1,6 +1,4 @@
-angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, socketFactory, peerService){
-	var optionsTimer;
-
+angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, intervalFactory, socketFactory, peerService){
 	$scope.prosepair = true;
 	$scope.explanationText = "Select a Mode";
 	$scope.options = {
@@ -32,9 +30,8 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 
 	socketFactory.on('successConnect', function(info){
 		console.log('success connect butletsjust', info.nameList)
-		if (optionsTimer){
-			$interval.cancel(optionsTimer);
-		}
+		intervalFactory.cancelTimer('ellipsis');
+
 		var url;
 
 		if (!$scope.prosepair){
@@ -60,31 +57,13 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		setLoadingText(loadingString);
 	});
 
-	function setLoadingText(loadingString, intervalLength){
-		if (!intervalLength){
-			intervalLength = 400;
-		}
-
+	function setLoadingText(loadingString){
 		$scope.options.loading = true;
 
-		if (optionsTimer){
-			$interval.cancel(optionsTimer);
-		}
-
-		$scope.loadingText = loadingString;
-
-		optionsTimer = $interval(function(){
-			var idx = $scope.loadingText.length - 1;
-			while ($scope.loadingText[idx] == "." && idx > $scope.loadingText.length - 4){
-				idx--;
-			}
-
-			if (idx == $scope.loadingText.length - 4){
-				$scope.loadingText = $scope.loadingText.slice(0, idx + 1);
-			}else{
-				$scope.loadingText += ".";
-			}
-
-		}, intervalLength);
+		intervalFactory.setLoadingEllipsis(loadingString, function(text){
+			$scope.loadingText = text;
+		}, function(){
+			return $scope.loadingText;
+		})
 	}
 });
