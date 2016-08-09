@@ -1,4 +1,4 @@
-angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, peerService, pollService, bookFactory, sentenceService, socketFactory){
+angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, explanationService, peerService, pollService, bookFactory, sentenceService, socketFactory){
 
 
 	//Controller-wide timers and bool
@@ -23,8 +23,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	//Listen for Socket Emition From Server
 
 	socketFactory.on('turnChange', function(info){
-		$timeout.cancel(explanationPromise);
-
 		if (info.person == peerService.revealMyself()){
 			$scope.myTurn = true;
 		}else{
@@ -53,29 +51,30 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}
 
 			$scope.bookText += textToAdd;
-
-		}else if (!$scope.myTurn && peerService.revealMyself() == info.text){
-			$scope.$apply(function(){
-				$timeout(function(){
-					$scope.explanationText = "It is " + info.person + "'s turn.";
-				}, 1600);
-			});
 		}
+		// }"else if (!$scope.myTurn && peerService.revealMyself() == info.text){
+		// 			$scope.$apply(function(){
+		// 				$timeout(function(){
+		// 					$scope.explanationText = "It is " + info.person + "'s turn.";
+		// 				}, 1600);
+		// 			});"
+		// }
 
 	});
 
 	socketFactory.on("otherUserIsTyping", function(){
-		var personTyping;
+		setExplanationScope('otherTyping');
+		// var personTyping;
 
-		if ($scope.mode == 'pair' && !$scope.myTurns){
-			personTyping = $scope.peer;
-		}
+		// if ($scope.mode == 'pair' && !$scope.myTurns){
+		// 	personTyping = $scope.peer;
+		// }
 
-		if (!$scope.myTurn){
-			var text = "It is " + $scope.peer + "'s turn"
-			resetExplanationLater(text);
-			$scope.explanationText = personTyping + " is typing."
-		}
+		// if (!$scope.myTurn){
+		// 	var text = "It is " + $scope.peer + "'s turn"
+		// 	resetExplanationLater(text);
+		// 	$scope.explanationText = personTyping + " is typing."
+		// }
 	});
 
 
@@ -283,6 +282,17 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	//Worker Functions
 
 
+
+ 	function setExplanationScope(reason, info){
+ 		if (!info){
+ 			info = false;
+ 		}
+
+ 		explanationService.setExplanationText(reason, function(eText){
+ 			$scope.explanationText = eText;
+ 		}, info);
+ 	};
+
  	function handlePollResult(confirm){
  		if (confirm){
 
@@ -326,9 +336,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				mostPressingError = validCheck.errors[validCheck.errors.length - 1]
 			}
 
-			determineExplanationText('error', mostPressingError)
+			setExplanationScope('error', mostPressingError);
 		}else{
-			determineExplanationText('turn')
+			setExplanationScope('turn');
 		}
 	}
 
@@ -347,7 +357,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.openPoll = false;
 
 		getPeers();
-		determineExplanationText('turn')
+		setExplanationScope('turn');
 	}
 
 
@@ -420,7 +430,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		if (!time){
-			time = 75;
+			time = 10;
 		}
 
 		$scope.timeLeft = time;
@@ -574,7 +584,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.userSentence = "";
 
 		if (reason == 'ranOutOfTime'){
-			determineExplanationText('time')
+			setExplanationScope('time')
 			text = peerService.revealMyself();
 		}
 
