@@ -1,4 +1,4 @@
-angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, peerService, bookFactory, sentenceService, socketFactory){
+angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, peerService, pollService, bookFactory, sentenceService, socketFactory){
 
 
 	//Controller-wide timers and bool
@@ -8,6 +8,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	var explanationPromise;
 	var pollTimer;
 	var titleConfirm = false;
+	var currentPoll;
 
 
 
@@ -33,6 +34,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		docTitleExclaim();
 		setTimeLeftFromTop();
 
+		console.log('book text tlength', $scope.bookText.length)
 		if ($scope.bookText.length > 10 && !$scope.titleAllowed && !titleConfirm){
 			$scope.titleAllowed = true; 
 		}
@@ -62,10 +64,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	});
 
-	$scope.$watch('openPoll', function(){
-		console.log($scope.openPoll);
-	})
-
 	socketFactory.on("otherUserIsTyping", function(){
 		var personTyping;
 
@@ -81,6 +79,20 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	});
 
 
+	socketFactory.on('pollResults', function(info){
+		if (info.vote){
+			determineExplanationText(pollService.showCurrentPoll() + 'Confirm')
+		}else{
+			determineExplanationText(pollService.showCurrentPoll() + 'Rejected')
+		}
+		
+		pollService.handlePollResult(info.vote, function(answerKey){
+			for (var part in answerKey){
+				$scope[part] = answerKey[part];
+			}
+		});
+	})
+
 	socketFactory.on("titleChangedByOther", function(info){
 		$scope.titleAllowed = false;
 		$scope.title = info.titleText;
@@ -93,12 +105,32 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		},1500)
 	});
 
-	socketFactory.on('peerLeft'), function(peerName){
+
+	socketFactory.on('peerLeft', function(peerName){
 		peerService.peerLeft(peerName);
+	});
+
+
+	socketFactory.on('pollingFin'), function(info){
+		var otherPerson = info.person != peerService.revealMyself()
+		var currentPoll = 'fin'
+		pollService.setCurrentPoll('fin')
+
+		if (otherPerson){
+			$scope.openPoll = true;
+			$scope.explanationText = info.person + " wants to conclude this book.";
+		}
+
+		setPollTimer(otherPerson, function(){
+			rejectFin(otherPrerson);
+		});
 	}
+
 
 	socketFactory.on('pollTitle', function(info){
 		var otherPerson = info.person != peerService.revealMyself();
+		pollService.setCurrentPoll('title');
+		currentPoll = 'title'
 		$scope.titleOwner = !otherPerson;
 
 		if (info.submitStatus){
@@ -108,11 +140,14 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				determineExplanationText('titlePoll', info);
 			}
 			
-			setPolltimer(otherPerson);
+			setPollTimer(otherPerson, function(){
+				rejectTitle(otherPerson);
+			});
+			
 		}else{
 			determineExplanationText('turn')
 			$scope.openPoll = false; 
-			$scope.title = ""
+			$scope.title = "";
 		}
 	})
 
@@ -122,7 +157,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	$scope.userTyping = function(){
-		socketFactory.emit("userType", peerService.showTag());
+		var info = {
+			'memo': 'otherUserIsTyping',
+			'tag': peerService.showTag()
+		}
+
+		socketFactory.emit("memoBroadcast", info);
 		validateSentence(true);
 	};
 
@@ -163,21 +203,37 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  
  		if ($scope.titleAllowed){
 			var info = {
-				'titleText': $scope.title,
+				'memo': 'titleChangedByOther',
 				'tag': peerService.showTag(),
-				'person': peerService.revealMyself()
+				'body': {
+					'titleText': $scope.title,
+					'person': peerService.revealMyself()
+				}
 			}
 
 			$scope.privatePoll = true;
-			socketFactory.emit("titleBeingChanged", info)
+			socketFactory.emit('memoBroadcast', info)
+
 		}else{
-			console.log('title is not allowed for whatever reason!')
+
+			console.log('title is not allowed for some reason!')
 		}
  	}
 
 
- 	$scope.finPoll = function(submit){
+ 	$scope.finSubmit = function(){
  		determineExplanationText('finSubmit');
+ 		currentPoll = "fin"
+
+ 		var info = {
+ 			'memo': 'pollingFin',
+ 			'tag': peerService.showTag(),
+ 			'body': {
+ 				'person': peerService.revealMyself()
+ 			}
+ 		}
+
+ 		socketFactory.emit('memoAll', info);
  	}
 
 
@@ -185,6 +241,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		$scope.privatePoll = false;
  		$scope.titleAllowed = false;
 
+ 		pollService.setCurrentPoll('title')
  		console.log('what is submit', submit)
  		if (!submit){
  			$scope.title = "";
@@ -193,24 +250,31 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		};
 
   		info = {
- 			'submitStatus': submit,
- 			'person': peerService.revealMyself(),
- 			'tag': peerService.showTag()
+  			'memo': 'pollTitle',
+ 			'tag': peerService.showTag(),
+ 			'body': {
+ 				'submitStatus': submit,
+ 				'person': peerService.revealMyself()
+ 			}
  		}
 
- 		socketFactory.emit('titleUpdate', info);
+ 		socketFactory.emit('memoAll', info);
  	}
 
  	$scope.pollAnswer = function(confirm){
- 		if (confirm){
- 			$scope.titleConfirm = true;
- 			$scope.titleAllowed = false;
- 		}else{
- 			var bool = !$scope.titleOwner;
- 			rejectTitle(bool);
- 			$scope.titleOwner = false;
+ 		$scope.openPoll = false;
+ 		determineExplanationText('turn');
+
+ 		var info = {
+ 			'memo': 'pollResults',
+ 			'tag': peerService.showTag(),
+ 			'body': {
+ 				'vote': confirm
+ 			}
  		}
- 		
+
+ 		socketFactory.emit('memoBroadcast', info);
+ 		handlePollResult(confirm)
  	}
 
 
@@ -219,6 +283,27 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	//Worker Functions
 
 
+ 	function handlePollResult(confirm){
+ 		if (confirm){
+
+ 			if (currentPoll == 'title'){
+ 				$scope.titleConfirm = true;
+ 				$scope.titleAllowed = false;
+ 			}
+
+ 		}else{
+
+ 			if (currentPoll == 'title'){
+	 			$scope.titleAllowed = true;
+	 			var bool = !$scope.titleOwner;
+	 			rejectTitle(bool);
+	 			$scope.titleOwner = false;
+	 		}
+
+ 		}
+
+ 		currentPoll = "";
+ 	}
 	function validateSentence(midWayStatus){
 		var mostPressingError;
 
@@ -257,7 +342,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.bookText = "";
 		$scope.titleLeft = 30;
 
-		$scope.titleAllowed = false;
+		$scope.titleAllowed = true;
 		$scope.privatePoll = false;
 		$scope.openPoll = false;
 
@@ -276,24 +361,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	}
 
 
-	function setPolltimer(otherPerson){
+	function setPollTimer(otherPerson, callback){
 		$scope.openPoll = otherPerson;
-		$scope.pollTime = 12;
 
-		pollTimer = $interval(function(){
-			
-			if ($scope.pollTime < 1){
-				rejectTitle(otherPerson)
-				$interval.cancel(pollTimer);
-			}
-
-			$scope.pollTime--;
-		}, 1000);
+		pollService.initPollTimer(function(time){
+			$scope.pollTime = time;
+		}, function(){
+			callback();
+		});
 	}
 
 
 	function rejectTitle(otherPerson){
 		$scope.title = ""
+		$scope.titleAllowed = true;
+		currentPoll = ""
 
 		if (otherPerson){
 			$scope.openPoll = false;
@@ -312,6 +394,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}, 1600);
 		}
 	}
+
 
 	function personWhoseTurn(turnTime){
 		if ($scope.mode == 'pair'){
@@ -443,7 +526,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		}else if (reason == 'finSubmit'){
 			var explan = ["Polling other "," on conclusion"];
-			
+
 			if ($scope.mode == 'pair'){
 				$scope.explanationText = explan.join($scope.peer);
 			}else{
@@ -451,9 +534,40 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}
 			
 			resetExplanationLater();
+
+		}else if (reason == 'finSubmit'){
+			$scope.explanationText = 'Polling other users on conclusion';
+			resetExplanationLater();
+
+		}else if (reason == 'titleConfirm'){
+			console.log('this should be confirmed')
+			if ($scope.mode == 'pair'){
+				$scope.explanationText = 'Title has been confirmed.';
+				resetExplanationLater();
+			}
+		}
+		else if (reason == 'titleRejection'){
+
+		}else if(reason == 'finConfirm'){
+			if ($scope.mode == 'pair'){
+				$scope.explanationText = $scope.peer + " has agreed to conclude the Story!";
+				resetExplanationLater();
+			}
+		}else if(reason == 'finRejection'){
+			$scope.explanationText = $scope.peer + " does not wish to formally end the story.";
 		}
 	}
 
+	function rejectFin(otherPerson){
+		currentPoll = "";
+
+		if (otherPerson){
+			$scope.openPoll = false;
+			determineExplanationText('turn');
+		}else{
+			determineExplanationText('pollRejection')
+		}
+	}
 
 	function concedeTurn(reason, text, notMe){
 		$scope.myTurn = false;
@@ -466,13 +580,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		peerService.turnChange(function(personForTurn, roomTag){
 			var info = {
-				'person': personForTurn,
+				'memo': 'turnChange',
 				'tag': roomTag,
-				'text': text,
-				'reason': reason
+				'body': {
+					'person': personForTurn,
+					'text': text,
+					'reason': reason
+				}
 			}
 
-			socketFactory.emit("trigger next turn", info);
+			socketFactory.emit("memoAll", info);
 		})
 	}
 });

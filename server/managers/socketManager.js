@@ -9,6 +9,7 @@ module.exports = function(server){
 
 		socket.on('connectProse', function(data){
 			console.log('incoming data via socket', data.name)
+
 			clientManager.connectClient(data, socket, function(info){
 				if (info.success){
 					var  reInfo = {
@@ -34,28 +35,27 @@ module.exports = function(server){
 			})
 		});
 
-		socket.on("trigger next turn", function(info){
-			console.log("trigger next turn hit!", info.text)
+		socket.on('memoBroadcast', function(info){
 			var roomForSure = clientManager.roomByTag[info.tag];
-			io.sockets.in(roomForSure).emit('turnChange', info)
+
+			console.log('infocheck',info)
+			if ('body' in info){
+				socket.broadcast.to(roomForSure).emit(info.memo, info.body);
+			}else{
+				socket.broadcast.to(roomForSure).emit(info.memo);
+			}
 		});
 
-		socket.on("userType", function(tag){
-			var roomForSure = clientManager.roomByTag[tag];
-			socket.broadcast.to(roomForSure).emit("otherUserIsTyping");
-		});
-
-		socket.on("titleBeingChanged", function(info){
-			console.log('title is being changed')
+		socket.on('memoAll', function(info){
 			var roomForSure = clientManager.roomByTag[info.tag];
-			socket.broadcast.to(roomForSure).emit("titleChangedByOther", info);
-		});
+			console.log('infocheck',info);
 
-		socket.on('titleUpdate', function(info){
-			console.log('title UPdate reachedsss', info)
-			var roomForSure = clientManager.roomByTag[info.tag];
-			io.sockets.in(roomForSure).emit('pollTitle', info)
-		});
+			if ('body' in info){
+				io.sockets.in(roomForSure).emit(info.memo, info.body);
+			}else{
+				io.sockets.in(roomForSure).emit(info.memo);
+			}
+		})
 
 		socket.on('disconnect', function(){
 			console.log('disconnect' + socket.id)
