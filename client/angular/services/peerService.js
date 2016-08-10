@@ -4,6 +4,7 @@ angular.module('prosePair').service('peerService', function(){
 	var instanceTag;
 	var me;
 	var personWhoseTurn;
+	var sampleFair;
 
 	var service = {};
 
@@ -11,6 +12,14 @@ angular.module('prosePair').service('peerService', function(){
 		personWhoseTurn = person;
 		return personWhoseTurn == me;
 	};
+
+	service.getSampleFair = function(){
+		return sampleFair;
+	}
+
+	service.setSampleFair = function(person){
+		sampleFair = findNextPersonFrom(person);
+	}
 
 	service.whoseTurn = function(){
 		return personWhoseTurn;
@@ -29,6 +38,7 @@ angular.module('prosePair').service('peerService', function(){
 	};
 
 	service.addPeersNTag = function(list, tag){
+		setNewRoom();
 		roomies = list;
 		instanceTag = tag;
 		for (var turn in roomies){
@@ -51,22 +61,10 @@ angular.module('prosePair').service('peerService', function(){
 	};
 
 	service.turnChange = function(callback){
-		var roomiesArr = Object.keys(roomies);
-		var mIndex = roomiesArr.indexOf(me);
-	
-		if (mIndex == roomiesArr.length - 1){
-			personWhoseTurn = roomiesArr[0];
-		}else{
-			personWhoseTurn = roomiesArr[mIndex + 1];
-		}
+		personWhoseTurn = findNextPersonFrom(personWhoseTurn);
 
 		for(peer in roomies){
-			if (peer = personWhoseTurn){
-				roomies[peer] = true;
-			}else{
-				roomies[peer] = false;
-			}
-
+			roomies[peer] = peer == personWhoseTurn;
 		}
 
 		callback(personWhoseTurn, instanceTag)
@@ -90,14 +88,38 @@ angular.module('prosePair').service('peerService', function(){
 
 	service.informMyself = function(mineSelf){
 		me = mineSelf;
-	}
+	};
 
 	service.revealMyself = function(){
 		return me; 
+	};
+
+	service.clearFair = function(){
+		sampleFair = "";
 	}
 
 	service.getMyInitTurn = function(){
 		return roomies[me];
+	};
+
+	function setNewRoom(){
+		var roomies = {};
+
+		var instanceTag = "";
+		var personWhoseTurn = "";
+		var sampleFair;
+	}
+
+	function findNextPersonFrom(person){
+
+		var roomieArr = Object.keys(roomies);
+		var pIndex = roomieArr.indexOf(person);
+	
+		if (pIndex == roomieArr.length - 1){
+			return roomieArr[0];
+		}else{
+			return roomieArr[pIndex + 1];
+		}
 	}
 
 	return service

@@ -30,18 +30,44 @@
 	</div>
 
 	<div id = "enterArea">
+
 		<div id = "explanationArea">
 			<p id = "explanationText">{{explanationText}}</p>
 		</div>
+
 		<div id = "explainPoll" ng-if = "openPoll">
 			<p>You have {{pollTime}}s to answer.</p>
 			<button><i ng-click = "pollAnswer(false)"class="fa fa-times" aria-hidden="true"></i></button>
 			<button ng-click="pollAnswer(true)"><i class="fa fa-check" aria-hidden="true"></i></button>
 		</div>
-		<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'userSentence' ng-change = 'userTyping()'></textarea>
-		<p id = "charLeft">{{charLeft}} characters left</p>
-		<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "paragraph = !paragraph"><i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i></button>
-		<button id = "enter" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">Enter</button>
-	</div>
+
+		<div id = "writeBox" ng-if = "!samplePick">
+
+			<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'book.sentence' ng-change = 'userTyping()'>
+			</textarea>
+
+			<p id = "charLeft">{{charLeft}} characters left</p>
+
+			<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "paragraph = !paragraph">
+				<i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i>
+			</button>
+
+			<button id = "enter" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">
+				Enter
+			</button>
+
+			<button id = "save" ng-click = "finSubmit()">
+				Fin
+			</button>
+
+		</div>
+
+		<div id = "sampleBox" ng-if = "sampleBox">
+
+			<h5>Summary</h5>
+			<p>{{sampleText}}</p>
+
+		</div>
+ 	</div>
 
 </div>

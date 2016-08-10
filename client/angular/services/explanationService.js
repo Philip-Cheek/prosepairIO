@@ -62,6 +62,7 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				this.resetExplanationLater(setScope);
 				break;
 			case 'titleConfirm':
+				console.log('title confirm')
 				setScope('Title has been confirmed');
 				this.resetExplanationLater(setScope);
 				break;
@@ -81,6 +82,25 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				overlapTime = "";
 
 				this.setExplanationText('turn', setScope);
+				break;
+			case 'finPoll':
+				setScope(info + " would like to conclude the story.");
+				break;
+
+			case 'expireError':
+				setScope(info);
+				this.resetExplanationLater(setScope);
+				break;
+
+			case 'initSample':
+				var sampleBear =  peerService.getSampleFair();
+
+				if (sampleBear == peer.revealMyself()){
+					setScope("Please highlight a sample piece of text from the prose.")
+				}else{
+					setScope(info + " is going to highlight a sample")
+				}
+
 				break;
 		}
 	};

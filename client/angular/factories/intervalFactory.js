@@ -5,6 +5,7 @@ angular.module('prosePair').factory('intervalFactory', function($interval, $root
 
 	factory.setCountDown = function(promise, timeLeft, setScope, timeRanOut){
 		if (promise in promiseTimers){
+			console.log('promise shoudl be called!!, promise!')
 			$interval.cancel(promiseTimers[promise]);
 		}
 
@@ -51,7 +52,12 @@ angular.module('prosePair').factory('intervalFactory', function($interval, $root
 	};
 
 	factory.cancelTimer = function(promise){
+		console.log('STOPPING THE POLL FROM FIRING WHOO!!')
+		console.log(promise)
+		console.log(promiseTimers)
+		console.log('PROMISE CHECK!!!', promiseTimers[promise])
 		$interval.cancel(promiseTimers[promise]);
+		delete promiseTimers[promise];
 	};
 
 	return factory;

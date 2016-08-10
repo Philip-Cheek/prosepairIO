@@ -23,6 +23,23 @@ angular.module('prosePair').service('sentenceService', function(){
 		return {'status': true};
 	}
 
+	service.validSample = function(book, sample){
+		var paragraph;
+
+		for (var p = 0; p < book.length; p++){
+
+			paragraph = book[p];
+
+			if (paragraph.indexOf(sample) == -1){
+
+				break;
+
+			}
+		}
+
+		return p != book.length;
+	}
+
 	function isLikelyOneSentence(sentence, midway, errors){
 		var quoteOpen = false;
 		var twoSent = false;

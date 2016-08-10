@@ -1,15 +1,19 @@
-angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, explanationService, intervalFactory, peerService, pollService, bookFactory, sentenceService, socketFactory){
+angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, explanationService, intervalFactory, peerService, pollService, bookFactory, sentenceService, socketFactory, docService){
 
 
 
 	//Initialize Arena App;
 
+	var samplePrivelege;
+	var watchers = {};
 	var titleConfirm = false;
 	initArena();
+	var i = 0;
 
-
+	$scope.book = {};
 
 	//Listen for Socket Emition From Server
+
 
 	socketFactory.on('turnChange', function(info){
 
@@ -34,14 +38,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	socketFactory.on('pollResults', function(info){
-		setExplanationScope('titleConfirm');
+		console.log('you come here WITH YOUR POLL RESULTS');
 		handlePollResult(info.vote, true);
 	})
 
 	socketFactory.on("titleChangedByOther", function(info){
 		$scope.titleAllowed = false;
 		$scope.title = info.titleText;
-		setExplanationScope('titleChange', info.person);
+		setExplanationScope('titleChange', info.person, function(){
+			$scope.titleAllowed = true;
+		});
 	});
 
 
@@ -50,29 +56,30 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	});
 
 
-	socketFactory.on('pollingFin'), function(info){
+	socketFactory.on('pollAtFin', function(info){
 		var otherPerson = info.person != peerService.revealMyself()
-		var currentPoll = 'fin'
 		pollService.setCurrentPoll('fin')
 
 		if (otherPerson){
 			$scope.openPoll = true;
-			$scope.explanationText = info.person + " wants to conclude this book.";
-		}
+			setExplanationScope('finPoll', info.person);
+		};
 
 		setPollTimer(otherPerson, function(){
-			handlePollResult;
+			handlePollResult(false, !otherPerson, true);
 		});
-	}
+	});
 
 
 	socketFactory.on('pollTitle', function(info){
 		var otherPerson = info.person != peerService.revealMyself();
 		pollService.setCurrentPoll('title');
-		currentPoll = 'title'
 
 		info.title = $scope.title;
+		$scope.titleAllowed = false;
+
 		$scope.titleOwner = !otherPerson;
+		peerService.setSampleFair(info.person);
 
 		if (info.submitStatus){
 
@@ -80,16 +87,17 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				setExplanationScope('titlePoll', info);
 			}
 			
-			console.log('aboutTo set a timer');
 			setPollTimer(otherPerson, function(){
-				console.log('hi!')
-				handlePollResult(false, !otherPerson);
+				console.log('this is a poll timer')
+				handlePollResult(false, !otherPerson, true);
 			});
 			
 		}else{
+			console.log('WE SHOULD ONLY SEE THIS ONCE')
 			setExplanationScope('turn');
 			$scope.openPoll = false; 
 			$scope.title = "";
+			$scope.titleAllowed = true;
 		}
 	})
 
@@ -115,27 +123,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		validateSentence(false);
 
 		if ($scope.validEntry){
-			concedeTurn('sentenceSubmit', $scope.userSentence)
+			concedeTurn('sentenceSubmit', $scope.book.sentence)
 		}
-	}
-
-
-	$scope.submitBook = function(){
-
-		validateSentence(false);
-
-		if ($scope.validEntry){
-			if (!$scope.title || $scope.title.length < 50){
-				var titleErr;
-				if (!$scope.title){
-					titleErr = "There must be an agreed upon title"
-				}else if ($scope.title.length < 5){
-					"The title is too short."
-				}
-				setExplanationScope('error', $scope.userSentence)
-			}
-
-		};
 	}
 
 
@@ -157,7 +146,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				}
 			}
 
-			$scope.privatePoll = true;
+			if ($scope.title.length > 0){
+				$scope.privatePoll = true;
+			}
+
 			socketFactory.emit('memoBroadcast', info)
 
 		}else{
@@ -168,19 +160,22 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
  	$scope.finSubmit = function(){
+		if (!titleConfirm){
+			setExplanationScope('expireError', 'Their must be an agreed upon title.');
+		}else{
+			setExplanationScope('finSubmit');
+			pollService.setCurrentPoll('fin')
 
- 		setExplanationText('finSubmit');
- 		currentPoll = "fin"
+			var info = {
+				'memo': 'pollAtFin',
+				'tag': peerService.showTag(),
+				'body': {
+					'person': peerService.revealMyself()
+				}
+			}
 
- 		var info = {
- 			'memo': 'pollingFin',
- 			'tag': peerService.showTag(),
- 			'body': {
- 				'person': peerService.revealMyself()
- 			}
- 		}
-
- 		socketFactory.emit('memoAll', info);
+			socketFactory.emit('memoAll', info);
+		}
  	}
 
 
@@ -189,28 +184,27 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		$scope.privatePoll = false;
  		$scope.titleAllowed = false;
 
- 		pollService.setCurrentPoll('title');
-
  		if (!submit){
  			$scope.title = "";
  		}else{
  			setExplanationScope('privatePoll');
+ 		};
 
-			info = {
-				'memo': 'pollTitle',
-				'tag': peerService.showTag(),
-				'body': {
-					'submitStatus': submit,
-					'person': peerService.revealMyself()
-				}
+		info = {
+			'memo': 'pollTitle',
+			'tag': peerService.showTag(),
+			'body': {
+				'submitStatus': submit,
+				'person': peerService.revealMyself()
 			}
+		}
 
-			socketFactory.emit('memoAll', info);
-		};
+		socketFactory.emit('memoAll', info);
  	}
 
 
  	$scope.pollAnswer = function(confirm){
+ 		console.log('we are a poll answer')
 
  		$scope.openPoll = false;
  		setExplanationScope('answerPoll');
@@ -224,7 +218,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		}
 
  		socketFactory.emit('memoBroadcast', info);
- 		handlePollResult(confirm)
+ 		handlePollResult(confirm);
  	}
 
 
@@ -233,21 +227,98 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	//Worker Functions
 
 
- 	function handlePollResult(confirm, recipient){
- 		console.log("why is there a bug here");
- 		if (recipient && confirm){
-			setExplanationScope(pollService.showCurrentPoll() + 'Confirm')
-		}else if (recipient){
-			setExplanationScope(pollService.showCurrentPoll() + 'Rejection')
-		}else{
-			setExplanationScope('turn')
-		}
+ 	function handlePollResult(confirm, recipient, timerCheck){
+ 		i++;
+ 		console.log('mystery poll result count', i);
 
- 		pollService.handlePollResult(confirm, function(answerKey){
-			for (var part in answerKey){
-				$scope[part] = answerKey[part];
+ 		intervalFactory.cancelTimer('pollLeft');
+ 		var title = pollService.showCurrentPoll() == 'title';
+
+ 		if (timerCheck){
+ 			console.log('we are from a promise timer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+ 		}else{
+ 			console.log('we are NOT from a promise timer??????????????????????????????????????????????????????????????????????');
+ 		}
+
+ 		if (!recipient){
+ 			setExplanationScope('turn')
+ 		}
+
+		if (confirm){
+
+			if (title){
+				titleConfirm = true;
 			}
-		});
+
+			if (recipient){
+				console.log("i\'m a recipient", pollService.showCurrentPoll() + 'Confirm')
+				setExplanationScope(pollService.showCurrentPoll() + 'Confirm');
+			}
+
+		}else if (!confirm || title){
+			if(!confirm && recipient){
+				console.log('this should work', pollService.showCurrentPoll() + 'Rejection')
+				setExplanationScope(pollService.showCurrentPoll() + 'Rejection')
+			}
+
+			console.log('Thise needs to fire!!')
+	 		pollService.handlePollResult(confirm, function(answerKey){
+	 			console.log('PART CHECK CHECK CHECK' + i)
+				for (var part in answerKey){
+					console.log(part)
+					$scope[part] = answerKey[part];
+				}
+			});
+
+			console.log("i only want to see this once!", $scope.titleAllowed)
+
+			if (title && !confirm){
+				peerService.clearFair();
+			}
+
+		}else{
+
+			setSampleStage();
+
+		}
+ 	}
+
+ 	function setSampleStage(){
+ 		if (titleConfirm){
+	 		var sampleBearer = peerService.showSampleFair() == peerService.revealMyself('');
+
+	 		$scope.myTurn = false;
+	 		$scope.samplePick = true;
+	 		$scope.sampleText = "";
+
+	 		setExplanationScope('initSample');
+
+	 		if (sampleBearer){
+
+	 			docService.enableHighlightTracking(function(sample){
+
+		 			if (sentenceService.validSample($scope.bookText, sample)){
+
+		 				$scope.sampleText = sample;
+
+		 			}else{
+
+		 				setExplanationScope('error', 'Please only highlight text within the prose.');
+
+		 			}
+	 			});
+	 		}
+	 	}
+
+ 		// if (!titleOwner){
+ 		// 	docService =
+ 		// }
+ 		// if ($scope.titleOwner){
+ 		// 	$scope.explanationText = "Since you picked the title, we're letting another pick the sample text";
+ 		// }else{
+ 		// 	$scope.explanationText = "Please highlight the part for the sample text!";
+ 		// }
+
  	}
 
  	function setBookText(info){
@@ -270,33 +341,38 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	}
 
 
- 	function setExplanationScope(reason, info){
+ 	function setExplanationScope(reason, info, callback){
  		if (!info){
  			info = false;
  		}
 
  		explanationService.setExplanationText(reason, function(eText){
  			$scope.explanationText = eText;
+
+ 			if (callback){
+ 				callback();
+ 			}
  		}, info);
  	};
 
 
 	function validateSentence(midWayStatus){
 		var mostPressingError;
-
-		if ($scope.userSentence.length > 115){
-			$scope.userSentence = $scope.userSentence.slice(0, 115);
+		console.log($scope.book)
+		console.log('problems with user sentence', $scope.book.sentence);
+		if ($scope.book.sentence.length > 115){
+			$scope.book.sentence = $scope.book.sentence.slice(0, 115);
 			return;
 		}
 
-		$scope.charLeft = 115 - $scope.userSentence.length
+		$scope.charLeft = 115 - $scope.book.sentence.length
 		if ($scope.charLeft < 0){
 			$scope.validEntry = false;
 			$scope.mostPressingError = ['Maximum character limit exceeded'];
 			return;
 		}
 
-		var validCheck = sentenceService.isValid($scope.userSentence, midWayStatus);
+		var validCheck = sentenceService.isValid($scope.book.sentence, midWayStatus);
 		$scope.validEntry = validCheck.status;
 		if (!$scope.validEntry){
 			if (!mostPressingError){
@@ -322,6 +398,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.titleAllowed = true;
 		$scope.privatePoll = false;
 		$scope.openPoll = false;
+		$scope.titleConfirm = false;
 
 		if ($scope.myTurn){
 			$scope.paragraph = true;
@@ -347,6 +424,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	function setPollTimer(otherPerson, callback){
 		$scope.openPoll = otherPerson;
 		$scope.pollTime = 12;
+		i++;
+
+		console.log("setPollTimer has been called " + i + " times");
 
 		intervalFactory.setCountDown('pollLeft', 12, function(tLeft){
 			$scope.pollTime= tLeft;
@@ -386,7 +466,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	function concedeTurn(reason, text, notMe){
 
 		$scope.myTurn = false;
-		$scope.userSentence = "";
+		$scope.book.sentence = "";
 
 		if (reason == 'ranOutOfTime'){
 			setExplanationScope('time')

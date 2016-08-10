@@ -1,13 +1,13 @@
-angular.module('prosePair').service('pollService', function($interval){
+angular.module('prosePair').service('pollService', function(){
 
 	var pollTimer;
 	var currentPoll;
 	var timeLeft;
-
+	var z = 0;
 	var service = {};
 
 	service.setCurrentPoll = function(current){
-
+		console.log('SHOWING CURRENT POLL', currentPoll)
 		currentPoll = current;
 	}
 
@@ -15,17 +15,15 @@ angular.module('prosePair').service('pollService', function($interval){
 		return currentPoll
 	}
 
-	service.endPollTimer = function(){
-		$interval.cancel(pollTimer)
-	}
 
 	service.handlePollResult = function(confirm, callback){
-		$interval.cancel(pollTimer);
-		console.log(pollTimer)
+		console.log('THE FUCK POLL', currentPoll)
 
 		var tempPoll = currentPoll;
 		currentPoll = "";
+		z++;
 
+		console.log('pollService handlePollResult has been called' + z + 'times')
 		console.log('tempPoll', tempPoll);
 
 		if (confirm){
@@ -37,8 +35,12 @@ angular.module('prosePair').service('pollService', function($interval){
  		}else{
 
  			if (tempPoll == 'title'){
- 				console.log('we should reject title')
+ 				console.log('we should reject title');
 	 			callback(rejectTitle());
+
+	 		}else if (tempPoll == 'fin'){
+	 			console.log('we should reject fin');
+	 			callback(rejectFin());
 	 		}
 
  		}
@@ -65,5 +67,12 @@ angular.module('prosePair').service('pollService', function($interval){
 	 	return answerKey;
 	}
 
+	function rejectFin(){
+		var answerKey = {
+			'openPoll': false
+		}
+
+		return answerKey;
+	}
 	return service;
 });

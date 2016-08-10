@@ -3,6 +3,8 @@ var clientManager = require('./../managers/clientManager.js')
 module.exports = function(server){
 
 	var io = require("socket.io").listen(server);
+	var i = 0;
+
 
 	io.sockets.on('connection', function(socket){
 		console.log('User ' + socket.id + ' connected');
@@ -38,7 +40,12 @@ module.exports = function(server){
 		socket.on('memoBroadcast', function(info){
 			var roomForSure = clientManager.roomByTag[info.tag];
 
-			console.log('infocheck',info)
+			if (info.memo == "pollTitle"){
+				i++;
+				console.log('info.memo', info.memo)
+				console.log('broadcast title polled' + i + 'times')
+			}
+
 			if ('body' in info){
 				socket.broadcast.to(roomForSure).emit(info.memo, info.body);
 			}else{
@@ -47,8 +54,12 @@ module.exports = function(server){
 		});
 
 		socket.on('memoAll', function(info){
+			if (info.memo == "pollTitle");{
+				i++;
+				console.log('all title polled' + i + 'times')
+			}
+
 			var roomForSure = clientManager.roomByTag[info.tag];
-			console.log('infocheck',info);
 
 			if ('body' in info){
 				io.sockets.in(roomForSure).emit(info.memo, info.body);
