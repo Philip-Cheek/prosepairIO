@@ -13,7 +13,7 @@ angular.module('prosePair').service('peerService', function(){
 		return personWhoseTurn == me;
 	};
 
-	service.getSampleFair = function(){
+	service.showSampleFair = function(){
 		return sampleFair;
 	}
 

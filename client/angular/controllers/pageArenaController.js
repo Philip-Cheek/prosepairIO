@@ -38,7 +38,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	socketFactory.on('pollResults', function(info){
-		console.log('you come here WITH YOUR POLL RESULTS');
 		handlePollResult(info.vote, true);
 	})
 
@@ -66,7 +65,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		};
 
 		setPollTimer(otherPerson, function(){
-			handlePollResult(false, !otherPerson, true);
+			handlePollResult(false, !otherPerson);
 		});
 	});
 
@@ -89,11 +88,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			
 			setPollTimer(otherPerson, function(){
 				console.log('this is a poll timer')
-				handlePollResult(false, !otherPerson, true);
+				handlePollResult(false, !otherPerson);
 			});
 			
 		}else{
-			console.log('WE SHOULD ONLY SEE THIS ONCE')
 			setExplanationScope('turn');
 			$scope.openPoll = false; 
 			$scope.title = "";
@@ -152,9 +150,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 			socketFactory.emit('memoBroadcast', info)
 
-		}else{
-
-			console.log('title is not allowed for some reason!')
 		}
  	}
 
@@ -204,7 +199,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
  	$scope.pollAnswer = function(confirm){
- 		console.log('we are a poll answer')
 
  		$scope.openPoll = false;
  		setExplanationScope('answerPoll');
@@ -227,18 +221,11 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	//Worker Functions
 
 
- 	function handlePollResult(confirm, recipient, timerCheck){
- 		i++;
- 		console.log('mystery poll result count', i);
+ 	function handlePollResult(confirm, recipient){
 
  		intervalFactory.cancelTimer('pollLeft');
  		var title = pollService.showCurrentPoll() == 'title';
 
- 		if (timerCheck){
- 			console.log('we are from a promise timer!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
- 		}else{
- 			console.log('we are NOT from a promise timer??????????????????????????????????????????????????????????????????????');
- 		}
 
  		if (!recipient){
  			setExplanationScope('turn')
@@ -246,24 +233,25 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		if (confirm){
 
-			if (title){
-				titleConfirm = true;
-			}
-
 			if (recipient){
 				console.log("i\'m a recipient", pollService.showCurrentPoll() + 'Confirm')
 				setExplanationScope(pollService.showCurrentPoll() + 'Confirm');
 			}
 
+			if (title){
+				titleConfirm = true;
+			}else{
+				setSampleStage();
+			}
+
 		}else if (!confirm || title){
+
 			if(!confirm && recipient){
 				console.log('this should work', pollService.showCurrentPoll() + 'Rejection')
 				setExplanationScope(pollService.showCurrentPoll() + 'Rejection')
 			}
 
-			console.log('Thise needs to fire!!')
 	 		pollService.handlePollResult(confirm, function(answerKey){
-	 			console.log('PART CHECK CHECK CHECK' + i)
 				for (var part in answerKey){
 					console.log(part)
 					$scope[part] = answerKey[part];
@@ -276,15 +264,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				peerService.clearFair();
 			}
 
-		}else{
-
-			setSampleStage();
-
 		}
  	}
 
  	function setSampleStage(){
  		if (titleConfirm){
+
+ 			console.log('we are going to need to have a few things straight');
+ 			console.log('sample fair', peerService.showSampleFair());
+ 			console.log('my own damn self', peerService.revealMyself(''));
+
 	 		var sampleBearer = peerService.showSampleFair() == peerService.revealMyself('');
 
 	 		$scope.myTurn = false;
@@ -297,28 +286,20 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	 			docService.enableHighlightTracking(function(sample){
 
-		 			if (sentenceService.validSample($scope.bookText, sample)){
+	 				console.log('what even is sample!', sample)
+	 				if (sample && sample.length > 0){
+			 			if (sentenceService.validSample($scope.bookText, sample)){
 
-		 				$scope.sampleText = sample;
+			 				$scope.sampleText = sample;
 
-		 			}else{
+			 			}else{
 
-		 				setExplanationScope('error', 'Please only highlight text within the prose.');
-
-		 			}
+			 				setExplanationScope('error', 'Please only highlight text within the prose.');
+			 			}
+			 		};
 	 			});
 	 		}
 	 	}
-
- 		// if (!titleOwner){
- 		// 	docService =
- 		// }
- 		// if ($scope.titleOwner){
- 		// 	$scope.explanationText = "Since you picked the title, we're letting another pick the sample text";
- 		// }else{
- 		// 	$scope.explanationText = "Please highlight the part for the sample text!";
- 		// }
-
  	}
 
  	function setBookText(info){

@@ -3,11 +3,9 @@ angular.module('prosePair').service('pollService', function(){
 	var pollTimer;
 	var currentPoll;
 	var timeLeft;
-	var z = 0;
 	var service = {};
 
 	service.setCurrentPoll = function(current){
-		console.log('SHOWING CURRENT POLL', currentPoll)
 		currentPoll = current;
 	}
 
@@ -17,15 +15,11 @@ angular.module('prosePair').service('pollService', function(){
 
 
 	service.handlePollResult = function(confirm, callback){
-		console.log('THE FUCK POLL', currentPoll)
 
 		var tempPoll = currentPoll;
 		currentPoll = "";
-		z++;
 
-		console.log('pollService handlePollResult has been called' + z + 'times')
-		console.log('tempPoll', tempPoll);
-
+		
 		if (confirm){
 
  			if (tempPoll == 'title'){

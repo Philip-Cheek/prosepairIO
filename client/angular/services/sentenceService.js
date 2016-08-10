@@ -37,7 +37,7 @@ angular.module('prosePair').service('sentenceService', function(){
 			}
 		}
 
-		return p != book.length;
+		return p == book.length;
 	}
 
 	function isLikelyOneSentence(sentence, midway, errors){

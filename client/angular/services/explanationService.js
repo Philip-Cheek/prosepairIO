@@ -93,9 +93,9 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				break;
 
 			case 'initSample':
-				var sampleBear =  peerService.getSampleFair();
+				var sampleBear =  peerService.showSampleFair();
 
-				if (sampleBear == peer.revealMyself()){
+				if (sampleBear == peerService.revealMyself()){
 					setScope("Please highlight a sample piece of text from the prose.")
 				}else{
 					setScope(info + " is going to highlight a sample")
