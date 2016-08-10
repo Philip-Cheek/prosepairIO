@@ -2,7 +2,9 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 
 	var service = {};
 	var explanationPromise;
+
 	var overlapText;
+	var overlapStamp;
 
 
 	service.setExplanationText = function(reason, setScope, info){
@@ -34,13 +36,13 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				console.log('we an error')
 				setScope(info);
 				break;
-				
 			case 'titleChange':
 				setScope(info + " is trying a Title.");
 				this.resetExplanationLater(setScope);
 				break;
 			case 'titlePoll':
 				overlapText = info.person + " would like to change the title to " + info.title;
+				overlapStamp = new Date();
 				setScope(overlapText);
 				break;
 			case 'otherTyping':
@@ -73,6 +75,12 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 			case 'titleRejection':
 				setScope(determineCancelText("your title"));
 				this.resetExplanationLater(setScope);
+				break;
+			case 'answerPoll':
+				overlapText = "";
+				overlapTime = "";
+
+				this.setExplanationText('turn', setScope);
 				break;
 		}
 	};
@@ -131,13 +139,11 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 	}
 
 	function handleTimeStampOverlap(setScope){
-		currentTimeStamp = new Date();
-
 		service.resetExplanationLater(setScope, 'default', function(){
 
 			var futureTimeStamp = new Date();
 
-			var timeDiff = (futureTimeStamp - currentTimeStamp)
+			var timeDiff = (futureTimeStamp - overlapStamp)
 			timeDiff /= 1000;
 
 			var seconds = Math.round(timeDiff % 60);
@@ -150,10 +156,11 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				var overlapTime = (12 - seconds) * 1000
 				service.resetExplanationLater(setScope, overlapTime);
 			}else{
-				service.setExplanationText('turn');
+				service.setExplanationText('turn', setScope);
 			};
 
 			overlapText = "";
+			overlapStamp = "";
 		});
 	}
 

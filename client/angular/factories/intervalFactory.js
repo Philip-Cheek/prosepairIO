@@ -8,17 +8,15 @@ angular.module('prosePair').factory('intervalFactory', function($interval, $root
 			$interval.cancel(promiseTimers[promise]);
 		}
 
-		scopeTime(timeLeft);
-
 		promiseTimers[promise] = $interval(function(){
 			
 			if (timeLeft < 1){
-				$interval.cancel(pollTimer);
+				$interval.cancel(promiseTimers[promise]);
 				timeRanOut();
 			}
 
+			setScope(timeLeft);
 			timeLeft--;
-			scopeTime(timeLeft);
 		}, 1000);
 	};
 

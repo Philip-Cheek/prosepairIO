@@ -1,21 +1,10 @@
-angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, $interval, $timeout, explanationService, peerService, pollService, bookFactory, sentenceService, socketFactory){
-
-
-	//Controller-wide timers and bool
-
-
-	var countDown;
-	var explanationPromise;
-	var pollTimer;
-	var titleConfirm = false;
-	var currentPoll;
-
+angular.module('prosePair').controller('proseArenaController', function($scope, $location, $routeParams, explanationService, intervalFactory, peerService, pollService, bookFactory, sentenceService, socketFactory){
 
 
 
 	//Initialize Arena App;
 
-
+	var titleConfirm = false;
 	initArena();
 
 
@@ -30,7 +19,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		setTimeLeftFromTop();
 		setBookText(info);
 
-		if ($scope.bookText.length > 10 && !$scope.titleAllowed && !titleConfirm){
+		if ($scope.bookText.join(' ').length > 10 && !$scope.titleAllowed && !titleConfirm){
 			$scope.titleAllowed = true; 
 		}
 
@@ -40,12 +29,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	});
 
 	socketFactory.on("otherUserIsTyping", function(){
-
 		setExplanationScope('otherTyping');
 	});
 
 
 	socketFactory.on('pollResults', function(info){
+		setExplanationScope('titleConfirm');
 		handlePollResult(info.vote, true);
 	})
 
@@ -106,7 +95,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 
-	//Functions Triggered By DOM
+	//Functions Triggered By User
 
 
 	$scope.userTyping = function(){
@@ -224,7 +213,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	$scope.pollAnswer = function(confirm){
 
  		$scope.openPoll = false;
- 		setExplanationScope('turn');
+ 		setExplanationScope('answerPoll');
 
  		var info = {
  			'memo': 'pollResults',
@@ -262,14 +251,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	}
 
  	function setBookText(info){
+ 		$scope.paragraph = false;
+
  		if (info.reason != "ranOutOfTime"){
  			var textToAdd = info.text;
 
-			if ($scope.bookText.length > 1 && textToAdd[0] != " "){
-				textToAdd = " " + textToAdd;
+ 			if (info.paragraph || $scope.bookText.length < 1){
+				textToAdd = "     " + textToAdd;
+				$scope.bookText.push(textToAdd);
+			}else{
+				lastP = $scope.bookText.length - 1;
+				if($scope.bookText[lastP].length > 1 && textToAdd[0] != " "){
+					$scope.bookText[lastP] += " " + textToAdd
+				}
 			}
-
-			$scope.bookText += textToAdd;
+			
 		};
  	}
 
@@ -320,12 +316,18 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.mode = $routeParams.mode;
 		$scope.myTurn = peerService.getMyInitTurn();
 		$scope.charLeft = 115;
-		$scope.bookText = "";
+		$scope.bookText = [];
 		$scope.titleLeft = 30;
 
 		$scope.titleAllowed = true;
 		$scope.privatePoll = false;
 		$scope.openPoll = false;
+
+		if ($scope.myTurn){
+			$scope.paragraph = true;
+		}else{
+			$scope.paragraph = false;
+		}
 
 		getPeers();
 		setExplanationScope('turn');
@@ -343,41 +345,28 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	function setPollTimer(otherPerson, callback){
-		console.log('setPollTimer called');
 		$scope.openPoll = otherPerson;
+		$scope.pollTime = 12;
 
-		pollService.initPollTimer(function(time){
-			$scope.pollTime = time;
+		intervalFactory.setCountDown('pollLeft', 12, function(tLeft){
+			$scope.pollTime= tLeft;
 		}, function(){
 			callback();
 		});
 	}
 
-
-
 	function setTimeLeftFromTop(time){
-		if (countDown){
-			$interval.cancel(countDown);
-		}
-
 		if (!time){
-			time = 10;
+			time = 75;
 		}
 
-		$scope.timeLeft = time;
-
-		countDown = $interval(function(){
-			if ($scope.timeLeft > 0){
-				$scope.timeLeft -= 1;
-			}else{
-				$interval.cancel(countDown);
-
-				if ($scope.myTurn == true){
-					concedeTurn('ranOutOfTime');
-				};
-			}
-
-		}, 1000)
+		intervalFactory.setCountDown('turnLeft', time, function(tLeft){
+			$scope.timeLeft = tLeft;
+		}, function(){
+			if ($scope.myTurn){
+				concedeTurn('ranOutOfTime');
+			};
+		});
 	}
 
 
@@ -413,6 +402,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 					'text': text,
 					'reason': reason
 				}
+			}
+
+			if (reason != "ranOutOfTime"){
+				info.body.paragraph = $scope.paragraph;
 			}
 
 			socketFactory.emit("memoAll", info);

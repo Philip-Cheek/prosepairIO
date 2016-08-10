@@ -14,7 +14,7 @@
 
 
 	<div id = 'proseBox'>
-		<p>{{bookText}}</p>
+		<p ng-repeat = "paragraph in bookText">{{paragraph}}</p>
 	</div>
 
 	<div id = 'friendBox'>
@@ -40,6 +40,7 @@
 		</div>
 		<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'userSentence' ng-change = 'userTyping()'></textarea>
 		<p id = "charLeft">{{charLeft}} characters left</p>
+		<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "paragraph = !paragraph"><i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i></button>
 		<button id = "enter" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">Enter</button>
 	</div>
 

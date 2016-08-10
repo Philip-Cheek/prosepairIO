@@ -6,26 +6,6 @@ angular.module('prosePair').service('pollService', function($interval){
 
 	var service = {};
 
-	service.initPollTimer = function(scopeTime, timeRanOut){
-		timeLeft = 12;
-		scopeTime(timeLeft);
-
-		$interval.cancel(pollTimer);
-		pollTimer = $interval(function(){
-			
-			if (timeLeft < 1){
-				console.log('time rand out');
-				console.log('polTimerBefore', pollTimer);
-				$interval.cancel(pollTimer);
-				console.log('polltimerAfert', pollTimer);
-				timeRanOut();
-			}
-
-			timeLeft--;
-			scopeTime(timeLeft);
-		}, 1000);
-	};
-
 	service.setCurrentPoll = function(current){
 
 		currentPoll = current;
