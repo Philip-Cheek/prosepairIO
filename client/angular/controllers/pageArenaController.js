@@ -4,8 +4,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Initialize Arena App;
 
-	var samplePrivelege;
-	var watchers = {};
 	var titleConfirm = false;
 	initArena();
 	var i = 0;
@@ -19,7 +17,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		$scope.myTurn = peerService.setNextTurn(info.person);
 
-		docTitleExclaim();
+		docService.docTitleExclaim($scope.myTurn);
 		setTimeLeftFromTop();
 		setBookText(info);
 
@@ -30,6 +28,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		if (info.reason != "ranOutOfTime" || info.text != peerService.revealMyself()){
 			setExplanationScope('turn');
 		}
+	});
+
+	socketFactory.on('updateSample', function(info){
+		$scope.sampleText = info;
 	});
 
 	socketFactory.on("otherUserIsTyping", function(){
@@ -197,6 +199,20 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		socketFactory.emit('memoAll', info);
  	}
 
+ 	$scope.submitBook = function(){
+ 		var authorList = peerService.getPeers();
+ 		authorList.push(peerService.revealMyself());
+ 		docService.disableHighlightTracking();
+
+ 		var info = {
+ 			'sampleBody': $scope.sample,
+ 			'title': $scope.title,
+ 			'textBody': $scope.bookText,
+ 			'authors': authorList
+ 		}
+
+ 		bookFactory.saveBook(info);
+ 	}
 
  	$scope.pollAnswer = function(confirm){
 
@@ -291,6 +307,14 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			 			if (sentenceService.validSample($scope.bookText, sample)){
 
 			 				$scope.sampleText = sample;
+
+			 				var info = {
+			 					'memo': 'updateSample',
+			 					'tag': peerService.showTag(),
+			 					'body': sample
+			 				}
+
+			 				socketFactory.emit('memoBroadcast', info);
 
 			 			}else{
 
@@ -430,19 +454,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		});
 	}
 
-
-	function docTitleExclaim(){
-		var exclaim = "(!)"
-		var currentTitle = document.title;
-
-	
-		if (!$scope.myTurn && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) == exclaim){
-			document.title = currentTitle.substring(exclaim.length + 1, currentTitle.length);
-		}else if ($scope.myTurn && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) != exclaim){
-			document.title = exclaim + " " + currentTitle;
-		}
-
-	}
 
 	function concedeTurn(reason, text, notMe){
 

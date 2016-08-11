@@ -52,7 +52,10 @@ angular.module('prosePair').factory('intervalFactory', function($interval, $root
 
 	factory.cancelTimer = function(promise){
 		$interval.cancel(promiseTimers[promise]);
-		delete promiseTimers[promise];
+
+		if (promise in promiseTimers){
+			delete promiseTimers[promise];
+		}
 	};
 
 	return factory;

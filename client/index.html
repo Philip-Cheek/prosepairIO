@@ -10,14 +10,15 @@
 
 		<script type='text/javascript' src='angular/app.js'></script>
 		<script type='text/javascript' src='angular/directives/dialogDirective.js'></script>
-		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
-		<script type='text/javascript' src='angular/factories/bookFactory.js'></script>
-		<script type='text/javascript' src='angular/factories/intervalFactory.js'></script>
 		<script type='text/javascript' src='angular/services/peerService.js'></script>
 		<script type='text/javascript' src='angular/services/pollService.js'></script>
+		<script type='text/javascript' src='angular/services/popUpService.js'></script>
 		<script type='text/javascript' src='angular/services/docService.js'></script>
 		<script type='text/javascript' src='angular/services/sentenceService.js'></script>
 		<script type='text/javascript' src='angular/services/explanationService.js'></script>
+		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
+		<script type='text/javascript' src='angular/factories/bookFactory.js'></script>
+		<script type='text/javascript' src='angular/factories/intervalFactory.js'></script>
 		<script type='text/javascript' src ='angular/controllers/omniOptionsController.js'></script>
 		<script type='text/javascript' src ='angular/controllers/connectOptionsController.js'></script>
 		<script type='text/javascript' src ='angular/controllers/pageArenaController.js'></script>
@@ -54,20 +55,47 @@
 					</div>
 					<span id = "stretch"></span>
 				</div>
-			<!--
+			
 				<div id = "thing">
 					<h3>Pop up Test</h3>
-					<button ng-click = "testModal()">pop up</button>
-					<dialog-directive show='modalShown' width='500px' height='60%'>
- 						 <p>Modal Content Goes here<p>
+					<dialog-directive show='modalShown' width='500px' height='300px'>
+						 <h4>frustrating!</h4>
+						 <h1>{{modalContent.title}}</h1>
+ 						 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
+
+ 						 <div ng-if = "modalButton">
+ 						 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
+ 						 		{{button.text}}
+ 						 	</button>
+ 						 </div>
+
+ 						 <p ng-if = 'loading.status'>{{loading.text}}</p>
+
 					</dialog-directive>
 
+					<button ng-click = "testModal()">pop up</button>
+
   				</div>
-  			-->
+  			
 			</div>
 
-			<div class = 'partial' ng-view = "">
-			</div>
+			<div class = 'partial' ng-view = ""></div>
+
+			<dialog-directive show='modalShown' width='200px' height='300px'>
+				 <h4>frustrating!</h4>
+				 <h1>{{modalContent.title}}</h1>
+					 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
+
+					 <div ng-if = "modalButton">
+					 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
+					 		{{button.text}}
+					 	</button>
+					 </div>
+
+					 <p ng-if = 'loading.status'>{{loading.text}}</p>
+
+			</dialog-directive>
+			
 		</div>
 	</body>
 </html>

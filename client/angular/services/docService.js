@@ -16,6 +16,17 @@ angular.module('prosePair').service('docService', function(){
 		document.onkeyup = null;
 	}
 
+	service.docTitleExclaim = function(eBool){
+		var exclaim = "(!)"
+		var currentTitle = document.title;
+
+		if (!eBool && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) == exclaim){
+			document.title = currentTitle.substring(exclaim.length + 1, currentTitle.length);
+		}else if (eBool && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) != exclaim){
+			document.title = exclaim + " " + currentTitle;
+		}
+	}
+
 	function trackHighlight(){
 		var highlightText = '';
 
