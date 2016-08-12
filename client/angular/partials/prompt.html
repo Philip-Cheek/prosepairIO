@@ -1,0 +1,46 @@
+<div class = "connect" ng-controller = "promptController">
+
+	<div id = "addPromptBox">
+		<h1>Add a prompt!</h1>
+		<p>{{error}}</p>
+
+		<input class = "wideNarrow" type = "text" ng-model = "prompt">
+		<button ng-click = "addPrompt()">Add</button>
+
+		<p>{{charLeft}} characters left.</p>
+	</div>
+
+	<div id = "allPromptBox">
+
+		<div promptTitles>
+			<h1>All Prompts By {{sortMethod}}</h1>
+			<select class = 'dropDown' ng-if = "sortMethod == 'Points'">
+				<option value = "Today">
+				<option value = "All Time">
+			</select>
+		</div>
+
+		<table>
+			<tr>
+				<th></th>
+				<th>Prompt</th>
+				<th>Points</th>
+			    <th>Date Added</th>
+			</tr>
+			<tr ng-reapeat = 'prompt in prompts'>
+				<td>
+					<i ng-click = "getFeedback(prompt, false)" ng-class= "prompt.disLiked ? 'fa fa-thumbs-down' : 'fa fa-thumbs-down-alt'" aria-hidden="true"></i>
+					<i ng-click = "getFeedback(prompt, true)" ng-class= "prompt.liked ? 'fa fa-thumbs-up' : 'fa fa-thumbs-up-alt'" aria-hidden="true"></i>
+
+				</td>
+				<td>
+					prompt.text
+					<p class = "authoredBy">by {{prompt.author}}</p>
+				</td>
+				<td>
+					{{prompt.likeTally}}<i class="smallStar fa fa-star" aria-hidden="true"></i>
+				<td>
+					{{prompt.dateAdded}}
+				</td>
+			</tr>
+	</div>

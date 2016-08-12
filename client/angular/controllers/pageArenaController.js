@@ -364,7 +364,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	function validateSentence(midWayStatus){
 		var mostPressingError;
-		console.log($scope.book)
 		console.log('problems with user sentence', $scope.book.sentence);
 		if ($scope.book.sentence.length > 115){
 			$scope.book.sentence = $scope.book.sentence.slice(0, 115);

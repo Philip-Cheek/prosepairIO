@@ -37,20 +37,28 @@
 					<h1>Prose Pair I/O</h1>
 				</div>
 				<div id = 'menuRow'>
+
 					<div class = "menuItem" id ='library' ng-mouseover = "hoverU = true" ng-mouseleave = "hoverU = false">
 						<p class = "menuIcon" ng-if = "!hoverU">
 							<i class = 'fa fa-university' aria-hidden='true'></i>
 						</p>
 						<p ng-if = "hoverU" class = "menuAlt">Browse</p>
 					</div>
+
 					<div class = "menuItem" id="proseGo" ng-click = "omniSwitch(p)" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
 						<p class = "menuIcon" ng-if="!hoverP">
 							<i class="fa fa-pencil" aria-hidden="true"></i>
 						</p>
 						<p  ng-if = "hoverP" class = "menuAlt">Prose Go</p>
 					</div>
-					<div class = "menuItem" id="logIn">
+
+					<div class = "menuItem" id="proseGo" ng-click = "omniSwitch(pr)" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
+						<p class = "menuIcon" ng-if="!hoverP">
+							Placeholder
+						</p>
+						<p ng-if = "hoverP" class = "menuAlt">Add Prompt</p>
 					</div>
+
 					<div class = "menuItem" id="moreMenu">
 					</div>
 					<span id = "stretch"></span>

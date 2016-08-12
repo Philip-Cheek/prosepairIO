@@ -7,4 +7,7 @@ angular.module('prosePair', ['ngRoute'])
     		.when('/prose/:mode',{
     			templateUrl: 'angular/partials/proseArena.html'
     		})
+    		.when('/prompt/', {
+    			templateUrl: 'angular/partials/prompt.html'
+    		})
 	}]);
