@@ -5,7 +5,7 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 
 	$scope.modalShown = false;
 	$scope.modalContent = {};
-	$scope.modalButtons = [];
+	$scope.buttons = [];
 
 	$scope.$watch(function(){
 
@@ -13,14 +13,14 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 
 	}, function(newVal, oldVal){
 
-		console.log('well it\'s called but we are having trouble with the bool');
 		if (newVal != oldVal){
 
 			console.log("I want to know newVal, popupservice", newVal)
 			$scope.modalContent = newVal.content;
-			$scope.modalButtons = newVal.buttons
+			$scope.buttons = newVal.buttons;
+			$scope.modalButton = newVal.modalButton
 			$scope.modalShown = newVal.status;
-			$scope.loading = newVal.loading
+			$scope.loading = newVal.loading;
 
 			if ('loading' in $scope.loading && $scope.loading.status){
 
@@ -47,5 +47,9 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 
 	function setNewModalContent(){
 
+	}
+
+	$scope.dialogButtonClicked = function(path){
+		$location.path(path);
 	}
 });

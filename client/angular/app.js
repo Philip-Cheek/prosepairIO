@@ -1,7 +1,7 @@
 angular.module('prosePair', ['ngRoute'])
 	.config(['$httpProvider','$routeProvider', function($httpProvider, $routeProvider){
 		$routeProvider
-        	.when('/connect',{
+        	.when('/connect/:mode?',{
             	templateUrl: 'angular/partials/connect.html'
     		})
     		.when('/prose/:mode',{

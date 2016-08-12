@@ -5,6 +5,7 @@ angular.module('prosePair').service('peerService', function(){
 	var me;
 	var personWhoseTurn;
 	var sampleFair;
+	var currentMode;
 
 	var service = {};
 
@@ -15,15 +16,15 @@ angular.module('prosePair').service('peerService', function(){
 
 	service.showSampleFair = function(){
 		return sampleFair;
-	}
+	};
 
 	service.setSampleFair = function(person){
 		sampleFair = findNextPersonFrom(person);
-	}
+	};
 
 	service.whoseTurn = function(){
 		return personWhoseTurn;
-	}
+	};
 
 	service.myTurn = function(){
 		personWhoseTurn = me;

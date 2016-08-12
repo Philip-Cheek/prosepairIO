@@ -1,30 +1,21 @@
-angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, intervalFactory, socketFactory, peerService){
+angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService){
+	console.log('cool!')
+
 	$scope.prosepair = true;
-	$scope.explanationText = "Select a Mode";
 	$scope.options = {
 		'nicknameEnter': false,
 		'loading': false
 	};
+	initConnection();
+	$scope.explanationText = "Select a Mode";
 
 	$scope.lesConnect = function(){
 		if (!$scope.options.nickname){
 			$scope.options.nicknameEnter = true;
 			$scope.explanationText = "Enter a Nickname"
 		}else{
-			data = {
-				'name': $scope.options.nickname
-			};
-
-			peerService.informMyself(data.name)
-
-			if (!$scope.prosepair){
-				data.type = 'lightning'
-			}else{
-				data.type = 'pair'
-			}
-
-			socketFactory.emit('connectProse', data)
-			setLoadingText('connecting')
+			peerService.informMyself($scope.options.nickname);
+			getConnecting();
 		}
 	};
 
@@ -56,6 +47,37 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		var loadingString = "Placed in queue. Awaiting " + partner;
 		setLoadingText(loadingString);
 	});
+
+	function initConnection(){
+		console.log('cool!')
+		var me = peerService.revealMyself();
+		console.log(me);
+		console.log($routeParams.mode);
+		if ($routeParams.mode && me){
+			console.log('this should work')
+			$scope.options.nickname = me;
+			$scope.prosepair = $routeParams.mode == 'pair';
+			getConnecting();
+		}
+	}
+
+	function getConnecting(){
+		console.log('we should be connecting!')
+		$scope.options.loading = true;
+
+		data = {
+			'name': $scope.options.nickname
+		};
+
+		if (!$scope.prosepair){
+			data.type = 'lightning'
+		}else{
+			data.type = 'pair'
+		}
+
+		socketFactory.emit('connectProse', data)
+		setLoadingText('connecting')
+	}
 
 	function setLoadingText(loadingString){
 		$scope.options.loading = true;

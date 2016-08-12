@@ -75,7 +75,7 @@ body{
 }
 
 .dialogDarken {
-  position:absolute;
+  position:fixed;
   z-index:9999;
   top:0;
   height:100vh;
@@ -86,7 +86,7 @@ body{
 
 .dialogBox {
   z-index:10000;
-  position: absolute;
+  position: fixed;
   width: 50%; 
   top: 40vh;
   left: 50%;

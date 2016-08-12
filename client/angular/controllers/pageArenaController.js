@@ -208,7 +208,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  			'sampleBody': $scope.sample,
  			'title': $scope.title,
  			'textBody': $scope.bookText,
- 			'authors': authorList
+ 			'authors': authorList,
+ 			'modeRedirect': $scope.mode 
  		}
 
  		bookFactory.saveBook(info);

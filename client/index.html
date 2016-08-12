@@ -58,14 +58,14 @@
 			
 				<div id = "thing">
 					<h3>Pop up Test</h3>
-					<dialog-directive show='modalShown' width='500px' height='300px'>
+					<dialog-directive show='modalShown' width='200px' height='300px'>
 						 <h4>frustrating!</h4>
 						 <h1>{{modalContent.title}}</h1>
  						 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
 
  						 <div ng-if = "modalButton">
  						 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
- 						 		{{button.text}}
+ 						 		{{button.name}}
  						 	</button>
  						 </div>
 
@@ -81,14 +81,14 @@
 
 			<div class = 'partial' ng-view = ""></div>
 
-			<dialog-directive show='modalShown' width='200px' height='300px'>
+			<dialog-directive show='modalShown' width='100px' height='300px'>
 				 <h4>frustrating!</h4>
 				 <h1>{{modalContent.title}}</h1>
 					 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
 
 					 <div ng-if = "modalButton">
 					 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
-					 		{{button.text}}
+					 		{{button.name}}
 					 	</button>
 					 </div>
 
