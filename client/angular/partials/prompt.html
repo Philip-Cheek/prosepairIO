@@ -4,7 +4,7 @@
 		<h1>Add a prompt!</h1>
 		<p>{{error}}</p>
 
-		<input class = "wideNarrow" type = "text" ng-model = "prompt">
+		<input class = "wideNarrow" type = "text" ng-model = "newPrompt.text">
 		<button ng-click = "addPrompt()">Add</button>
 
 		<p>{{charLeft}} characters left.</p>
@@ -13,10 +13,10 @@
 	<div id = "allPromptBox">
 
 		<div promptTitles>
-			<h1>All Prompts By {{sortMethod}}</h1>
-			<select class = 'dropDown' ng-if = "sortMethod == 'Points'">
-				<option value = "Today">
-				<option value = "All Time">
+			<h1>All Prompts By {{sortInfo.method}}</h1>
+			Range: <select class = 'dropDown' ng-if = "sortInfo.method == 'Points'" ng-model = "sortInfo.range" ng-change = 'sortSwitch'>
+				<option value = "recent" selected="selected">Recent</option>
+				<option value = "all"> All Time</option>
 			</select>
 		</div>
 
@@ -27,14 +27,14 @@
 				<th>Points</th>
 			    <th>Date Added</th>
 			</tr>
-			<tr ng-reapeat = 'prompt in prompts'>
+			<tr ng-repeat = 'prompt in prompts'>
 				<td>
-					<i ng-click = "getFeedback(prompt, false)" ng-class= "prompt.disLiked ? 'fa fa-thumbs-down' : 'fa fa-thumbs-down-alt'" aria-hidden="true"></i>
-					<i ng-click = "getFeedback(prompt, true)" ng-class= "prompt.liked ? 'fa fa-thumbs-up' : 'fa fa-thumbs-up-alt'" aria-hidden="true"></i>
+					<i ng-click = "getFeedback(prompt, false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
+					<i ng-click = "getFeedback(prompt, true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-up-alt': !prompt.liked}" aria-hidden="true"></i>
 
 				</td>
 				<td>
-					prompt.text
+					{{prompt.text}}
 					<p class = "authoredBy">by {{prompt.author}}</p>
 				</td>
 				<td>

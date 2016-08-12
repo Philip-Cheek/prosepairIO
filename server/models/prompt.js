@@ -5,9 +5,9 @@ var PromptSchema = new mongoose.Schema({
 	text: [],
 	likeTally: Number,
 	likes: Number,
-	dislikes: Number;
+	dislikes: Number
 },{
 	timestamps: true
 });
 
-module.exports = mongoose.model('Book', BookSchema);
+module.exports = mongoose.model('Prompt', PromptSchema);

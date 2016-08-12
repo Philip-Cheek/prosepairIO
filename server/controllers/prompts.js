@@ -35,7 +35,7 @@ module.exports = (function(){
 
 					var votesOverall = newLikes + newDislikes;
 
-					if ((newTally < 0 && votesOverall > 10) || (newTally < -5){
+					if ((newTally < 0 && votesOverall > 10) || (newTally < -5)){
 						Prompt.remove({'_id': pID}, function(err, result){
 							if (err){
 								console.log('error on add prompt remove', err);
@@ -56,7 +56,7 @@ module.exports = (function(){
 							}else{
 								res.json({'removed': false});
 							}
-						}
+						});
 					}
 				}
 			});
