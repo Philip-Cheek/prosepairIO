@@ -27,6 +27,8 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		if (prompt._id != "user"){
 			promptFactory.registerFeedback(prompt, positive, function(lInt){
 				prompt.likeTally += lInt;
+				prompt.liked = positive;
+				prompt.disliked = !positive;
 			}, function(){
 				var idx = findByID(prompt._id, true)
 				prompts.splice(idxs, 1)

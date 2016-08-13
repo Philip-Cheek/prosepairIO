@@ -22,8 +22,14 @@ angular.module('prosePair').factory('promptFactory', function($http){
 
 
 		$http.post('/getPrompts', gInfo).success(function(result){
-			if (result.success){
-				callback(result.posts);
+			if (result.status){
+
+				var prompts = result.prompts
+				for (var prompt in prompts){
+					this.formatPrompt(prompt);
+				}
+				promptCache.push(prompts)
+				callback(prompts);
 			}
 		});
 	};
@@ -43,7 +49,7 @@ angular.module('prosePair').factory('promptFactory', function($http){
 			var lastItem = lcArr[lcArr.length - 1];
 
 			if (sortInfo.method == 'Date Added'){
-				startValue = lastItem.created_at;
+				startValue = lastItem.createdAt;
 				getAllPrompts(callback, sortType, startValue)
 			}else if (sortInfo.method == 'Points'){
 				startValue = lastItem.likeTally;
@@ -127,15 +133,51 @@ angular.module('prosePair').factory('promptFactory', function($http){
 		prompt.liked = false;
 		prompt.disliked = false;
 
-		if(!('created_at' in prompt)){
+		if(!('createdAt' in prompt)){
 			prompt.dateAdded = cleanDate(false);
 		}else{
-			prompt.dateAdded = cleanDate(prompt.created_at);
+			prompt.dateAdded = cleanDate(prompt.createdAt);
 		}
 
 		if (callback){
 			callback();
 		}
+	}
+
+	function putIntoCache(result, callback){
+		
+		for (var idx = 0; idx < result.length; idx++){
+
+			var lastPage;
+
+			if (promptCache.length > 0){
+				lastPage = promptCache[promptCache.length - 1];
+			}
+
+			while (lastPage && lastPage.length < 20){
+				lastPage.push(result[idx]);
+				idx++;
+
+				if (idx == result.length){
+					return;
+				}
+			}
+
+			var newPage = [];
+
+			while (newPage.length < 20){
+				newPage.page.push(result[idx]);
+				idx++;
+			}
+
+			if (newPage.length > 0){
+				pageCache.push(newPage);
+			}
+
+		}
+
+			
+
 	}
 
 	function cleanDate(date){
@@ -148,6 +190,7 @@ angular.module('prosePair').factory('promptFactory', function($http){
     		return curr_date + "-" + curr_month + "-" + curr_year;
 
 		}else{
+			console.log("unsure if this shall work, clean date createdAt", date)
 			var parts = date.toString().split("-");
     		return new Date(parts[2], parts[1] - 1, parts[0]);
 		}
