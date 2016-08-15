@@ -45,4 +45,15 @@
 					{{prompt.dateAdded}}
 				</td>
 			</tr>
+		</table>
+
+		<div id = 'backNextBox'>
+			<button id = 'back'  ng-disabled = 'pNum == 0' ng-click = 'changePage(pNum - 1)'>
+				Back
+			</button>
+
+			<button id = 'next' ng-disabled = 'prompts.length < 20' ng-click = 'changePage(pNum + 1)'>
+				Next
+			</button>
+		</div>
 	</div>

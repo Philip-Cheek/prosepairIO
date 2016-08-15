@@ -2,52 +2,28 @@ var mongoose = require('mongoose');
 var Prompt = mongoose.model('Prompt')
 
 module.exports = (function(){
-	sortType, startValue, range)
-
-	function sortByDate(sortInfo, callback){
-		if ('startValue' in sortInfo){
-
-			var lastSeenDate = sortInfo.startValue;
-
-			Prompt.find({'createdAt': {
-				'$gt': new Date(greaterDate)}.
-			}.sort({'createdAt':-1}).limit(40)
-			.exec(
-				function(err, result){
-					if (err){
-						console.log('err on sort by date with start value', err)
-					}else{
-						console.log("success on find by date with start v");
-						callback(result)
-					}
-				}
-			);
-
-		}else{
-
-			Prompt.find({}).sort({'createdAt':-1}).limit(40)
-			.exec(
-				function(err, result){
-					if (err){
-						console.log('err on sort by date with start value', err)
-					}else{
-						console.log("success on find by date with start v");
-						callback(result)
-					}
-				}
-			);
-		}
-	}
 
 	return{
 
 		getPrompts: function(req, res){
-			var type = req.body.sortType;
-
-			if (type = "Date Added"){
-
-			}else if (type = "Points"){
-
+			var type = req.params.type;
+			console.log('type check', type)
+			if (type == "dateAdded"){
+				sortByDate(function(status, prompts){
+					if (!status){
+						res.json({'status': false});
+					}else{
+						res.json({'status': true, 'prompts': prompts})
+					}
+				}, req.params.skipVal);
+			}else if (type == "points"){
+				sortByPoints(function(status, prompts){
+					if (!status){
+						res.json({'status': false});
+					}else{
+						res.json({'status': true, 'prompts': prompts})
+					}
+				}, req.params.skipVal);
 			}
 		},
 
@@ -110,3 +86,50 @@ module.exports = (function(){
 		}
 	}
 })();
+
+function sortByPoints(callback, skipVal){
+	if (!skipVal){
+		skipVal = 0
+	}else{
+		skipVal = Number(skipVal);
+	}
+
+	Prompt.find({}).sort({'likeTally':-1}).limit(40)
+	.skip(skipVal)
+	.exec(
+		function(err, result){
+			if (err){
+				console.log('err on sort by date with start value', err)
+				callback(false);
+
+			}else{
+				console.log("success on find by date with start v")
+				callback(true, result);
+			}
+		}
+	);
+}
+
+function sortByDate(callback, skipVal){
+	if (!skipVal){
+		skipVal = 0
+	}else{
+		skipVal = Number(skipVal);
+	}
+	console.log('skip CHECK', skipVal)
+
+	Prompt.find({}).sort({'createdAt':-1}).limit(40)
+	.skip(skipVal)
+	.exec(
+		function(err, result){
+			if (err){
+				console.log('err on sort by date with start value', err);
+				callback(false);
+			}else{
+				console.log("success on find by date with start v");
+				callback(true, result);
+
+			}
+		}
+	);
+}

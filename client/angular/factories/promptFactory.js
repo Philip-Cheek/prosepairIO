@@ -1,79 +1,89 @@
-angular.module('prosePair').factory('promptFactory', function($http){
+angular.module('prosePair').factory('promptFactory', function($http, $location){
 	var factory = {};
 	var promptCache = [];
 
-	factory.getAllPrompts = function(callback, sortType, startValue, range){
-		var gInfo = {};
-
-		if (!sortType){
-			sortType = "Date Added"
+	factory.getPrompts = function(callback, pageIdx, sortType, skipValue){
+		if (!pageIdx){
+			pageIdx = 0;
 		}
 
-		gInfo.sortType = sortType;
-
-		if (startValue){
-			gInfo.startValue = startValue;
+		var sType;
+		if (!sortType || sortType == 'Date Added'){
+			sType = "dateAdded"
+		}else if (sortType == 'Points'){
+			sType = 'points';
 		}
 
-		if (range){
-			gInfo.range = range;
+		if (!skipValue){
+			skipValue = 0;
 		}
 
-
-
-		$http.post('/getPrompts', gInfo).success(function(result){
+		$http.get('/getPrompts/' + sType + '/' + skipValue).success(function(result){
+			console.log(result);
 			if (result.status){
 
-				var prompts = result.prompts
-				for (var prompt in prompts){
-					this.formatPrompt(prompt);
+				var prompts = result.prompts;
+
+			 	for (var p = 0; p < prompts.length; p++){
+			 		factory.formatPrompt(prompts[p]);
+			 	}
+
+			 	console.log(prompts)
+
+				if (prompts.length > 0){
+					putIntoCache(prompts);
 				}
-				promptCache.push(prompts)
-				callback(prompts);
+
+				console.log(promptCache)
+				if (promptCache.length > 0 && result.prompts.length > 0){
+					console.log('this is correct!!')
+					callback(pageIdx, promptCache[pageIdx]);
+				}else if (promptCache.length > 0 && pageIdx == promptCache.length && result.prompts.length == 0){
+					callback(pageIdx - 1, promptCache[pageIdx - 1])
+				}else{
+					callback(pageIdx, []);
+				}
+
+			}else{
+			 	console.log('false status returned from /getPrompts');
 			}
 		});
 	};
 
-	factory.next = function(callback, sortInfo, idx){
-		if (!idx){
+	factory.nextPage = function(callback, sortInfo, idx){
+		if (!idx || idx > promptCache.length){
 			idx = 0;
 		}
 
 		if (idx < promptCache.length){
-			return promptCache[idx];
+			callback(idx, promptCache[idx]);
 		}else if (idx == 0 || promptCache.length == 0){
-			this.getAllPrompts(callback, sortInfo.type)
+			this.getPrompts(callback, sortInfo.type)
 		}else{
-			var startValue;
-			var lcArr = promptCache[promptCache.length - 1];
-			var lastItem = lcArr[lcArr.length - 1];
-
-			if (sortInfo.method == 'Date Added'){
-				startValue = lastItem.createdAt;
-				getAllPrompts(callback, sortType, startValue)
-			}else if (sortInfo.method == 'Points'){
-				startValue = lastItem.likeTally;
-			}
-
-			if ('range' in sortInfo && sortInfo.range != 'all'){
-				getAllPrompts(callback, sortType, startValue, range)
-			}else{
-				getAllPrompts(callback, sortType, startValue)
-			}
+			var skipValue = getSkipValue();
+			console.log('this shoudl be skip value', skipValue)
+		    this.getPrompts(callback, idx, sortInfo.method, skipValue)
 		}
 	}
 
 	factory.setNewSortType = function(sortType, callback){
 		promptCache = [];
-		this.getAllPrompts(callback, sortType);
+		this.getPrompts(callback, sortType);
 	}	
 
-	factory.addPrompt = function(prInfo, callback){
-		$http.post('/addPrompt', prInfo).success(function(result){
-			if (result.status){
-				console.log('cool man')
-				callback(result.newID);
-			}
+	factory.addPrompt = function(newPrompt, shiftScope, setID){
+		this.formatPrompt(newPrompt, function(){
+			reShiftCache(newPrompt, shiftScope);
+
+			var prInfo = factory.cloneNewPrompt(newPrompt);
+			delete prInfo._id;
+
+			$http.post('/addPrompt', prInfo).success(function(result){
+				if (result.status){
+					console.log('cool man')
+					setID(result.newID);
+				}
+			});
 		});
 	};
 
@@ -144,34 +154,66 @@ angular.module('prosePair').factory('promptFactory', function($http){
 		}
 	}
 
-	function putIntoCache(result, callback){
-		
-		for (var idx = 0; idx < result.length; idx++){
+	function reShiftCache(newItem, setShift){
+		for (var p = promptCache.length - 1; p >= 0; p--){
+			var currentPage = promptCache[p];
 
-			var lastPage;
-
-			if (promptCache.length > 0){
-				lastPage = promptCache[promptCache.length - 1];
+			if (currentPage.length == 20){
+				promptCache.push([currentPage.pop()])
 			}
 
-			while (lastPage && lastPage.length < 20){
-				lastPage.push(result[idx]);
-				idx++;
+			for (var i = currentPage.length; i > 0; i--){
+				currentPage[i] = currentPage[i - 1];
+			}
+		
+			if (p > 0){
+				currentPage[i] = promptCache[p - 1].pop();
+			}else{
+				currentPage[i] = newItem;
+			}
+		
+		}
 
-				if (idx == result.length){
-					return;
+		setShift(promptCache[0])
+	}
+
+	function putIntoCache(result){
+		console.log('putIntoCacheCalled')
+		console.log(result)
+		for (var idx = 0; idx < result.length; idx++){
+
+			var lastPage = promptCache.length - 1;
+
+			while (promptCache.length > 0 && promptCache[lastPage].length < 20 && idx < result.length){
+
+				if (notRepeat(result[idx]._id, lastPage)){
+					lastPage.push(result[idx]);
 				}
+
+				if (promptCache.length == 20){
+					break;
+				}
+
+				idx++;
 			}
 
 			var newPage = [];
 
-			while (newPage.length < 20){
-				newPage.page.push(result[idx]);
+			while (newPage.length < 20 && idx < result.length){
+				if (promptCache.length == 0 || (promptCache.length > 0 && notRepeat(result[idx]._id, promptCache.length - 1))){
+					console.log('COOL!!')
+					newPage.push(result[idx]);
+				}
+
+				if (newPage.length == 20){
+					break;
+				}
+
 				idx++;
 			}
 
 			if (newPage.length > 0){
-				pageCache.push(newPage);
+				promptCache.push(newPage);
 			}
 
 		}
@@ -180,6 +222,27 @@ angular.module('prosePair').factory('promptFactory', function($http){
 
 	}
 
+	function notRepeat(pID, lastPNum){
+		var lastPage = promptCache[lastPNum];
+		console.log(lastPNum, 'pNUM!')
+		for (var i = 0; i < lastPage.length; i++){
+			if (pID == lastPage[i]._id){
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	function getSkipValue(){
+		var skipVal = 0;
+
+		for (var p in promptCache){
+			skipVal += promptCache[p].length;
+		}
+
+		return skipVal;
+	}
 	function cleanDate(date){
 		if (!date){
 			var d = new Date();
@@ -190,9 +253,8 @@ angular.module('prosePair').factory('promptFactory', function($http){
     		return curr_date + "-" + curr_month + "-" + curr_year;
 
 		}else{
-			console.log("unsure if this shall work, clean date createdAt", date)
-			var parts = date.toString().split("-");
-    		return new Date(parts[2], parts[1] - 1, parts[0]);
+			var parts = date.toString().split('T')[0].split('-')
+    		return parts[1] + "-" + parts[2] + "-" + parts[0];
 		}
     	
 	}

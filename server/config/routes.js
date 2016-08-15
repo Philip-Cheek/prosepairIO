@@ -16,4 +16,8 @@ module.exports = function(app){
 		console.log('add prompt freedback reached');
 		prompts.addPromptFeedback(req, res);
 	});
+
+	app.get('/getPrompts/:type/:skipVal', function(req, res){
+		prompts.getPrompts(req, res);
+	});
 }

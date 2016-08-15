@@ -7,15 +7,14 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		if (isValidPrompt(pText)){
 			var userPrompt = promptFactory.cloneNewPrompt($scope.newPrompt);
 
-			promptFactory.formatPrompt(userPrompt, function(){
-				$scope.prompts.push(userPrompt);
-
-				promptFactory.addPrompt($scope.newPrompt, function(newID){
-					console.log('whaaat?!')
-					var myPrompt = findByID('user');
-					myPrompt._id = newID;
-					console.log(myPrompt);
-				});
+			promptFactory.addPrompt(userPrompt, function(unShift){
+				$scope.prompts = unShift;
+				$scope.pNum = 0;
+			}, function(newID){
+				console.log('caallllled')
+				var myPrompt = findByID('user');
+				myPrompt._id = newID;
+				console.log(myPrompt);
 			});
 
 		}else{
@@ -37,14 +36,23 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 	};
 
 	function initLocalScope(){
+
 		$scope.prompts = [];
 		$scope.sortInfo = {};
 		$scope.sortInfo.method = "Date Added";
 		$scope.newPrompt = {}
 		$scope.newPrompt._id = 'user'
 		$scope.charLeft = 140;
+		$scope.pNum = 0;
 
 		setNewPrompt();
+
+		promptFactory.getPrompts(function(pNum, prompts){
+			$scope.pNum = pNum;
+			$scope.prompts = prompts;
+			console.log($scope.pNum)
+		});
+
 	}
 
 	function findByID(id, index){
@@ -58,6 +66,17 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 			}
 		}
 	}
+
+	$scope.changePage = function(newP){
+		var sortInfo = {
+			'method': $scope.sortInfo.method
+		}
+		promptFactory.nextPage(function(nP, prompts){
+			$scope.pNum = nP;
+			$scope.prompts = prompts;
+		}, sortInfo, newP)
+	};
+
 	function figureMeOut(){
 		var me = peerService.revealMyself();
 

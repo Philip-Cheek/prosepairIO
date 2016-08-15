@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 
 var PromptSchema = new mongoose.Schema({
-	author: [],
-	text: [],
+	author: String,
+	text: String,
 	likeTally: Number,
 	likes: Number,
 	dislikes: Number
