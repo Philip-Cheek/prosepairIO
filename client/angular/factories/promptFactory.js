@@ -14,6 +14,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 			sType = 'points';
 		}
 
+		console.log('STYPE CHECK', sType)
 		if (!skipValue){
 			skipValue = 0;
 		}
@@ -53,7 +54,9 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 	factory.nextPage = function(callback, sortInfo, idx){
 		if (!idx || idx > promptCache.length){
 			idx = 0;
-		}
+		}	
+
+		console.log(idx)
 
 		if (idx < promptCache.length){
 			callback(idx, promptCache[idx]);
@@ -68,7 +71,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 
 	factory.setNewSortType = function(sortType, callback){
 		promptCache = [];
-		this.getPrompts(callback, sortType);
+		this.getPrompts(callback, 0, sortType);
 	}	
 
 	factory.addPrompt = function(newPrompt, shiftScope, setID){

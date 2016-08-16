@@ -124,6 +124,9 @@ body{
     border:1px dotted black;	
 }
 
+.tabSel{
+	color:blue;
+}
 .blueIcon{
 	color: blue;
 }

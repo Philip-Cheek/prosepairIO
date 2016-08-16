@@ -14,18 +14,26 @@
 
 		<div promptTitles>
 			<h1>All Prompts By {{sortInfo.method}}</h1>
-			Range: <select class = 'dropDown' ng-if = "sortInfo.method == 'Points'" ng-model = "sortInfo.range" ng-change = 'sortSwitch'>
+			<!--Range: <select class = 'dropDown' ng-if = "sortInfo.method == 'Points'" ng-model = "sortInfo.range" ng-change = 'sortSwitch'>
 				<option value = "recent" selected="selected">Recent</option>
 				<option value = "all"> All Time</option>
-			</select>
+			</select>-->
 		</div>
 
 		<table>
 			<tr>
 				<th></th>
 				<th>Prompt</th>
-				<th>Points</th>
-			    <th>Date Added</th>
+				<th> 
+					<a ng-click = "sortBy('Points')" ng-class = "{'tabSel': sortInfo.method == 'Points'}">
+						Points
+					</span>
+				</th>
+			    <th>
+			    	<a ng-click = "sortBy('Date Added')" ng-class = "{'tabSel': sortInfo.method == 'Date Added'}">
+			    		Date Added
+			    	</a>
+			    </th>
 			</tr>
 			<tr ng-repeat = 'prompt in prompts'>
 				<td>

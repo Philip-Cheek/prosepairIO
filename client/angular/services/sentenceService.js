@@ -23,6 +23,22 @@ angular.module('prosePair').service('sentenceService', function(){
 		return {'status': true};
 	}
 
+	service.checkWord = function(word){
+		var errors = [];
+		var vWord = vWord.trim();
+
+		for (var i = 0; i < vWord.length; i++){
+			if (vWord[i] == " " && i != vWord.length - 1){
+				errors.push('Only one word per entry.')
+				break;
+			}
+		}
+
+		if (errors.length > 0){
+			return {'status': false, 'errors': errors};
+		}
+	}
+
 	service.validSample = function(book, sample){
 		var paragraph;
 

@@ -6,9 +6,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	var titleConfirm = false;
 	initArena();
-	var i = 0;
 
 	$scope.book = {};
+
+
 
 	//Listen for Socket Emition From Server
 
@@ -114,7 +115,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 
 		socketFactory.emit("memoBroadcast", info);
-		validateSentence(true);
+
+		if ($scope.mode == "Pair"){
+			validateSentence(true);
+		}else{
+			validateWord();
+		}
 	};
 
 
@@ -175,6 +181,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
  	}
 
+ 	$scope.nextConnect = function(){
+		$location.path('/connect/' + $routeParams.mode)
+	}
 
  	$scope.titlePoll = function(submit){
 
@@ -364,18 +373,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	function validateSentence(midWayStatus){
 		var mostPressingError;
-		console.log('problems with user sentence', $scope.book.sentence);
-		if ($scope.book.sentence.length > 115){
-			$scope.book.sentence = $scope.book.sentence.slice(0, 115);
-			return;
-		}
-
-		$scope.charLeft = 115 - $scope.book.sentence.length
-		if ($scope.charLeft < 0){
-			$scope.validEntry = false;
-			$scope.mostPressingError = ['Maximum character limit exceeded'];
-			return;
-		}
+		checkLen(115);
 
 		var validCheck = sentenceService.isValid($scope.book.sentence, midWayStatus);
 		$scope.validEntry = validCheck.status;
@@ -396,6 +394,13 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		$scope.mode = $routeParams.mode;
 		$scope.myTurn = peerService.getMyInitTurn();
+
+		if ($scope.mode == 'pair'){
+			$scope.charLeft = 115
+		}else{
+			$scope.charLeft = 15;
+		}
+
 		$scope.charLeft = 115;
 		$scope.bookText = [];
 		$scope.titleLeft = 30;
@@ -429,10 +434,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	function setPollTimer(otherPerson, callback){
 		$scope.openPoll = otherPerson;
 		$scope.pollTime = 12;
-		i++;
-
-		console.log("setPollTimer has been called " + i + " times");
-
+		
 		intervalFactory.setCountDown('pollLeft', 12, function(tLeft){
 			$scope.pollTime= tLeft;
 		}, function(){
@@ -454,6 +456,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		});
 	}
 
+
+	function validateWord(){
+		checkLen(15);
+
+		var validWord = sentenceService.checkWord($scope.book.sentence);
+		$scope.validEntry = validWord.status;
+	}
+
+	function checkLen(len){
+		if ($scope.book.sentence.length > len){
+			$scope.book.sentence.splice(0, len);
+		}
+
+		$scope.charLeft = len - $scope.book.sentence.length;
+	}
 
 	function concedeTurn(reason, text, notMe){
 

@@ -1,10 +1,10 @@
 angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService){
 	console.log('cool!')
 
-	$scope.prosepair = true;
 	$scope.options = {
 		'nicknameEnter': false,
-		'loading': false
+		'loading': false,
+		'prosepair': true
 	};
 	initConnection();
 	$scope.explanationText = "Select a Mode";
@@ -24,7 +24,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		intervalFactory.cancelTimer('ellipsis');
 
 		var url;
-
+		console.log($scope.prosepair)
 		if (!$scope.prosepair){
 			url = 'lightning'
 		}else{
@@ -69,16 +69,20 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			'name': $scope.options.nickname
 		};
 
-		if (!$scope.prosepair){
+		if (!$scope.options.prosepair){
 			data.type = 'lightning'
 		}else{
 			data.type = 'pair'
 		}
 
+		console.log("very important this is correct", data)
 		socketFactory.emit('connectProse', data)
 		setLoadingText('connecting')
 	}
 
+	$scope.$watch('options.prosepair', function(){
+		console.log('prosepair check', $scope.options.prosepair)
+	})
 	function setLoadingText(loadingString){
 		$scope.options.loading = true;
 

@@ -3,14 +3,14 @@
 		<p ng-if = "options.loading == false" class = 'explanationType'>{{explanationText}}</p>
 		<div ng-if = "options.nicknameEnter == false && options.loading == false" class = 'connectOptions'>
 			<div id = "buttonBox">
-				<button ng-disabled = "prosepair" ng-click = 'prosepair = true'>Prose Pair</button>
-				<button ng-disabled = "!prosepair" ng-click = 'prosepair = false'>Lightning Round</button>
+				<button ng-disabled = "options.prosepair" ng-click = 'options.prosepair = true'>Prose Pair</button>
+				<button ng-disabled = "!options.prosepair" ng-click = 'options.prosepair = false'>Lightning Round</button>
 			</div>
 
 			<div class = 'explanationBox'>
 				<div id = "optionBox"></div>
-					<p ng-if = 'prosepair'>2 players. Sentence by sentence.</p>
-					<p ng-if = '!prosepair'>3-5 players. Word by word.</p>
+					<p ng-if = 'options.prosepair'>2 players. Sentence by sentence.</p>
+					<p ng-if = '!options.prosepair'>3-5 players. Word by word.</p>
 				</div>
 
 				<button ng-click = 'lesConnect()'>Go</button>

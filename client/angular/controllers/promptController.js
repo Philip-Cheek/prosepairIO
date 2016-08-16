@@ -22,6 +22,15 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		}
 	};
 
+	$scope.sortBy = function(type){
+		$scope.sortInfo.method = type;
+
+		promptFactory.setNewSortType(type, function(pNum, newProm){
+			$scope.pNum = pNum;
+			$scope.prompts = newProm;
+		});
+	}
+	
 	$scope.getFeedback = function(prompt, positive){
 		if (prompt._id != "user"){
 			promptFactory.registerFeedback(prompt, positive, function(lInt){
@@ -81,7 +90,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		var me = peerService.revealMyself();
 
 		if (me){
-			newPrompt.author = me;
+			$scope.newPrompt.author = me;
 		}
 	}
 

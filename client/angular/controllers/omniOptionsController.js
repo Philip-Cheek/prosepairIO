@@ -1,7 +1,8 @@
 angular.module('prosePair').controller('omniOptionsController', function($scope, $location, popUpService, intervalFactory){
 	var menuItems = {
 		"p": "/connect",
-		"pr": "/prompt"
+		"pr": "/prompt",
+		"l": "/"
 	};
 
 	$scope.modalShown = false;
@@ -38,6 +39,7 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	})
 
 	$scope.omniSwitch = function(userPut){
+		console.log('userPUt', userPut)
 		$location.path(menuItems[userPut]);
 	};
 
