@@ -22,23 +22,14 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	socketFactory.on('successConnect', function(info){
 		console.log('success connect butletsjust', info.nameList)
 		intervalFactory.cancelTimer('ellipsis');
-
-		var url;
-		console.log($scope.prosepair)
-		if (!$scope.prosepair){
-			url = 'lightning'
-		}else{
-			url = "pair"
-		}
-
 		peerService.addPeersNTag(info.nameList, info.tag)
-		$location.path('/prose/' + url)
+		$location.path('/prose/' + info.mode)
 
 	});
 
 	socketFactory.on('queued', function(roomList){
 		var partner;
-		if (!$scope.prosePair){
+		if (!$scope.prosepair){
 			partner = 'partners';
 		}else{
 			partner = 'partner';
@@ -69,7 +60,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			'name': $scope.options.nickname
 		};
 
-		if (!$scope.options.prosepair){
+		if ($scope.options.prosepair == false){
 			data.type = 'lightning'
 		}else{
 			data.type = 'pair'

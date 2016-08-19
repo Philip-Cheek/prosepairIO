@@ -5,9 +5,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	//Initialize Arena App;
 
 	var titleConfirm = false;
+	$scope.guess = {};
+
 	initArena();
 
 	$scope.book = {};
+	$scope.guess = {};
 
 
 
@@ -41,7 +44,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	socketFactory.on('pollResults', function(info){
-		handlePollResult(info.vote, true);
+		console.log('we were hit up with a fuckin poll result')
+		handlePollResult(info.vote, false);
 	})
 
 	socketFactory.on("titleChangedByOther", function(info){
@@ -59,8 +63,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	socketFactory.on('pollAtFin', function(info){
-		var otherPerson = info.person != peerService.revealMyself()
-		pollService.setCurrentPoll('fin')
+		var otherPerson = info.person != peerService.revealMyself();
+		pollService.setCurrentPoll('fin', info.person);
 
 		if (otherPerson){
 			$scope.openPoll = true;
@@ -68,39 +72,31 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		};
 
 		setPollTimer(otherPerson, function(){
-			handlePollResult(false, !otherPerson);
+			if (pollService.pollIsCurrent()){
+				pollToAnswer(false);
+			}
 		});
 	});
 
 
 	socketFactory.on('pollTitle', function(info){
-		var otherPerson = info.person != peerService.revealMyself();
-		pollService.setCurrentPoll('title');
-
-		info.title = $scope.title;
-		$scope.titleAllowed = false;
-
-		$scope.titleOwner = !otherPerson;
-		peerService.setSampleFair(info.person);
 
 		if (info.submitStatus){
+			$scope.titleAllowed = false;
+			
+			peerService.setSampleFair(info.person);
+			pollService.setCurrentPoll('title', info.person);
+			setExplanationScope('titlePoll', info);
 
-			if (otherPerson){
-				setExplanationScope('titlePoll', info);
-			}
-			
-			setPollTimer(otherPerson, function(){
-				console.log('this is a poll timer')
-				handlePollResult(false, !otherPerson);
+			setPollTimer(true, function(){
+				pollToAnswer(false);
 			});
-			
+
 		}else{
-			setExplanationScope('turn');
-			$scope.openPoll = false; 
 			$scope.title = "";
 			$scope.titleAllowed = true;
 		}
-	})
+	});
 
 
 
@@ -188,24 +184,27 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	$scope.titlePoll = function(submit){
 
  		$scope.privatePoll = false;
- 		$scope.titleAllowed = false;
-
- 		if (!submit){
- 			$scope.title = "";
- 		}else{
- 			setExplanationScope('privatePoll');
- 		};
+ 		console.log('titlepollreached')
+ 		if (submit){
+ 			pollService.setCurrentPoll('title', peerService.revealMyself());
+			setExplanationScope('privatePoll');
+			$scope.titleAllowed = false;
+			$scope.titleOwner = true;
+		}else{
+			$scope.titleAllowed = true;
+			$scope.title = "";
+		}
 
 		info = {
 			'memo': 'pollTitle',
 			'tag': peerService.showTag(),
 			'body': {
-				'submitStatus': submit,
-				'person': peerService.revealMyself()
+				'person': peerService.revealMyself(),
+				'submitStatus': submit
 			}
 		}
 
-		socketFactory.emit('memoAll', info);
+		socketFactory.emit('memoBroadcast', info);
  	}
 
  	$scope.submitBook = function(){
@@ -225,20 +224,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	}
 
  	$scope.pollAnswer = function(confirm){
-
- 		$scope.openPoll = false;
- 		setExplanationScope('answerPoll');
-
- 		var info = {
- 			'memo': 'pollResults',
- 			'tag': peerService.showTag(),
- 			'body': {
- 				'vote': confirm
- 			}
+ 		if (pollService.isPollCurrent()){
+ 			pollToAnswer(confirm);
  		}
-
- 		socketFactory.emit('memoBroadcast', info);
- 		handlePollResult(confirm);
  	}
 
 
@@ -247,50 +235,64 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	//Worker Functions
 
 
- 	function handlePollResult(confirm, recipient){
+ 	function pollToAnswer(confirm){
+ 		$scope.openPoll = false;
+ 		setExplanationScope('answerPoll');
 
- 		intervalFactory.cancelTimer('pollLeft');
- 		var title = pollService.showCurrentPoll() == 'title';
-
-
- 		if (!recipient){
- 			setExplanationScope('turn')
+ 		var info = {
+ 			'memo': 'pollResults',
+ 			'tag': peerService.showTag(),
+ 			'body': {
+ 				'vote': confirm,
+ 				'voter': peerService.revealMyself()
+ 			}
  		}
 
-		if (confirm){
+ 		socketFactory.emit('memoBroadcast', info);
+ 		handlePollResult(confirm, true);
+ 	}
 
-			if (recipient){
-				console.log("i\'m a recipient", pollService.showCurrentPoll() + 'Confirm')
-				setExplanationScope(pollService.showCurrentPoll() + 'Confirm');
-			}
+ 	function handlePollResult(confirm, answer){
 
-			if (title){
-				titleConfirm = true;
-			}else{
-				setSampleStage();
-			}
+ 		var poll = pollService.showCurrentPoll();
 
-		}else if (!confirm || title){
+ 		if (answer){
+ 			$scope.openPoll = false;
+ 		}
 
-			if(!confirm && recipient){
-				console.log('this should work', pollService.showCurrentPoll() + 'Rejection')
-				setExplanationScope(pollService.showCurrentPoll() + 'Rejection')
-			}
+ 		pollService.handlePollResult(confirm, function(pInfo){
+ 			if (answer || pInfo.status != 'stillPoll'){
+ 				console.log('this needs to happend')
+ 				intervalFactory.cancelTimer('pollLeft');
+ 			}
 
-	 		pollService.handlePollResult(confirm, function(answerKey){
-				for (var part in answerKey){
-					console.log(part)
-					$scope[part] = answerKey[part];
+ 			console.log('pInfo chek', pInfo);
+
+ 			if (pInfo.status != "stillPoll"){
+
+ 				if (peerService.revealMyself() == pInfo.instigator || ($scope.mode != 'pair' || pInfo.status != "Rejection")){
+ 					setExplanationScope(poll + pInfo.status);
+ 				} else{
+ 					setExplanationScope('turn');
+ 				}
+
+ 				var aKey = pInfo.answerKey
+ 				console.log('AKEYasfd', aKey);
+ 				for (var part in aKey){
+					$scope[part] = aKey[part];
 				}
-			});
 
-			console.log("i only want to see this once!", $scope.titleAllowed)
-
-			if (title && !confirm){
-				peerService.clearFair();
-			}
-
-		}
+				if (poll == 'title'){
+					if  (pInfo.status == "Rejection"){
+						peerService.clearFair();
+					}else if (pInfo.status == "Confirm"){
+						titleConfirm = true;
+					}
+				}else if (poll == 'fin' && pInfo.status == "Confirm"){
+					setSampleStage();
+				}
+ 			}
+ 		});
  	}
 
  	function setSampleStage(){
@@ -301,11 +303,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  			console.log('my own damn self', peerService.revealMyself(''));
 
 	 		var sampleBearer = peerService.showSampleFair() == peerService.revealMyself('');
-
-	 		$scope.myTurn = false;
-	 		$scope.samplePick = true;
-	 		$scope.sampleText = "";
-
 	 		setExplanationScope('initSample');
 
 	 		if (sampleBearer){
@@ -390,9 +387,11 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	function initArena(){
+
 		setTimeLeftFromTop();
 
 		$scope.mode = $routeParams.mode;
+		console.log($scope.mode)
 		$scope.myTurn = peerService.getMyInitTurn();
 
 		if ($scope.mode == 'pair'){
@@ -401,7 +400,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			$scope.charLeft = 15;
 		}
 
-		$scope.charLeft = 115;
 		$scope.bookText = [];
 		$scope.titleLeft = 30;
 
@@ -427,6 +425,9 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			$location.path('/connect')
 		}else if ($routeParams.mode == 'pair'){
 			$scope.peer = peers[0]
+		}else if ($routeParams.mode == 'lightning'){
+			$scope.peers = peers;
+			console.log('PEER CHECK CHECK CHECK', $scope.peers)
 		}
 	}
 
@@ -444,7 +445,11 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	function setTimeLeftFromTop(time){
 		if (!time){
-			time = 75;
+			if ($routeParams.mode == 'pair'){
+				time = 75;
+			}else if ($routeParams.mode == 'lightning'){
+				time = 12;
+			}
 		}
 
 		intervalFactory.setCountDown('turnLeft', time, function(tLeft){
@@ -462,11 +467,19 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		var validWord = sentenceService.checkWord($scope.book.sentence);
 		$scope.validEntry = validWord.status;
+
+		if (!$scope.validEntry){
+			var mostPressingError = validWord.errors[validWord.errors.length - 1]
+
+			setExplanationScope('error', mostPressingError);
+		}else{
+			setExplanationScope('turn');
+		}
 	}
 
 	function checkLen(len){
 		if ($scope.book.sentence.length > len){
-			$scope.book.sentence.splice(0, len);
+			$scope.book.sentence = $scope.book.sentence.splice(0, len);
 		}
 
 		$scope.charLeft = len - $scope.book.sentence.length;

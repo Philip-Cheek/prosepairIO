@@ -1,43 +1,98 @@
-angular.module('prosePair').service('pollService', function(){
+angular.module('prosePair').service('pollService', function(peerService){
 
-	var pollTimer;
-	var currentPoll;
+	var currentPoll = {
+		'tally': {
+			'voteCount': 0,
+			'voteStand': 0
+		}
+	};
+	
 	var timeLeft;
 	var service = {};
 
-	service.setCurrentPoll = function(current){
-		currentPoll = current;
+	service.setCurrentPoll = function(current, person){
+		currentPoll.title = current;
+		currentPoll.instigator = person;
+	}
+
+	service.isPollCurrent = function(){
+		return 'title' in currentPoll;
 	}
 
 	service.showCurrentPoll = function(){
-		return currentPoll
+		return currentPoll.title
 	}
 
+	service.pollInstigator = function(){
+		if ('instigator' in currentPoll){
+			return currentPoll.instigator;
+		}
+	}
 
 	service.handlePollResult = function(confirm, callback){
 
-		var tempPoll = currentPoll;
-		currentPoll = "";
+		var pollStatus = handleTally(confirm);
+
+		if (pollStatus != 'stillPoll'){
+			
+			var tempPoll = currentPoll.title;
+			var instigator = currentPoll.instigator;
+
+			currentPoll = {
+				'tally': {
+					'voteCount': 0,
+					'voteStand': 0
+				}
+			};
+
+			console.log('lets look at hopefully reset', currentPoll);
 
 		
-		if (confirm){
+			if (pollStatus == 'pass'){
 
- 			if (tempPoll == 'title'){
- 				callback(confirmTitle());
- 			}
+	 			if (tempPoll == 'title'){
+	 				callback({'status': 'Confirm', 'instigator': instigator, 'answerKey': confirmTitle()});
+	 			}
 
- 		}else{
+	 		}else{
 
- 			if (tempPoll == 'title'){
- 				console.log('we should reject title');
-	 			callback(rejectTitle());
+	 			if (tempPoll == 'title'){
+	 				console.log('we should reject title');
+		 			callback({'status': 'Rejection', 'instigator': instigator, 'answerKey': rejectTitle()});
 
-	 		}else if (tempPoll == 'fin'){
-	 			console.log('we should reject fin');
-	 			callback(rejectFin());
+		 		}else if (tempPoll == 'fin'){
+		 			console.log('we should reject fin');
+		 			callback(rejectFin());
+		 		}
+
 	 		}
+	 	}else{
+	 		callback({'status': 'stillPoll'})
+	 	}
+	}
 
- 		}
+	function handleTally(affirm){
+		console.log('TALLY NOW', currentPoll.tally.voteCount)
+
+		console.log('AFFIRM CHECK', affirm)
+		currentPoll.tally.voteCount += 1;
+		console.log('TALLY COUNT', currentPoll.tally.voteCount)
+
+		if (affirm){
+			currentPoll.tally.voteStand += 1
+		}
+
+		var peerLen = peerService.getPeers().length;
+		var vCount = currentPoll.tally.voteCount;
+		var aVotes = currentPoll.tally.voteStand;
+
+		if ((aVotes/peerLen) > 0.5){
+			return 'pass';
+		}else if ((vCount - aVotes) >= peerLen/2){
+			return 'fail'
+		}else{
+			return 'stillPoll'
+		}
 	}
 
 	function confirmTitle(){
@@ -47,6 +102,16 @@ angular.module('prosePair').service('pollService', function(){
 		};
 
  		return answerKey;
+	}
+
+	function confirmFin(){
+		var answerKey = {
+			'samplePick' : true,
+			'myTurn': false,
+			'sampleText': ""
+		};
+
+		return answerKey
 	}
 
 	function rejectTitle(){

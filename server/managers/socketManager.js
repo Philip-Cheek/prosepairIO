@@ -16,7 +16,8 @@ module.exports = function(server){
 				if (info.success){
 					var  reInfo = {
 						'tag': info.roomTag,
-						'nameList': {}
+						'nameList': {},
+						'mode': data.type
 					};
 
 					for (var i in info.roomList){

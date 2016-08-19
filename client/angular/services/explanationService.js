@@ -135,9 +135,15 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 		var peerList = peerService.getPeers();
 
 		if (peerList.length < 2){
+			var peer = peerList[0];
+			if (peer == peerService.revealMyself()){
+				return "You"
+			}else{
+				return peer
+			}
 			return (peerList[0]);
 		}else{
-			return ("prose partners");
+			return ("Prose partners");
 		}
 	}
 

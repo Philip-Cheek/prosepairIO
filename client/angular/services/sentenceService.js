@@ -23,7 +23,7 @@ angular.module('prosePair').service('sentenceService', function(){
 		return {'status': true};
 	}
 
-	service.checkWord = function(word){
+	service.checkWord = function(vWord){
 		var errors = [];
 		var vWord = vWord.trim();
 
@@ -36,6 +36,8 @@ angular.module('prosePair').service('sentenceService', function(){
 
 		if (errors.length > 0){
 			return {'status': false, 'errors': errors};
+		}else{
+			return {'status': true}
 		}
 	}
 

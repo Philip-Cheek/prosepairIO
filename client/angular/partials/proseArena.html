@@ -18,9 +18,13 @@
 	</div>
 
 	<div id = 'friendBox'>
-		<div ng-if = "mode == 'pair'" id = "peercomment"></div>
+		<p>testing mode: {{mode}}
+		<div ng-if = "mode == 'pair'" id = "peercomment">
 			<p>You have been connected with {{peer}}.</p>
+		</div>
 		<div ng-if = "mode == 'lightning'" id = "peerList">
+
+			<p>{{peers}}</p>
 			<p ng-repeat = "p in peers">{{p}}</p>
 		</div>
 	</div>

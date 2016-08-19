@@ -6,6 +6,7 @@ angular.module('prosePair').service('peerService', function(){
 	var personWhoseTurn;
 	var sampleFair;
 	var currentMode;
+	var currentTally;
 
 	var service = {};
 

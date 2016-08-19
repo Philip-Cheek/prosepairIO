@@ -37,8 +37,9 @@ clientManager.connectClient = function(data, socket, callback){
 
 		callback({'success':true, 'room': room, 'roomList': roomList, 'turn': turn, 'roomTag': roomTag});
 	}else{
-		console.log('do not proceed')
-		clientManager[handledData.connectType].push(socket)
+		console.log('do not proceed');
+		clientManager[handledData.connectType].push(socket);
+		console.log(clientManager[handledData.connectType].length)
 		callback({'success':false})
 	}
 }
@@ -115,4 +116,4 @@ function generateRoomTag(){
 
 
 
-module.exports = clientManager
+module.exports = clientManager;
