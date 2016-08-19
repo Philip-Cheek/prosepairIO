@@ -70,7 +70,7 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				setScope('Congratulations! This book is finished!');
 				break;
 			case 'finRejection':
-				setScope(determineCancelText("end the story"));
+				setScope(determineCancelText("end the story", person));
 				this.resetExplanationLater(setScope);
 				break;
 			case 'titleRejection':
@@ -153,14 +153,18 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 	}
 
 
-	function determineCancelText(cancel){
+	function determineCancelText(cancel, person){
 		var p = determinePeerTitle();
 		var txt = " not agree to "
 
-		if (determinePeerPlural){
-			return p + " does" + txt + cancel;
+		if (peerService.revealMyself() == person){
+			if (determinePeerPlural){
+				return p + " does" + txt + cancel;
+			}else{
+				return p + " do";
+			}
 		}else{
-			return p + " do"
+			return "Title rejected";
 		}
 	}
 

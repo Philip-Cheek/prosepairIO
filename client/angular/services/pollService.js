@@ -72,11 +72,7 @@ angular.module('prosePair').service('pollService', function(peerService){
 	}
 
 	function handleTally(affirm){
-		console.log('TALLY NOW', currentPoll.tally.voteCount)
-
-		console.log('AFFIRM CHECK', affirm)
 		currentPoll.tally.voteCount += 1;
-		console.log('TALLY COUNT', currentPoll.tally.voteCount)
 
 		if (affirm){
 			currentPoll.tally.voteStand += 1

@@ -22,7 +22,8 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	socketFactory.on('successConnect', function(info){
 		console.log('success connect butletsjust', info.nameList)
 		intervalFactory.cancelTimer('ellipsis');
-		peerService.addPeersNTag(info.nameList, info.tag)
+		console.log('modeCHECK', info.mode)
+		peerService.setRoomStage(info.nameList, info.tag, info.mode);
 		$location.path('/prose/' + info.mode)
 
 	});
@@ -40,14 +41,11 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	});
 
 	function initConnection(){
-		console.log('cool!')
 		var me = peerService.revealMyself();
-		console.log(me);
-		console.log($routeParams.mode);
+	
 		if ($routeParams.mode && me){
-			console.log('this should work')
 			$scope.options.nickname = me;
-			$scope.prosepair = $routeParams.mode == 'pair';
+			$scope.options.prosepair = $routeParams.mode == 'pair';
 			getConnecting();
 		}
 	}

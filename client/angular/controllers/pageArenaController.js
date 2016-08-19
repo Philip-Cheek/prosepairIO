@@ -58,18 +58,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	socketFactory.on('peerLeft', function(peerName){
-		peerService.peerLeft(peerName);
+		var errText = peerName + "has disconnected.";
+
+		setExplanationScope('error', errText);
+
+		peerService.peerLeft(peerName, function(){
+			setExplanationScope('error', errText + " Reconnecting...")
+		});
 	});
 
 
 	socketFactory.on('pollAtFin', function(info){
-		var otherPerson = info.person != peerService.revealMyself();
 		pollService.setCurrentPoll('fin', info.person);
 
-		if (otherPerson){
-			$scope.openPoll = true;
-			setExplanationScope('finPoll', info.person);
-		};
+		$scope.openPoll = true;
+		setExplanationScope('finPoll', info.person);
 
 		setPollTimer(otherPerson, function(){
 			if (pollService.pollIsCurrent()){
@@ -83,7 +86,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		if (info.submitStatus){
 			$scope.titleAllowed = false;
-			
+
 			peerService.setSampleFair(info.person);
 			pollService.setCurrentPoll('title', info.person);
 			setExplanationScope('titlePoll', info);
@@ -163,7 +166,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			setExplanationScope('expireError', 'Their must be an agreed upon title.');
 		}else{
 			setExplanationScope('finSubmit');
-			pollService.setCurrentPoll('fin')
+			pollService.setCurrentPoll('fin', peer.revealMyself());
 
 			var info = {
 				'memo': 'pollAtFin',
@@ -173,7 +176,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				}
 			}
 
-			socketFactory.emit('memoAll', info);
+			socketFactory.emit('memoBroadcast', info);
 		}
  	}
 
@@ -200,7 +203,8 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			'tag': peerService.showTag(),
 			'body': {
 				'person': peerService.revealMyself(),
-				'submitStatus': submit
+				'submitStatus': submit,
+				'title': $scope.title
 			}
 		}
 
@@ -271,7 +275,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  			if (pInfo.status != "stillPoll"){
 
  				if (peerService.revealMyself() == pInfo.instigator || ($scope.mode != 'pair' || pInfo.status != "Rejection")){
- 					setExplanationScope(poll + pInfo.status);
+ 					setExplanationScope(poll + pInfo.status, pInfo.instigator);
  				} else{
  					setExplanationScope('turn');
  				}

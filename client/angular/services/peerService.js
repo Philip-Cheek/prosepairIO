@@ -1,4 +1,4 @@
-angular.module('prosePair').service('peerService', function(){
+angular.module('prosePair').service('peerService', function($location, $timeout){
 	var roomies = {};
 
 	var instanceTag;
@@ -6,9 +6,21 @@ angular.module('prosePair').service('peerService', function(){
 	var personWhoseTurn;
 	var sampleFair;
 	var currentMode;
-	var currentTally;
 
 	var service = {};
+
+	service.peerLeft = function(name, callback){
+		if (name in roomies){
+			delete roomies[name];
+		}
+
+		ifMoveOn(function(move){
+			callback();
+			$timeout(function(){
+				move();
+			}, 800);
+		});
+	}
 
 	service.setNextTurn = function(person, callback){
 		personWhoseTurn = person;
@@ -39,10 +51,13 @@ angular.module('prosePair').service('peerService', function(){
 		return person == personWhoseTurn;
 	};
 
-	service.addPeersNTag = function(list, tag){
+	service.setRoomStage = function(list, tag, mode){
 		setNewRoom();
+
 		roomies = list;
 		instanceTag = tag;
+		currentMode = mode;
+
 		for (var turn in roomies){
 			if (roomies[turn]){
 				personWhoseTurn = turn;
@@ -105,11 +120,11 @@ angular.module('prosePair').service('peerService', function(){
 	};
 
 	function setNewRoom(){
-		var roomies = {};
+		roomies = {};
 
-		var instanceTag = "";
-		var personWhoseTurn = "";
-		var sampleFair;
+		instanceTag = "";
+		personWhoseTurn = "";
+		sampleFair = ""
 	}
 
 	function findNextPersonFrom(person){
@@ -121,6 +136,20 @@ angular.module('prosePair').service('peerService', function(){
 			return roomieArr[0];
 		}else{
 			return roomieArr[pIndex + 1];
+		}
+	}
+
+	function ifMoveOn(callback){
+		var peersLeft = service.getPeers().length;
+		console.log('currentmodeCheck', currentMode);
+		if (peersLeft <= 0 || (currentMode == "lightning" && peersLeft < 3)){
+			if (callback){
+				callback(function(){
+					$location.path('/connect/' + currentMode);
+				});
+			}else{
+				$location.path('/connect/' + currentMode);
+			}
 		}
 	}
 
