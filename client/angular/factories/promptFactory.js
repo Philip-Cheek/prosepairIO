@@ -2,6 +2,17 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 	var factory = {};
 	var promptCache = [];
 
+	factory.getArenaPrompt = function(callback){
+		$http.get('/randomPrompt').success(function(result){
+			if (result.status){
+				factory.formatPrompt(result.prompt);
+				callback(result.prompt);
+			}else{
+				console.log('check server log for error');
+			}
+		});
+	}
+
 	factory.getPrompts = function(callback, pageIdx, sortType, skipValue){
 		if (!pageIdx){
 			pageIdx = 0;
@@ -246,6 +257,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 
 		return skipVal;
 	}
+
 	function cleanDate(date){
 		if (!date){
 			var d = new Date();

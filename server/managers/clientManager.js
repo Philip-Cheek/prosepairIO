@@ -4,11 +4,17 @@ var clientManager = {
 	'roomByTag': {},
 	'roomsBySocketID':{},
 	'pairQueue':[],
-	'lightningQueue': []
+	'lightningQueue': [],
+	'connectMaster': {}
 };
 
+clientManager.cleanConnect = function(id){
+	var cleanStatus = (!(id in this.connectMaster));
+	this.connectMaster[id] = true;
+	return cleanStatus;
+}
+
 clientManager.connectClient = function(data, socket, callback){
-	console.log(data)
 	checkSetDataForSocket(data.name, socket);
 	var handledData = handleClientConnect(data.type)
 	console.log('handledData check', handledData)
@@ -42,24 +48,43 @@ clientManager.connectClient = function(data, socket, callback){
 		console.log(clientManager[handledData.connectType].length)
 		callback({'success':false})
 	}
+};
+
+clientManager.checkRepeat = function(name, callback){
+	for (var key in this.allSocketsConnected){
+
+		if (name == this.allSocketsConnected[key]){
+			var info = {'isError': true, 'error': 'Nickname is currently being used by other user.'}
+			callback(info);
+			return;
+		};
+	}
+
+	callback({'isError': false});
 }
 
 clientManager.scrubUser = function(socketID, callback){
+	console.log('init all users connected', this.allUsersConnected)
 	var name = this.allSocketsConnected[socketID];
 	var roomArr = this.roomsBySocketID[socketID];
 
 	delete this.allSocketsConnected[socketID];
 	delete this.allUsersConnected[name];
 	delete this.roomsBySocketID[socketID];
+	delete this.connectMaster[socketID];
 
+
+	console.log('after all users connected', this.allUsersConnected)
 	var qArr = [this.pairQueue, this.lightningQueue];
 
 	for (var i = 0; i < qArr.length; i++){
+		console.log(qArr[i], qArr[i].length)
 		for (var sock = 0; sock < qArr[i].length; sock++){
 			if (qArr[i][sock].id = socketID){
 				qArr[i].splice(sock,1);
 			}
 		}
+		console.log('after',qArr[i], qArr[i].length)
 	}
 
 	callback(name, roomArr);

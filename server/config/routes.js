@@ -20,4 +20,8 @@ module.exports = function(app){
 	app.get('/getPrompts/:type/:skipVal', function(req, res){
 		prompts.getPrompts(req, res);
 	});
+
+	app.get('/randomPrompt', function(req, res){
+		prompts.getRandomPrompt(req, res);
+	})
 }

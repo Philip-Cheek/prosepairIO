@@ -70,9 +70,6 @@ body{
     	line-height: 0
 	}
 
-.partial *{
-	padding:1em;
-}
 
 .dialogDarken {
   position:fixed;
@@ -113,20 +110,162 @@ body{
 	}
 
 #sentenceBox{
-  width:50em;
+  width:40em;
   height:7em;
   resize:none;
+  overflow-y:scroll;
 }
 
 #proseBox{
-	width:45em;
+	width:32.5em;
     height:20em;
-    border:1px dotted black;	
+    border:1px dotted black;
+    overflow-y:scroll;
+    display:inline-block;
+    vertical-align: top;
+    margin:0em;
 }
 
+	#proseBox p{
+		margin:.5em;
+
+	}
+#sideBox{
+	width:14em;
+	height:20em;
+	border:1px dotted black;
+	display:inline-block;
+	vertical-align: top;
+	padding:0em;
+	margin:0em;
+	background-color: lightgray;
+	position:relative;
+}
+	.sideText {
+		font-size: .9em;
+		margin-top: .5em;
+	}
+	#timeBox{
+ 		width: 10.3em;
+  		max-height:6.5em;
+  		min-height:5em;
+ 		border:.2em solid black;
+ 		margin: 0 auto;
+  		margin-top: 1em;
+	}
+
+		#timeBox .sideText{
+			text-align: center;
+			margin-left:.1em;
+			margin-right:.1em;
+		}
+
+		#secBox{
+		  margin: 0 auto;
+		  margin-top:.5em;
+		  height:2.3em;
+		  background-color:white;
+		  width:8em;
+		  border-radius:.8em;
+		  
+		}
+
+		#secBox #timer{
+		  font-size:1.5em;
+		  text-align: center;
+		}
+
+
+		.arenaBottom{
+			position:absolute;
+			bottom:0em;
+			height:9em;
+			width:100%;
+		}
+
+			#arenaCon{
+				margin:0 0 0 0;
+			}
+
+				.arenaBottom #left{
+					position:absolute;
+					font-size:8em;
+					left:.17em;
+					bottom:.1em;
+					color: rgba(0, 0, 0, 0.25)
+				}
+				.arenaBottom #right{
+					position:absolute;
+					right:.17em;
+					bottom:0em;
+					font-size:7.5em;
+					opacity:12%;
+					color: rgba(0, 0, 0, 0.25)
+				}
+
+
+
+
+#friendBox .sideText, #friendBox ul{
+	margin-left:.7em;
+	margin-top: .8em;
+}
+
+#titleBox{
+	border:1px dotted black;
+	width:32.5em;
+	height:3.89em;
+	display:inline-block;
+	vertical-align: bottom;
+}
+
+	#titleBox .charleft{
+		font-size: .8em;
+	}
+
+	#titleBox #titleInput{
+		display:inline-block;
+		margin-top:0em;
+	}
+
+		#titleBox #titleInput input{
+			padding: .4em;
+			font-size: 1em;
+			width:15em;
+		}
+
+	#titleBox #titlePoll{
+		display:inline-block;
+	}
+		#titlePoll button{
+			height:1.7em;
+			width:1.7em;
+			font-size:1.5em;
+			margin-top: .2em;
+		}
+
+
+#nextBox{
+	display:inline-block;
+	width:14em;
+	position: relative;
+	height:1.3em;
+}
+
+	#nextBox button{
+		position: absolute;
+		right:1em;
+		padding:.8em;
+		font-size: 1em;
+		bottom:0;
+	}
 .tabSel{
 	color:blue;
 }
 .blueIcon{
 	color: blue;
+}
+
+.danger{
+	color:red;
 }

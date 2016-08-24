@@ -1,13 +1,8 @@
 angular.module('prosePair').service('pollService', function(peerService){
 
-	var currentPoll = {
-		'tally': {
-			'voteCount': 0,
-			'voteStand': 0
-		}
-	};
-	
+	var currentPoll = voterDefault();
 	var timeLeft;
+
 	var service = {};
 
 	service.setCurrentPoll = function(current, person){
@@ -29,66 +24,87 @@ angular.module('prosePair').service('pollService', function(peerService){
 		}
 	}
 
-	service.handlePollResult = function(confirm, callback){
+	service.handlePollResult = function(confirm, voter, callback){
 
-		var pollStatus = handleTally(confirm);
+		console.log("here is an honest look at currentPoll", currentPoll);
+		if ('title' in currentPoll){
+			var pollStatus = handleTally(confirm, voter);
 
-		if (pollStatus != 'stillPoll'){
+			if (pollStatus != 'stillPoll'){
+				
+				var tempPoll = currentPoll.title;
+				var instigator = currentPoll.instigator;
+
+				currentPoll = voterDefault();
+
+				console.log('lets look at hopefully reset', currentPoll);
+
 			
-			var tempPoll = currentPoll.title;
-			var instigator = currentPoll.instigator;
+				if (pollStatus == 'pass'){
 
-			currentPoll = {
-				'tally': {
-					'voteCount': 0,
-					'voteStand': 0
-				}
-			};
+		 			if (tempPoll == 'title'){
+		 				callback({'status': 'Confirm', 'instigator': instigator, 'answerKey': confirmTitle()});
+		 			
 
-			console.log('lets look at hopefully reset', currentPoll);
+		 			}else if (tempPoll == 'fin'){
+		 				callback({'status': 'Confirm', 'instigator': instigator, 'answerKey': confirmFin()})
+		 			}
 
-		
-			if (pollStatus == 'pass'){
+		 		}else{
 
-	 			if (tempPoll == 'title'){
-	 				callback({'status': 'Confirm', 'instigator': instigator, 'answerKey': confirmTitle()});
-	 			}
+		 			if (tempPoll == 'title'){
+		 				console.log('we should reject title');
+			 			callback({'status': 'Rejection', 'instigator': instigator, 'answerKey': rejectTitle()});
 
-	 		}else{
+			 		}else if (tempPoll == 'fin'){
+			 			console.log('we should reject fin');
+			 			callback(rejectFin());
+			 		}
 
-	 			if (tempPoll == 'title'){
-	 				console.log('we should reject title');
-		 			callback({'status': 'Rejection', 'instigator': instigator, 'answerKey': rejectTitle()});
-
-		 		}else if (tempPoll == 'fin'){
-		 			console.log('we should reject fin');
-		 			callback(rejectFin());
 		 		}
-
-	 		}
-	 	}else{
-	 		callback({'status': 'stillPoll'})
-	 	}
+		 	}else{
+		 		callback({'status': 'stillPoll'})
+		 	}
+		}
 	}
 
-	function handleTally(affirm){
-		currentPoll.tally.voteCount += 1;
+	function handleTally(affirm, voter){
 
-		if (affirm){
-			currentPoll.tally.voteStand += 1
-		}
+		if (firstVote(voter)){
+			currentPoll.tally.voteCount += 1;
 
-		var peerLen = peerService.getPeers().length;
-		var vCount = currentPoll.tally.voteCount;
-		var aVotes = currentPoll.tally.voteStand;
+			if (affirm){
+				currentPoll.tally.voteStand += 1
+			}
 
-		if ((aVotes/peerLen) > 0.5){
-			return 'pass';
-		}else if ((vCount - aVotes) >= peerLen/2){
-			return 'fail'
+			var peerLen = peerService.getPeers().length;
+			var vCount = currentPoll.tally.voteCount;
+			var aVotes = currentPoll.tally.voteStand;
+
+			if ((aVotes/peerLen) > 0.5){
+				return 'pass';
+			}else if ((vCount - aVotes) >= peerLen/2){
+				return 'fail'
+			}else{
+				return 'stillPoll'
+			}
+
 		}else{
 			return 'stillPoll'
 		}
+	}
+
+	function firstVote(person){
+		var voters = currentPoll.tally.voters;
+
+		for (var i = 0; i < voters.length; i++){
+			if (voters[i] == person){
+				return false;
+			}
+		}
+
+		currentPoll.tally.voters.push(person);
+		return true;
 	}
 
 	function confirmTitle(){
@@ -108,6 +124,16 @@ angular.module('prosePair').service('pollService', function(peerService){
 		};
 
 		return answerKey
+	}
+
+	function voterDefault(){
+		return {
+			'tally': {
+				'voteCount': 0,
+				'voteStand': 0,
+				'voters': []
+			}
+		}
 	}
 
 	function rejectTitle(){

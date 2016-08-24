@@ -23,7 +23,29 @@ angular.module('prosePair').service('sentenceService', function(){
 		return {'status': true};
 	}
 
-	service.checkWord = function(vWord){
+	service.nextPGranted = function(bookText){
+		var errors = [];
+
+		var lastPar = bookText[bookText.length - 1];
+		var lastLetter = lastPar[lastPar.length - 1];
+
+		if (!isEndingPunct(lastLetter)){
+			errors.push('The current sentence is not finished')
+		}
+
+		if (lastPar.split(' ').length < 5){
+			errors.push('The current paragraph is too short to start a new one.')
+		}
+
+		if (errors.length > 0){
+			return {'status': false, 'errors': errors};
+		}else{
+			return {'status': true};
+		}
+			
+	}
+
+	service.checkWord = function(vWord, first){
 		var errors = [];
 		var vWord = vWord.trim();
 
@@ -32,6 +54,10 @@ angular.module('prosePair').service('sentenceService', function(){
 				errors.push('Only one word per entry.')
 				break;
 			}
+		}
+
+		if (first && isEndingPunct(vWord[vWord.length - 1])){
+			errors.push("It's almost never a good idea to start a story with a one word sentence.")
 		}
 
 		if (errors.length > 0){
@@ -48,14 +74,14 @@ angular.module('prosePair').service('sentenceService', function(){
 
 			paragraph = book[p];
 
-			if (paragraph.indexOf(sample) == -1){
+			if (paragraph.length < sample.length || paragraph.indexOf(sample) == -1){
 
 				break;
 
 			}
 		}
 
-		return p == book.length;
+		return book.length > 0 && p == book.length;
 	}
 
 	function isLikelyOneSentence(sentence, midway, errors){

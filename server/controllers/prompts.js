@@ -5,6 +5,25 @@ module.exports = (function(){
 
 	return{
 
+		getRandomPrompt: function(req, res){
+			Prompt.count().exec(function(err, count){
+				if (err){
+					console.log('error on prompt count', err);
+					res.json({'status': false})
+				}else{
+					var rIndex = Math.floor(Math.random() * count);
+
+					Prompt.findOne({}).skip(rIndex).exec(function(err, result){
+						if (err){
+							console.log("error on prompt rando querry", err);
+						}else{
+							res.json({'status': true, 'prompt': result})
+						}
+					});
+				}
+			});
+		},
+
 		getPrompts: function(req, res){
 			var type = req.params.type;
 			console.log('type check', type)

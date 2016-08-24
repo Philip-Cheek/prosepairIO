@@ -9,6 +9,21 @@ angular.module('prosePair').service('peerService', function($location, $timeout)
 
 	var service = {};
 
+	service.revealNextPerson = function(yourFriendly){
+		var nextPerson = findNextPersonFrom(personWhoseTurn);
+		var myself = nextPerson == me;
+
+		if (yourFriendly){
+			if (myself){
+				return 'your';
+			}else{
+				return nextPerson + '\'s'
+			}
+		}
+
+		return nextPerson;
+	}
+
 	service.peerLeft = function(name, callback){
 		if (name in roomies){
 			delete roomies[name];

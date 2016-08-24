@@ -62,7 +62,7 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				this.resetExplanationLater(setScope);
 				break;
 			case 'titleConfirm':
-				console.log('title confirm')
+				console.log('title super confirm')
 				setScope('Title has been confirmed');
 				this.resetExplanationLater(setScope);
 				break;

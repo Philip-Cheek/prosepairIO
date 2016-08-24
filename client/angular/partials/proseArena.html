@@ -1,37 +1,84 @@
 <div ng-controller='proseArenaController'>
-	<div id = 'buttonBox'>
+	<div id = 'promptBox'>
+			<div id = "likeBox">
+				<i ng-click = "getFeedback(false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
+				<i ng-click = "getFeedback(true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i>
+			</div>
+			<div id = 'contentBox'>
+				<h2>Prompt:</h2>
+				<p id = 'promptText'>{{prompt.text}}</p>
+				<p id = 'authoredBy'>by {{prompt.author}}</p>
+			</div>
+	<div id = 'titleBox'>
+		<div id = 'titleRow'>
+			<div id = "titleInput">
+				Title: <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
+			</div>
+
+			<div id = "titlePoll" ng-if = "privatePoll">
+				<button>
+					<i class="fa fa-times" aria-hidden="true" style="color:red;" ng-click = 'titlePoll(false)'></i>
+				</button>
+				<button>
+					<i class="fa fa-check" aria-hidden="true" style="color:green;" ng-click = 'titlePoll(true)'></i>
+				</button>
+			</div>
+
+			<p class = 'charLeft'><span ng-class = "{'danger': titleLeft < 11}">{{titleLeft}}</span> characters left</p>
+		</div>
+	</div>
+
+	<div id = 'nextBox'>
 		<button id = "next" class = "butt" ng-click = "nextConnect()">Next</button>
 	</div>
-	<div id = 'titleBox'>
-		<div id = 'title'>
-			Title: <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
-		</div>
-		<div id = "titlePoll" ng-if = "privatePoll">
-			{{titleLeft}} characters left;
-			<button><i class="fa fa-times" aria-hidden="true" ng-click = 'titlePoll(false)'></i></button>
-			<button><i class="fa fa-check" aria-hidden="true" ng-click = 'titlePoll(true)'></i></button>
-		</div>
 
 
-	<div id = 'proseBox'>
-		<p ng-repeat = "paragraph in bookText">{{paragraph}}</p>
+	<div id = "arenaBox">
+		<div id = 'proseBox'>
+			<p ng-repeat = "paragraph in bookText">{{paragraph}}</p>
+		</div>
+
+		<div id = 'sideBox'>
+
+			<div id = 'timeBox'>
+				<div id = 'secBox'>
+					<p id = 'timer'>
+						<span ng-class = "{'danger': timeLeft < 11}">{{timeLeft}}</span>s
+					</p>
+				</div>
+				<p class = 'sideText'>until {{nextPerson}} turn</p>
+			</div>
+
+			<div id = 'friendBox'>
+				<div ng-if = "mode == 'pair'" id = "peercomment">
+					<p class = 'sideText'>You have been connected with {{peer}}.</p>
+				</div>
+				<div ng-if = "mode == 'lightning'" id = "peerList">
+					<p class = 'sideText'>You have been connected with:</p>
+					<ul>
+						<li ng-repeat = "p in peers">{{p}}</li>
+					</ul>
+				</div>
+			</div>
+
+			<div class = 'arenaBottom'>
+				<div class = 'arenaCon'>
+					<div id = 'pairMage' ng-if = 'mode == "pair"'>
+						<i id = 'left' class="fa fa-user" aria-hidden="true"></i>
+						<i id = 'right' class="fa fa-user" aria-hidden="true"></i>
+					</div>
+					<div id = 'lightMage' ng-if = 'mode == "lightning"'>
+						<i class="fa fa-bolt" aria-hidden="true"></i>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
 	</div>
 
-	<div id = 'friendBox'>
-		<p>testing mode: {{mode}}
-		<div ng-if = "mode == 'pair'" id = "peercomment">
-			<p>You have been connected with {{peer}}.</p>
-		</div>
-		<div ng-if = "mode == 'lightning'" id = "peerList">
 
-			<p>{{peers}}</p>
-			<p ng-repeat = "p in peers">{{p}}</p>
-		</div>
-	</div>
-
-	<div id = 'timeBox'>
-		<h4 id = 'time'>{{timeLeft}}</h4>
-	</div>
+	
 
 	<div id = "enterArea">
 
@@ -47,12 +94,12 @@
 
 		<div id = "writeBox" ng-if = "!samplePick">
 
-			<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'book.sentence' ng-change = 'userTyping()'>
+			<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'book.input' ng-change = 'userTyping()'>
 			</textarea>
 
 			<p id = "charLeft">{{charLeft}} characters left</p>
 
-			<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "paragraph = !paragraph">
+			<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "parSwitch()">
 				<i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i>
 			</button>
 
@@ -71,7 +118,7 @@
 			<h5>Summary</h5>
 			<p>{{sampleText}}</p>
 
-			<button ng-click = "submitBook()">Done</button
+			<button ng-click = "submitBook()">Done</button>
 		</div>
  	</div>
 

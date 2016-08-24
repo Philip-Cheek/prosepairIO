@@ -16,11 +16,11 @@
 				<button ng-click = 'lesConnect()'>Go</button>
 			</div>
 		</div>
-
+		{{errInfo.error}}
 
 		<div ng-if= "options.nicknameEnter == true && options.loading == false" class = 'nicknameBox'>
-			Nickname: <input type = "text" ng-model = "options.nickname">
-			<button ng-click = 'lesConnect()'>Connect</button>
+			Nickname: <input type = "text" ng-model = "options.nickname" ng-change = "isRepeat()">
+			<button ng-disabled = "!options.nickname || options.nickname.length < 3 || errInfo.isError" ng-click = 'lesConnect()'>Connect</button>
 		</div>
 
 

@@ -1,13 +1,17 @@
 angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService){
-	console.log('cool!')
 
 	$scope.options = {
 		'nicknameEnter': false,
 		'loading': false,
 		'prosepair': true
 	};
+	
 	initConnection();
 	$scope.explanationText = "Select a Mode";
+	$scope.errInfo = {
+		'isError': false,
+		'error': ''
+	};
 
 	$scope.lesConnect = function(){
 		if (!$scope.options.nickname){
@@ -19,10 +23,34 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		}
 	};
 
+	$scope.isRepeat = function(){
+		var nickname = $scope.options.nickname;
+
+		if (nickname.length > 1){
+			socketFactory.emit('repeatNickname', nickname)
+		}
+	}
+
+	socketFactory.on('nicknameRepeat', function(result){
+		var errorText = ""
+		console.log('resultcheck', result)
+
+		if (result.isError){
+			console.log('good')
+			errorText += result.error;
+		}
+
+		console.log(errorText);
+
+		$scope.$apply(function(){
+			$scope.errInfo.isError = result.isError;
+			$scope.errInfo.error = errorText;
+			console.log($scope.errInfo,'hmm')
+		});
+	});
+
 	socketFactory.on('successConnect', function(info){
-		console.log('success connect butletsjust', info.nameList)
 		intervalFactory.cancelTimer('ellipsis');
-		console.log('modeCHECK', info.mode)
 		peerService.setRoomStage(info.nameList, info.tag, info.mode);
 		$location.path('/prose/' + info.mode)
 
@@ -51,7 +79,6 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	}
 
 	function getConnecting(){
-		console.log('we should be connecting!')
 		$scope.options.loading = true;
 
 		data = {
@@ -64,14 +91,10 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			data.type = 'pair'
 		}
 
-		console.log("very important this is correct", data)
 		socketFactory.emit('connectProse', data)
 		setLoadingText('connecting')
 	}
 
-	$scope.$watch('options.prosepair', function(){
-		console.log('prosepair check', $scope.options.prosepair)
-	})
 	function setLoadingText(loadingString){
 		$scope.options.loading = true;
 
