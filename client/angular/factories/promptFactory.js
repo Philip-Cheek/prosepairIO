@@ -201,7 +201,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 			while (promptCache.length > 0 && promptCache[lastPage].length < 20 && idx < result.length){
 
 				if (notRepeat(result[idx]._id, lastPage)){
-					lastPage.push(result[idx]);
+					promptCache[lastPage].push(result[idx]);
 				}
 
 				if (promptCache.length == 20){

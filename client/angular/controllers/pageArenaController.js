@@ -15,20 +15,26 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	socketFactory.on('turnChange', function(info){
 
-		$scope.myTurn = peerService.setNextTurn(info.person);
-		$scope.paragraph = false;
-		$scope.nextPerson = peerService.revealNextPerson(true);
+		if (info.reason == 'finSwitch'){
+			peerService.setSampleFair(info.text);
+			intervalFactory.cancelTimer()
+			setSampleStage();
+		}else{
+			$scope.myTurn = peerService.setNextTurn(info.person);
+			$scope.paragraph = false;
+			$scope.nextPerson = peerService.revealNextPerson(true);
 
-		docService.docTitleExclaim($scope.myTurn);
-		setTimeLeftFromTop();
-		setBookText(info);
+			docService.docTitleExclaim($scope.myTurn);
+			setTimeLeftFromTop();
+			setBookText(info);
 
-		if ($scope.bookText.join(' ').length > 10 && !$scope.titleAllowed && !titleConfirm){
-			$scope.titleAllowed = true; 
-		}
+			if ($scope.bookText.join(' ').length > 10 && !$scope.titleAllowed && !titleConfirm){
+				$scope.titleAllowed = true; 
+			}
 
-		if (info.reason != "ranOutOfTime" || info.text != peerService.revealMyself()){
-			setExplanationScope('turn');
+			if (info.reason != "ranOutOfTime" || info.text != peerService.revealMyself()){
+				setExplanationScope('turn');
+			}
 		}
 	});
 
@@ -40,9 +46,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		setExplanationScope('otherTyping');
 	});
 
-
 	socketFactory.on('pollResults', function(info){
-		handlePollResult(info.vote, info.voter, false);
+		$scope.$apply(function(){
+			handlePollResult(info.vote, info.voter, false);
+		});
 	})
 
 	socketFactory.on("titleChangedByOther", function(info){
@@ -98,6 +105,12 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 	});
 
+	$scope.$watch(function(){
+		return peerService.showSampleFair();
+	}, function(newVal){
+		console.log('THIS IS SAMPLE FAIR', newVal);
+	})
+
 
 
 	//Functions Triggered By User
@@ -120,12 +133,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	};
 
 	$scope.getFeedback = function(positive){
-		console.log('feedBACK!')
 		promptFactory.registerFeedback($scope.prompt, positive, function(lInt){
 			$scope.prompt.likeTally += lInt;
 			$scope.prompt.liked = positive;
 			$scope.prompt.disliked = !positive;
-			console.log('prompt check', $scope.prompt)
 		}, function(){
 			console.log('prompt has been discontinued due to dislike')
 		});
@@ -284,7 +295,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  			}
  		}
 
- 		coose++;
  		socketFactory.emit('memoBroadcast', info);
  		handlePollResult(confirm, peerService.revealMyself(), true);
  	}
@@ -301,17 +311,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
  			if (pInfo.status != "stillPoll"){
 
- 				console.log('are these the same people', peerService.revealMyself(), pInfo.instigator)
  				if (peerService.revealMyself() == pInfo.instigator || ($scope.mode != 'pair' || pInfo.status != "Rejection")){
  					setExplanationScope(poll + pInfo.status, pInfo.instigator);
  				} else{
  					setExplanationScope('turn');
  				}
 
- 				var aKey = pInfo.answerKey
- 				console.log('AKEYasfd', aKey);
+ 				var aKey = pInfo.answerKey;
+
  				for (var part in aKey){
-					$scope[part] = aKey[part];
+ 					$scope[part] = aKey[part];
 				}
 
 				if (poll == 'title'){
@@ -329,19 +338,21 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
  	function setSampleStage(){
  		if (titleConfirm){
+ 			
+ 			$scope.finMode = true;
+ 			intervalFactory.cancelTimer('turnLeft');
 
- 			console.log('we are going to need to have a few things straight');
- 			console.log('sample fair', peerService.showSampleFair());
- 			console.log('my own damn self', peerService.revealMyself(''));
+ 			var sumPerson = peerService.showSampleFair();
+	 		var sampleBearer = sumPerson == peerService.revealMyself('');
 
-	 		var sampleBearer = peerService.showSampleFair() == peerService.revealMyself('');
 	 		setExplanationScope('initSample');
 
 	 		if (sampleBearer){
 
+	 			$scope.sumExplan = "You have"
+
 	 			docService.enableHighlightTracking(function(sample){
 
-	 				console.log('what even is sample!', sample)
 	 				if (sample && sample.length > 0){
 			 			if (sentenceService.validSample($scope.bookText, sample)){
 
@@ -357,12 +368,16 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 			 			}else{
 
-			 				console.log('this should be called each incorrect highlights')
 			 				setExplanationScope('error', 'Please only highlight text within the prose.');
 			 			}
 			 		};
 	 			});
+	 		}else{
+	 			console.log('this should be called!', sumPerson)
+	 			$scope.sumExplan = sumPerson + ' has'
 	 		}
+
+	 		setSumTimer();
 	 	}
  	}
 
@@ -385,7 +400,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	function setBookText(info){
  		$scope.paragraph = false;
 
- 		console.log(info);
  		if (info.reason != "ranOutOfTime"){
  			var textToAdd = info.text;
 
@@ -483,20 +497,22 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			$scope.peer = peers[0]
 		}else if ($routeParams.mode == 'lightning'){
 			$scope.peers = peers;
-			console.log('PEER CHECK CHECK CHECK', $scope.peers)
 		}
 	}
 
+	function setSumTimer(){
+		$scope.sumTime = 12;
+
+	 	setTime('finTimer', 12, 'sumTime', function(){
+	 		concedeTurn('finSwitch');
+	 	})
+	}
 
 	function setPollTimer(otherPerson, callback){
 		$scope.openPoll = otherPerson;
 		$scope.pollTime = 12;
 		
-		intervalFactory.setCountDown('pollLeft', 12, function(tLeft){
-			$scope.pollTime= tLeft;
-		}, function(){
-			callback();
-		});
+		setTime('pollLeft', 12, 'pollTime', callback);
 	}
 
 	function setTimeLeftFromTop(time){
@@ -508,13 +524,17 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			}
 		}
 
-		intervalFactory.setCountDown('turnLeft', time, function(tLeft){
-			$scope.timeLeft = tLeft;
-		}, function(){
+		setTime('turnLeft', time, 'timeLeft', function(){
 			if ($scope.myTurn){
 				concedeTurn('ranOutOfTime');
 			};
 		});
+	}
+
+	function setTime(timer, time, scope, callback){
+		intervalFactory.setCountDown(timer, time, function(tLeft){
+			$scope[scope] = tLeft;
+		}, callback);
 	}
 
 
@@ -539,24 +559,19 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	function checkLen(len){
 		if ($scope.book.input.length > len){
-			console.log('inputcheck',$scope.book.input)
 			$scope.book.input = $scope.book.input.slice(0, len);
 		}
 
 		$scope.charLeft = len - $scope.book.input.length;
 	}
 
-	$scope.$watch('paragraph', function(){
-		console.log('paragraph check', $scope.paragraph)
-	});
-
 	function concedeTurn(reason, text, notMe){
 
 		$scope.myTurn = false;
 		$scope.book.input = "";
 
-		if (reason == 'ranOutOfTime'){
-			setExplanationScope('time')
+		if (reason == 'ranOutOfTime' || 'finSwitch'){
+			setExplanationScope('time');
 			text = peerService.revealMyself();
 		}
 

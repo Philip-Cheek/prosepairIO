@@ -40,7 +40,7 @@
 
 		<div id = 'sideBox'>
 
-			<div id = 'timeBox'>
+			<div id = 'timeBox' ng-if = '!finMode'>
 				<div id = 'secBox'>
 					<p id = 'timer'>
 						<span ng-class = "{'danger': timeLeft < 11}">{{timeLeft}}</span>s
@@ -114,8 +114,9 @@
 		</div>
 
 		<div id = "sampleBox" ng-if = "samplePick">
+			<p>{{sumExplan}} {{sumTime}} left</p>
 
-			<h5>Summary</h5>
+			<h5>Summary: </h5>
 			<p>{{sampleText}}</p>
 
 			<button ng-click = "submitBook()">Done</button>

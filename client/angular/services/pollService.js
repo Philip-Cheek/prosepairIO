@@ -43,6 +43,7 @@ angular.module('prosePair').service('pollService', function(peerService){
 				if (pollStatus == 'pass'){
 
 		 			if (tempPoll == 'title'){
+		 				peerService.setSampleFair(instigator);
 		 				callback({'status': 'Confirm', 'instigator': instigator, 'answerKey': confirmTitle()});
 		 			
 
@@ -53,7 +54,7 @@ angular.module('prosePair').service('pollService', function(peerService){
 		 		}else{
 
 		 			if (tempPoll == 'title'){
-		 				console.log('we should reject title');
+		 				peerService.clearFair();
 			 			callback({'status': 'Rejection', 'instigator': instigator, 'answerKey': rejectTitle()});
 
 			 		}else if (tempPoll == 'fin'){
