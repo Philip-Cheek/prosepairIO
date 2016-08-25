@@ -169,23 +169,29 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 	}
 
 	function reShiftCache(newItem, setShift){
-		for (var p = promptCache.length - 1; p >= 0; p--){
-			var currentPage = promptCache[p];
-
-			if (currentPage.length == 20){
-				promptCache.push([currentPage.pop()])
-			}
-
-			for (var i = currentPage.length; i > 0; i--){
-				currentPage[i] = currentPage[i - 1];
-			}
+		var last;
 		
-			if (p > 0){
-				currentPage[i] = promptCache[p - 1].pop();
-			}else{
-				currentPage[i] = newItem;
+		if (promptCache.length == 0){
+			promptCache.push([newItem]);
+		}else{
+			for (var p = promptCache.length - 1; p >= 0; p--){
+				var currentPage = promptCache[p];
+
+				if (currentPage.length == 20){
+					promptCache.push([currentPage.pop()])
+				}
+
+				for (var i = currentPage.length; i > 0; i--){
+					currentPage[i] = currentPage[i - 1];
+				}
+			
+				if (p > 0){
+					currentPage[i] = promptCache[p - 1].pop();
+				}else{
+					currentPage[i] = newItem;
+				}
+			
 			}
-		
 		}
 
 		setShift(promptCache[0])

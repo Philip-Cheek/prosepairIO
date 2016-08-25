@@ -24,4 +24,8 @@ module.exports = function(app){
 	app.get('/randomPrompt', function(req, res){
 		prompts.getRandomPrompt(req, res);
 	})
+
+	app.get('/latestBooks', function(req, res){
+		books.getBooks(req, res);
+	});
 }

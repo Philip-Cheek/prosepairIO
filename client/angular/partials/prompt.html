@@ -38,8 +38,8 @@
 			<tr ng-repeat = 'prompt in prompts'>
 				<td>
 					<div id = "likeBox">
-						<i ng-click = "getFeedback(false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
-						<i ng-click = "getFeedback(true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i>
+						<i ng-click = "getFeedback(prompt, false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
+						<i ng-click = "getFeedback(prompt, true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i>
 					</div>
 
 				</td>

@@ -8,7 +8,9 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 			var userPrompt = promptFactory.cloneNewPrompt($scope.newPrompt);
 
 			promptFactory.addPrompt(userPrompt, function(unShift){
-				$scope.prompts = unShift;
+				if (unShift){
+					$scope.prompts = unShift;
+				}
 				$scope.pNum = 0;
 			}, function(newID){
 				console.log('caallllled')
@@ -32,6 +34,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 	}
 	
 	$scope.getFeedback = function(prompt, positive){
+		console.log('this will be', prompt)
 		if (prompt._id != "user"){
 			promptFactory.registerFeedback(prompt, positive, function(lInt){
 				prompt.likeTally += lInt;
@@ -58,13 +61,18 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 
 		promptFactory.getPrompts(function(pNum, prompts){
 			$scope.pNum = pNum;
-			$scope.prompts = prompts;
+
+			if (prompts || prompt.length > 0){
+				$scope.prompts = prompts;
+			}
+
 			console.log($scope.pNum)
 		});
 
 	}
 
 	function findByID(id, index){
+		console.log($scope.prompts);
 		for (var i = $scope.prompts.length - 1; i >= 0; i--){
 			if ($scope.prompts[i]._id == id){
 				if (!index){
@@ -106,6 +114,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 	function getlatestPrompts(){
 
 	}
+
 
 	function isValidPrompt(txt){
 		if (txt && txt.length < 10){

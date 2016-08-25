@@ -41,9 +41,9 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				this.resetExplanationLater(setScope);
 				break;
 			case 'titlePoll':
-				overlapText = info.person + " would like to change the title to " + info.title;
-				overlapStamp = new Date();
-				setScope(overlapText);
+				var pollText = info.person + " would like to change the title to " + info.title;
+				setOverlap(pollText);
+				setScope(pollText);
 				break;
 			case 'otherTyping':
 				console.log('wooHoo!!')
@@ -84,7 +84,9 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 				this.setExplanationText('turn', setScope);
 				break;
 			case 'finPoll':
-				setScope(info + " would like to conclude the story.");
+				var pollText = info + " would like to conclude the story.";
+				setOverlap(pollText);
+				setScope(pollText);
 				break;
 
 			case 'expireError':
@@ -150,6 +152,11 @@ angular.module('prosePair').service('explanationService', function($timeout, pee
 
 	function determinePeerPlural(){
 		return peerService.getPeers().length > 1
+	}
+
+	function setOverlap(string){
+		overlapText = string;
+		overlapStamp = new Date();
 	}
 
 

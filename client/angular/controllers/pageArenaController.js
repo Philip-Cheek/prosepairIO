@@ -13,6 +13,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Listen for Socket Emition From Server
 
+	socketFactory.on('saveBook', function(book){
+		saveBook(book, false);
+	});
+
 	socketFactory.on('turnChange', function(info){
 
 		if (info.reason == 'finSwitch'){
@@ -241,7 +245,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  	$scope.submitBook = function(){
  		var authorList = peerService.getPeers();
  		authorList.push(peerService.revealMyself());
- 		docService.disableHighlightTracking();
 
  		var info = {
  			'sampleBody': $scope.sample,
@@ -251,7 +254,27 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  			'modeRedirect': $scope.mode 
  		}
 
+ 		saveBook(info, true)
+ 		socketFactory.emit('memoBroadcast', {
+			'memo': 'saveBook',
+			'tag': peerService.showTag(),
+			'body': info
+		});
+ 	}
+
+ 	function saveBook(info, initEmit){
+ 		docService.disableHighlightTracking();
+ 		intervalFactory.cancelTimer('finTimer');
+
  		bookFactory.saveBook(info);
+
+ 		if (initEmit){
+ 			socketFactory.emit('memoBroadcast', {
+				'memo': 'saveBook',
+				'tag': peerService.showTag(),
+				'body': info
+			});
+ 		}
  	}
 
  	$scope.pollAnswer = function(confirm){
@@ -338,7 +361,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
  	function setSampleStage(){
  		if (titleConfirm){
- 			
+
  			$scope.finMode = true;
  			intervalFactory.cancelTimer('turnLeft');
 

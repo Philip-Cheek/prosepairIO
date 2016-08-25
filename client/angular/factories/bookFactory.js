@@ -1,12 +1,25 @@
 angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', function ($http, popUpService){
 	var bookFactory = {};
+	var bookList = [];
+
+	bookFactory.getBooks = function(callback, skip){
+		if (!skip){
+			skip = 0;
+		}
+
+		$http.get('/latestBooks').success(function(result){
+			if (result.status){
+				callback(result.books)
+			}
+		});
+	}
 
 	bookFactory.saveBook = function(inputInfo){
 		console.log('save book reached');
 		var mode = inputInfo.modeRedirect;
 		delete inputInfo.modeRedirect
 
-		formatBookModal(inputInfo, function(modalInfo){
+		formatBookDoneModal(inputInfo, function(modalInfo){
 			$http.post('/saveBookEntry', inputInfo).success(function(result){
 
 				console.log(result)
@@ -49,7 +62,27 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 		});
 	};
 
-	function formatBookModal(bookInfo, callback){
+	function getSplitPages(text, wordCap){
+
+		if (!wordCap){
+			wordCap = 650;
+		}
+
+		var words = text.split(' ');
+		var start = 0;
+		var pages = [];
+
+		while (start < words.length){
+			var sub  = words.slice(start, wordCap);
+			start += sub.length;
+			
+			pages.push(sub.join(' '));
+		}
+
+		return pages;
+	}
+
+	function formatBookDoneModal(bookInfo, callback){
 		console.log('format book reached');
 
 		var authorString = bookInfo.authors.join(', ');

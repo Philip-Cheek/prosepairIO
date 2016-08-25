@@ -67,10 +67,12 @@ module.exports = (function(){
 		addPromptFeedback: function(req, res){
 			var pID = req.body.promptID;
 
+			console.log('this is req', req.body)
 			Prompt.findOne({'_id': pID}, function(err, result){
 				if (err){
 					console.log('error on add prompt feedback', err);
 				}else{
+					console.log('do we have a result', result);
 					var newLikes = result.likes + req.body.likeChange;
 					var newDislikes = result.dislikes + req.body.disChange;
 					var newTally = newLikes - newDislikes;

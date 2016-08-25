@@ -1,0 +1,7 @@
+<div ng-controller = 'libraryController'>
+	<ol>
+		<li ng-repeat = 'book in books'>{{book.title}}</li>
+	</ol>
+	<button ng-disabled = "page == 0" ng-click = 'turnPage(-1)'>back</button>
+	<button ng-click = 'turnPage(1)'>next</button>
+</div>
