@@ -6,6 +6,11 @@ angular.module('prosePair').service('popUpService', function(){
 
 	var service = {};
 
+	service.getContent = function(){
+		if ('content' in modal){
+			return modal.content;
+		}
+	}
 	service.showDialog = function(info){
 		console.log('dialog called!', info)
 		var infoModal = info;

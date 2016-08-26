@@ -1,16 +1,14 @@
 angular.module('prosePair').factory('promptFactory', function($http, $location){
 	var factory = {};
 	var promptCache = [];
+	var arenaPrompt = {};
 
-	factory.getArenaPrompt = function(callback){
-		$http.get('/randomPrompt').success(function(result){
-			if (result.status){
-				factory.formatPrompt(result.prompt);
-				callback(result.prompt);
-			}else{
-				console.log('check server log for error');
-			}
-		});
+	factory.giveArenaPrompt = function(prompt){
+		arenaPrompt = prompt;
+	};
+
+	factory.getArenaPrompt = function(){
+		return arenaPrompt;
 	}
 
 	factory.getPrompts = function(callback, pageIdx, sortType, skipValue){
@@ -170,7 +168,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location){
 
 	function reShiftCache(newItem, setShift){
 		var last;
-		
+
 		if (promptCache.length == 0){
 			promptCache.push([newItem]);
 		}else{

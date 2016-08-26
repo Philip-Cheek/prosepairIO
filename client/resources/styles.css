@@ -260,12 +260,169 @@ body{
 		bottom:0;
 	}
 .tabSel{
-	color:blue;
+	color:blue !important;
 }
 .blueIcon{
 	color: blue;
 }
 
 .danger{
-	color:red;
+	color:red !important;
 }
+
+.prompt{
+	padding:.3em;
+	max-width: 50em;
+	margin: 0 auto;
+}
+	#addPromptBox{
+		width:30em;
+		margin:0 auto;
+	}
+		.wideNarrow{
+			width:43em;
+			min-height:6em;
+			max-height:7em;
+			resize:none;
+			padding:1em;
+			margin-top:1em;
+		}
+
+		#addPromptBox .charWarning{
+			font-size:.8em;
+			color:gray;
+			display:inline-block;
+			margin-left: 21.1em;
+		}
+
+		#addPromptBox button{
+			display: inline-block;
+			font-size:.85em;
+			padding:.4em;
+			margin-top: .5em;
+		}
+
+	#allPromptBox{
+		width:50em;
+		margin: 0 auto;
+		margin-top:1.5em;
+	}
+
+		#allPromptBox table{
+			margin-top:.38em;
+		}
+		#allPromptBox tr, #allPromptBox td, #allPromptBox th{
+			border:1px solid black;
+			padding:.5em;
+		}
+
+
+		#allPromptBox table th{
+			font-size: 1.15em;
+			font-weight:bold;
+		}
+			.dAdded{
+				white-space: nowrap;
+			}
+
+		#allPromptBox table tbody tr:nth-child(even){
+			background-color: lightgray;
+		}
+
+		#allPromptBox table tbody tr{
+			/*max-width: 15em;*/
+		}
+		.thOption{
+			text-decoration: underline;
+			cursor: pointer;
+		}
+
+		#allPromptBox .authoredBy{
+			font-size: .8em;
+			font-style: italic;
+			margin-left: 29em;
+		}
+
+		#likeBox{
+			padding:.1em;
+			font-size: 1.5em;
+			cursor: pointer;
+		}
+
+		#backNextBox{
+			width:50em;
+			margin-top:.35em;
+			height:2.4em;
+			position:relative;
+		}
+
+			#backNextBox button{
+				padding:.3em;
+				font-size: 1.5em;
+			}
+
+			#backNextBox #next{
+				margin-left:30em;
+				position: absolute;
+				top:0;
+				right:0;
+			}
+
+#proseArena{
+	width:50em;
+	margin: 0 auto;
+}
+
+	#promptBox{
+		width:45em;
+		margin: 0 auto;
+		margin-bottom: .7em;
+	}
+		#promptBox #contentBox{
+			display:inline-block;
+			width:40em;
+		}
+
+		#promptBox #authoredBy{
+			margin-left: 38em;
+			font-size: .8em;
+			font-style: italic;
+		}
+
+		#promptBox #likelyBox{
+			display:inline-block;
+			font-size:1.7em;
+			height:3em;
+			vertical-align: top;
+			padding-top: 1.2em;
+		}
+
+			#prompt #likelyBox .liking{
+				margin-bottom: .8em
+			}
+
+.modContent{
+	margin:2em;
+}
+	.modtitle{
+		text-align: center;
+		margin-bottom: 1em;
+	}
+	.italTitle{
+		font-size: .85em;
+		font-style: italic;
+	}
+
+	.breakUnder{
+		margin-bottom: 2em;
+	}
+
+	.modContent .buttonMod{
+		text-align:center;
+	}
+		.modContent .modButt{
+			margin: 1em;
+			padding: 1em;
+		}
+
+

@@ -5,7 +5,7 @@ module.exports = (function(){
 
 	return{
 
-		getRandomPrompt: function(req, res){
+		getRandomPrompt: function(callback){
 			Prompt.count().exec(function(err, count){
 				if (err){
 					console.log('error on prompt count', err);
@@ -17,7 +17,7 @@ module.exports = (function(){
 						if (err){
 							console.log("error on prompt rando querry", err);
 						}else{
-							res.json({'status': true, 'prompt': result})
+							callback(result);
 						}
 					});
 				}

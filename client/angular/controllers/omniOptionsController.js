@@ -1,4 +1,4 @@
-angular.module('prosePair').controller('omniOptionsController', function($scope, $location, popUpService, intervalFactory){
+angular.module('prosePair').controller('omniOptionsController', function($scope, $location, bookFactory, popUpService, intervalFactory){
 	var menuItems = {
 		"p": "/connect",
 		"pr": "/prompt",
@@ -21,19 +21,21 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 			$scope.modalContent = newVal.content;
 			$scope.buttons = newVal.buttons;
 			$scope.modalButton = newVal.modalButton
-			$scope.modalShown = newVal.status;
-			$scope.loading = newVal.loading;
+			$scope.modalShown = newVal.status
 
-			if ('loading' in $scope.loading && $scope.loading.status){
+			if ('loading' in newVal){
+				$scope.loading = newVal.loading;
+				if ('loading' in $scope.loading && $scope.loading.status){
 
-				intervalFactory.setLoadingEllipsis($scope.modalContent.loading.text, function(str){
-					$scope.loading.text = str;
-				}, function(){
-					return $scope.loading.text;
-				});
+					intervalFactory.setLoadingEllipsis($scope.modalContent.loading.text, function(str){
+						$scope.loading.text = str;
+					}, function(){
+						return $scope.loading.text;
+					});
 
-			}else{
-				intervalFactory.cancelTimer('ellipsis');
+				}else{
+					intervalFactory.cancelTimer('ellipsis');
+				}
 			}
 		}
 	})
@@ -53,6 +55,12 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	}
 
 	$scope.dialogButtonClicked = function(path){
+		console.log('path', path)
+		if (path == 'recentSuccess'){
+			bookFactory.viewRecentSuccess();
+		}else{
+			$location.path(path);
+		}
 		$location.path(path);
 	}
 });

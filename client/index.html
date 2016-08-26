@@ -70,18 +70,21 @@
 			
 				<div id = "thing">
 					<h3>Pop up Test</h3>
-					<dialog-directive show='modalShown' width='200px' height='300px'>
-						 <h4>frustrating!</h4>
-						 <h1>{{modalContent.title}}</h1>
- 						 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
+					<dialog-directive show='modalShown' width='20em' height='30em'>
+						<div class = 'modContent'>
+							<h3>{{modalContent.message}}</h3>
+							<h2 class = 'modTitle'>{{modalContent.title}}</h2>
 
- 						 <div ng-if = "modalButton">
- 						 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
- 						 		{{button.name}}
- 						 	</button>
- 						 </div>
+							 <p ng-repeat = "element in modalContent.body" ng-class = "{'italTitle': element.ital, 'breakUnder': !element.ital}">{{element.text}}<span ng-if = 'element.ital == true'>:</span></p>
 
- 						 <p ng-if = 'loading.status'>{{loading.text}}</p>
+							 <div class = 'buttonMod' ng-if = "modalButton">
+							 	<button class = 'modButt' ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
+							 		{{button.name}}
+							 	</button>
+							 </div>
+
+						 	<p ng-if = 'loading.status'>{{loading.text}}</p>
+						 </div>
 
 					</dialog-directive>
 
@@ -92,21 +95,6 @@
 			</div>
 
 			<div class = 'partial' ng-view = ""></div>
-
-			<dialog-directive show='modalShown' width='100px' height='300px'>
-				 <h4>frustrating!</h4>
-				 <h1>{{modalContent.title}}</h1>
-					 <p ng-repeat = "element in modalContent.body">{{element.text}}</p>
-
-					 <div ng-if = "modalButton">
-					 	<button ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
-					 		{{button.name}}
-					 	</button>
-					 </div>
-
-					 <p ng-if = 'loading.status'>{{loading.text}}</p>
-
-			</dialog-directive>
 			
 		</div>
 	</body>

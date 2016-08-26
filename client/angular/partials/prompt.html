@@ -1,36 +1,30 @@
-<div class = "connect" ng-controller = "promptController">
+<div class = "prompt" ng-controller = "promptController">
 
 	<div id = "addPromptBox">
 		<h1>Add a prompt!</h1>
 		<p>{{error}}</p>
 
-		<input class = "wideNarrow" type = "text" ng-model = "newPrompt.text">
-		<button ng-click = "addPrompt()">Add</button>
+		<textarea class = "wideNarrow" type = "text" ng-change = 'userTyping()' ng-model = "newPrompt.text"></textarea>
 
-		<p>{{charLeft}} characters left.</p>
+		<p class = 'charWarning' ng-class = "{'danger': charLeft < 15}">{{charLeft}} characters left.</p>
+		<button ng-disabled = '!newPrompt.text || newPrompt.text.length < 15' ng-click = "addPrompt()">Add</button>
 	</div>
 
 	<div id = "allPromptBox">
 
-		<div promptTitles>
-			<h1>All Prompts By {{sortInfo.method}}</h1>
-			<!--Range: <select class = 'dropDown' ng-if = "sortInfo.method == 'Points'" ng-model = "sortInfo.range" ng-change = 'sortSwitch'>
-				<option value = "recent" selected="selected">Recent</option>
-				<option value = "all"> All Time</option>
-			</select>-->
-		</div>
+		<h1>All Prompts By {{sortInfo.method}}</h1>
 
 		<table>
 			<tr>
 				<th></th>
 				<th>Prompt</th>
 				<th> 
-					<a ng-click = "sortBy('Points')" ng-class = "{'tabSel': sortInfo.method == 'Points'}">
+					<a ng-click = "sortBy('Points')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Points'}">
 						Points
 					</span>
 				</th>
-			    <th>
-			    	<a ng-click = "sortBy('Date Added')" ng-class = "{'tabSel': sortInfo.method == 'Date Added'}">
+			    <th class = 'dAdded'>
+			    	<a ng-click = "sortBy('Date Added')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Date Added'}">
 			    		Date Added
 			    	</a>
 			    </th>
@@ -38,18 +32,18 @@
 			<tr ng-repeat = 'prompt in prompts'>
 				<td>
 					<div id = "likeBox">
-						<i ng-click = "getFeedback(prompt, false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
-						<i ng-click = "getFeedback(prompt, true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i>
+						<i ng-click = "getFeedback(prompt, true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i><br>
+						<i ng-click = "getFeedback(prompt, false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i><br>
 					</div>
 
 				</td>
 				<td>
 					{{prompt.text}}
-					<p class = "authoredBy">by {{prompt.author}}</p>
+					<p class = "authoredBy">- by {{prompt.author}}</p>
 				</td>
 				<td>
 					{{prompt.likeTally}}<i class="smallStar fa fa-star" aria-hidden="true"></i>
-				<td>
+				<td class = 'dAdded'>
 					{{prompt.dateAdded}}
 				</td>
 			</tr>
@@ -57,11 +51,11 @@
 
 		<div id = 'backNextBox'>
 			<button id = 'back'  ng-disabled = 'pNum == 0' ng-click = 'changePage(pNum - 1)'>
-				Back
+				<i class="fa fa-arrow-left" aria-hidden="true"></i>
 			</button>
 
 			<button id = 'next' ng-disabled = 'prompts.length < 20' ng-click = 'changePage(pNum + 1)'>
-				Next
+				<i class="fa fa-arrow-right" aria-hidden="true"></i>
 			</button>
 		</div>
 	</div>

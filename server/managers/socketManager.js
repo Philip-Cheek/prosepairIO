@@ -1,4 +1,5 @@
 var clientManager = require('./../managers/clientManager.js')
+var prompts = require('./../controllers/prompts.js');
 
 module.exports = function(server){
 
@@ -35,7 +36,10 @@ module.exports = function(server){
 							}
 						}
 
-						io.sockets.in(info.room).emit('successConnect', reInfo);
+						prompts.getRandomPrompt(function(prompt){
+							reInfo.prompt = prompt;
+							io.sockets.in(info.room).emit('successConnect', reInfo);
+						});
 					}else{
 						socket.emit('queued');
 					}

@@ -1,4 +1,4 @@
-angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService){
+angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService, promptFactory){
 
 	$scope.options = {
 		'nicknameEnter': false,
@@ -16,7 +16,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	$scope.lesConnect = function(){
 		if (!$scope.options.nickname){
 			$scope.options.nicknameEnter = true;
-			$scope.explanationText = "Enter a Nickname"
+			$scope.explanationText = "Enter a Nickname";
 		}else{
 			peerService.informMyself($scope.options.nickname);
 			getConnecting();
@@ -52,6 +52,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	socketFactory.on('successConnect', function(info){
 		intervalFactory.cancelTimer('ellipsis');
 		peerService.setRoomStage(info.nameList, info.tag, info.mode);
+		promptFactory.giveArenaPrompt(info.prompt);
 		$location.path('/prose/' + info.mode)
 
 	});

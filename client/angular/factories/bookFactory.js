@@ -14,53 +14,51 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 		});
 	}
 
-	bookFactory.saveBook = function(inputInfo){
+	bookFactory.saveBook = function(inputInfo, init){
 		console.log('save book reached');
 		var mode = inputInfo.modeRedirect;
 		delete inputInfo.modeRedirect
 
+		console.log('mode has been incorrect for some time', mode);
+		console.log('les look at inputInfo', inputInfo)
 		formatBookDoneModal(inputInfo, function(modalInfo){
-			$http.post('/saveBookEntry', inputInfo).success(function(result){
-
-				console.log(result)
-				if (result.status){
-					var duplInfo = {};
-
-					for (var key in modalInfo){
-						var newKey = key.toString()
-						console.log('keycheck',newKey)
-						switch (newKey){
-							case 'modalButton':
-								duplInfo[newKey] = true;
-								break;
-							case 'loading':
-								duplInfo[newKey] = {
-									'status': false,
-								};
-								break;
-							case 'buttons':
-								console.log('this should be called!!')
-								duplInfo[newKey] = [
-									{'name': 'Home', 'path': "/"},
-									{'name': 'Next', 'path': "/connect/" + mode}
-								];
-								console.log(duplInfo.buttons);
-							default: 
-								if (newKey != "buttons"){
-									console.log('this should not be called when buttons', newKey)
-									duplInfo[newKey] = modalInfo[key];
-								}
-						}
-
-						console.log('deep dupl check', JSON.parse(JSON.stringify(duplInfo)))
-					}
-
-					console.log('i am so curious about dupl info', duplInfo)
-					popUpService.showDialog(duplInfo);
-				} 
-			});
+			if (init){
+				$http.post('/saveBookEntry', inputInfo).success(function(result){
+					informModalSuccess(modalInfo, mode);
+				});
+			}else{
+				informModalSuccess(modalInfo, mode);
+			}
 		});
 	};
+
+	
+	bookFactory.viewRecentSuccess = function(){
+		var book = popUpService.getContent();
+		formatViewFromDone(book);
+	};
+
+
+	bookFactory.turnPage = function(modContent){
+		modContent.page += 1;
+		modContent.currentBody = getCurrentBody(modContent.page, modContent.textBody).page;
+	};
+
+	function getCurrentBody(page, content, wordCap){
+		console.log("GET CURRENT BODY CALLED");
+		if (!wordCap){
+			wordCap = 500;
+		}
+
+		var words = content.join(' ').split(' ');
+		var start = page * wordCap;
+		var stop = start + 500;
+
+		var page = words.slice(start, stop).join(' ');
+		var pageCap = Math.ceil(words.length/500);
+
+		return {'page': page, 'cap': pageCap}
+	}
 
 	function getSplitPages(text, wordCap){
 
@@ -72,6 +70,8 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 		var start = 0;
 		var pages = [];
 
+		var pageCap = Math.ceil(words.length / 650);
+
 		while (start < words.length){
 			var sub  = words.slice(start, wordCap);
 			start += sub.length;
@@ -79,7 +79,87 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 			pages.push(sub.join(' '));
 		}
 
-		return pages;
+		return {'pages': pages, 'cap': pageCap}
+	}
+
+	function formatViewFromObject(book){
+		var bookText = book.textBody.join(' ').trim();
+		var authorText = 'by ' + book.authors.joing(', ')
+
+		book = {
+			'message': 'You are viewing: ',
+			'format': 'view',
+			'title': book.title,
+			'authorString': authorText,
+			'points': 0,
+			'textBody': bookText,
+			'self': true,
+			'page': 0,
+			'currentBody': getCurrentBody(modContent.mContent)
+		}
+	}
+
+	function formatViewFromDone(modContent){
+		console.log('formatviewfromdone, super done');
+		var currentContent = getCurrentBody(0, modContent.mContent);
+
+		book = {
+			'content': {
+
+				'message': 'You are viewing: ',
+				'format': 'view',
+				'title': modContent.title,
+				'authorString': 'by ' + modContent.body[modContent.body.length - 1].text,
+				'points': 0,
+				'textBody': modContent.mContent,
+				'self': true,
+				'page': 0,
+				'currentBody': currentContent.page,
+				'cap': currentContent.cap
+			},
+			'modalButton': false,
+			'status': true,
+			'buttons': []
+		}
+
+		console.log('checkDoneBook', book);
+		popUpService.showDialog(book);
+	}
+
+	function informModalSuccess(oldModalInfo, mode, id){
+		var duplInfo = {};
+
+		for (var key in oldModalInfo){
+			var newKey = key.toString()
+			console.log('keycheck',newKey)
+			switch (newKey){
+				case 'modalButton':
+					duplInfo[newKey] = true;
+					break;
+				case 'loading':
+					duplInfo[newKey] = {
+						'status': false,
+					};
+					break;
+				case 'buttons':
+					console.log('id needs TO CHECK!!', oldModalInfo.id)
+					duplInfo[newKey] = [
+						{'name': 'Home', 'path': "/"},
+						{'name': 'View', 'path': oldModalInfo.content.id},
+						{'name': 'Next', 'path': "/connect/" + mode}
+					];
+					console.log(duplInfo.buttons);
+				default: 
+					if (newKey != "buttons"){
+						console.log('this should not be called when buttons', newKey)
+						duplInfo[newKey] = oldModalInfo[key];
+					}
+			}
+		}
+
+		console.log('i am so curious about dupl info', duplInfo)
+		popUpService.showDialog(duplInfo);
+
 	}
 
 	function formatBookDoneModal(bookInfo, callback){
@@ -89,13 +169,17 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 		
 		var content = {
 
+			'message': "Congratulations! You successfully saved:",
 			'title': bookInfo.title,
+			'format': 'done',
+			'id': 'recentSuccess',
 			'body': [
-				{'text': 'Sample', 'ital': false}, 
-				{'text': bookInfo.sampleBody, 'ital': true},
+				{'text': 'Summary', 'ital': true}, 
+				{'text': bookInfo.sampleBody, 'ital': false},
 				{'text': 'Authors', 'ital': true},
-				{'text': authorString, 'ital': true}
+				{'text': authorString, 'ital': false}
 			],
+			'mContent': bookInfo.textBody,
 		}
 
 		var modalInfo = {

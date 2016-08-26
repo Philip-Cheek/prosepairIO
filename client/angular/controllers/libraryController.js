@@ -5,11 +5,11 @@ angular.module('prosePair').controller('libraryController', function($scope, boo
 	$scope.books = [];
 
 	getBooks(true);
+
 	console.log(bookList);
 
 	$scope.turnPage = function(n){
-		$scope.page += n
-		console.log($scope.page)
+		$scope.page += n;
 
 		if ($scope.page < 0){
 			$scope.page = 0;

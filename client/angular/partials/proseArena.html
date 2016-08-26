@@ -1,14 +1,15 @@
-<div ng-controller='proseArenaController'>
+<div id = 'proseArena' ng-controller='proseArenaController'>
 	<div id = 'promptBox'>
-			<div id = "likeBox">
-				<i ng-click = "getFeedback(false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
-				<i ng-click = "getFeedback(true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i>
-			</div>
-			<div id = 'contentBox'>
-				<h2>Prompt:</h2>
-				<p id = 'promptText'>{{prompt.text}}</p>
-				<p id = 'authoredBy'>by {{prompt.author}}</p>
-			</div>
+		<div id = 'contentBox'>
+			<h2>Prompt:</h2>
+			<p id = 'promptText'>{{prompt.text}}</p>
+			<p id = 'authoredBy'>- by {{prompt.author}}</p>
+		</div>
+		<div id = "likelyBox">
+			<i ng-click = "getFeedback(true)" class = 'liking' ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i><br>
+			<i ng-click = "getFeedback(false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i>
+		</div>
+	</div>
 	<div id = 'titleBox'>
 		<div id = 'titleRow'>
 			<div id = "titleInput">

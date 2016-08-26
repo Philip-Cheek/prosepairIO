@@ -13,7 +13,6 @@ angular.module('prosePair').directive('dialogDirective', function() {
       if (attrs.height)
         scope.dialogStyle.height = attrs.height;
       scope.hideModal = function() {
-        console.log("whaaat")
         scope.show = false;
       };
     },

@@ -14,6 +14,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 	//Listen for Socket Emition From Server
 
 	socketFactory.on('saveBook', function(book){
+		book.modeRedirect = $scope.mode;
 		saveBook(book, false);
 	});
 
@@ -247,33 +248,31 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		authorList.push(peerService.revealMyself());
 
  		var info = {
- 			'sampleBody': $scope.sample,
+ 			'sampleBody': $scope.sampleText,
  			'title': $scope.title,
  			'textBody': $scope.bookText,
  			'authors': authorList,
  			'modeRedirect': $scope.mode 
- 		}
+	 	}
 
- 		saveBook(info, true)
- 		socketFactory.emit('memoBroadcast', {
-			'memo': 'saveBook',
-			'tag': peerService.showTag(),
-			'body': info
-		});
+ 		saveBook(info, true);
  	}
 
  	function saveBook(info, initEmit){
  		docService.disableHighlightTracking();
  		intervalFactory.cancelTimer('finTimer');
 
- 		bookFactory.saveBook(info);
-
  		if (initEmit){
+ 			console.log('we should only be seeing this once');
+ 			bookFactory.saveBook(info, true);
  			socketFactory.emit('memoBroadcast', {
 				'memo': 'saveBook',
 				'tag': peerService.showTag(),
 				'body': info
 			});
+ 		}else{
+ 			console.log('we should only be seeing this once');
+ 			bookFactory.saveBook(info, false);
  		}
  	}
 
@@ -501,15 +500,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			$scope.paragraph = false;
 		}
 
-		getPrompt();
+		$scope.prompt = promptFactory.getArenaPrompt();
+
 		getPeers();
 		setExplanationScope('turn');
-	}
-
-	function getPrompt(){
-		promptFactory.getArenaPrompt(function(prompt){
-			$scope.prompt = prompt;
-		});
 	}
 
 	function getPeers(){
@@ -593,7 +587,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.myTurn = false;
 		$scope.book.input = "";
 
-		if (reason == 'ranOutOfTime' || 'finSwitch'){
+		if (reason == 'ranOutOfTime' || reason == 'finSwitch'){
 			setExplanationScope('time');
 			text = peerService.revealMyself();
 		}

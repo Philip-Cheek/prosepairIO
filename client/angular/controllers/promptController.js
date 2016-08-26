@@ -24,6 +24,14 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		}
 	};
 
+	$scope.userTyping = function(){
+		if ($scope.error){
+			$scope.error = '';
+		}
+
+		adjustCharLeft();
+	}
+
 	$scope.sortBy = function(type){
 		$scope.sortInfo.method = type;
 
@@ -54,7 +62,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		$scope.sortInfo.method = "Date Added";
 		$scope.newPrompt = {}
 		$scope.newPrompt._id = 'user'
-		$scope.charLeft = 140;
+		$scope.charLeft = 220;
 		$scope.pNum = 0;
 
 		setNewPrompt();
@@ -102,7 +110,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		}
 	}
 
-	function setNewPrompt(){
+	function setNewPrompt(){ 
 		$scope.newPrompt = {
 			'likeTally': 0,
 			'author': 'Anonymous',
@@ -115,12 +123,21 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 
 	}
 
+	function adjustCharLeft(){
+		var roomLeft = 220 - $scope.newPrompt.text.length;
+
+		if (roomLeft < 0){
+			$scope.newPrompt.text = $scope.newPrompt.text.slice(0,220)
+		}else{
+			$scope.charLeft = roomLeft;
+		}
+	}
 
 	function isValidPrompt(txt){
 		if (txt && txt.length < 10){
 			$scope.error = 'Too Short'
 			return false;
-		}else if (txt && txt.length > 130){
+		}else if (txt && txt.length > 220){
 			$scope.error = 'Too Long'
 			return false;
 		}
