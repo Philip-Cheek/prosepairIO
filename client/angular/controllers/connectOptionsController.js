@@ -16,7 +16,7 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	$scope.lesConnect = function(){
 		if (!$scope.options.nickname){
 			$scope.options.nicknameEnter = true;
-			$scope.explanationText = "Enter a Nickname";
+			$scope.explaationText = "Enter a Nickname";
 		}else{
 			peerService.informMyself($scope.options.nickname);
 			getConnecting();
@@ -33,19 +33,14 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 
 	socketFactory.on('nicknameRepeat', function(result){
 		var errorText = ""
-		console.log('resultcheck', result)
 
 		if (result.isError){
-			console.log('good')
 			errorText += result.error;
 		}
-
-		console.log(errorText);
 
 		$scope.$apply(function(){
 			$scope.errInfo.isError = result.isError;
 			$scope.errInfo.error = errorText;
-			console.log($scope.errInfo,'hmm')
 		});
 	});
 

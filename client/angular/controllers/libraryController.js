@@ -1,40 +1,31 @@
 angular.module('prosePair').controller('libraryController', function($scope, bookFactory){
-	var bookList = [];
+	$scope.min = true;
+	$scope.max = false;
 
-	$scope.page = 0;
-	$scope.books = [];
+	getBooks();
 
-	getBooks(true);
+	$scope.viewBook = function(book){
+		bookFactory.viewBook(book);
+	}
 
-	console.log(bookList);
-
-	$scope.turnPage = function(n){
-		$scope.page += n;
-
-		if ($scope.page < 0){
-			$scope.page = 0;
-		}else if ($scope.page >= bookList.length){
-			getBooks(true);
-		}else{
-			showBooks();
-		}
+	$scope.turnPage = function(dir){
+		bookFactory.switchPage(function(books, min, max){
+			$scope.books = books;
+			$scope.min = min;
+			$scope.max = max;
+		});
 	}
 
 	function showBooks(page){
-		console.log(bookList)
 		$scope.books = bookList[$scope.page];
 	}
 
-	function getBooks(show){
-		var skip = getSkipVal();
-
-		bookFactory.getBooks(function(books){
-			setBookList(books);
-			if (show){
-				console.log('i wonder where this shows up')
-				showBooks();
-			}
-		}, skip);
+	function getBooks(){
+		bookFactory.getBooks(function(books, min, max){
+			$scope.books = books;
+			$scope.min = min;
+			$scope.max = max;
+		})
 	}
 
 	function getSkipVal(){
@@ -50,7 +41,6 @@ angular.module('prosePair').controller('libraryController', function($scope, boo
 	function setBookList(books){
 		var index = 0;
 
-		console.log(books, books.length)
 		if (bookList.length > 0){
 
 			while (bookList[bookList.length - 1].length < 25 && index < books.length){

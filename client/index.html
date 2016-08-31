@@ -10,6 +10,7 @@
 
 		<script type='text/javascript' src='angular/app.js'></script>
 		<script type='text/javascript' src='angular/directives/dialogDirective.js'></script>
+		<script type='text/javascript' src='angular/services/listService.js'></script>
 		<script type='text/javascript' src='angular/services/peerService.js'></script>
 		<script type='text/javascript' src='angular/services/pollService.js'></script>
 		<script type='text/javascript' src='angular/services/popUpService.js'></script>
@@ -69,26 +70,38 @@
 				</div>
 			
 				<div id = "thing">
-					<h3>Pop up Test</h3>
-					<dialog-directive show='modalShown' width='20em' height='30em'>
+					<dialog-directive show='modalShown' width = "{{modalContent.width}}" height = "{{modalContent.height}}">
 						<div class = 'modContent'>
 							<h3>{{modalContent.message}}</h3>
 							<h2 class = 'modTitle'>{{modalContent.title}}</h2>
+							<p class = 'authoredByMod'>{{modalContent.authorString}}</p>
+							<div class = 'viewBox' ng-if = "modalContent.format && modalContent.format == 'view'">
+								<div class = 'pageBox'>
+									<div class = 'cBox'>
+										<p ng-repeat = 'paragraph in modalContent.currentBody track by $index'>{{paragraph}}<span class = 'contText' ng-if= '$index == modalContent.currentBody.length - 1 && modalContent.page < modalContent.cap - 1' ng-click = 'pageFlip(1)'> ...Click to continue...</span></p>
+									</div>
+								</div>
 
-							 <p ng-repeat = "element in modalContent.body" ng-class = "{'italTitle': element.ital, 'breakUnder': !element.ital}">{{element.text}}<span ng-if = 'element.ital == true'>:</span></p>
+								<div ng-if = 'modalContent.cap > 1' id = 'pageButts'>
+									<button ng-disabled = 'modalContent.page < 1' ng-click = 'pageFlip(-1)'><i class="fa fa-arrow-left" aria-hidden="true"></i></button>
+									{{modalContent.page + 1}}/{{modalContent.cap}}
+									<button ng-disabled = 'modalContent.page == modalContent.cap - 1' ng-click = 'pageFlip(1)'><i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+								</div>
 
-							 <div class = 'buttonMod' ng-if = "modalButton">
-							 	<button class = 'modButt' ng-repeat = "button in buttons" ng-click = "dialogButtonClicked(button.path)">
-							 		{{button.name}}
-							 	</button>
-							 </div>
+							</div> 
+							<div class = 'doneBox' ng-if= "modalContent.format && modalContent.format == 'done'">
+								<p ng-repeat = 'part in modalContent.body' ng-class = "{'italTitle':part.ital == true, 'breakUnder': part.ital == false}">{{part.text}}{{part.ital}}</p>
 
-						 	<p ng-if = 'loading.status'>{{loading.text}}</p>
+								<p ng-if = 'loading.status'>{{loading.text}}</p>
+
+								<div class = 'buttonMod' ng-if = 'modalButton'>
+									<button class = 'modButt' ng-click = 'dialogButtonClicked(button.path)' ng-repeat = 'button in buttons' ng-click = 'button.path'>
+										{{button.name}}
+									</button>
+							</div>
 						 </div>
 
 					</dialog-directive>
-
-					<button ng-click = "testModal()">pop up</button>
 
   				</div>
   			

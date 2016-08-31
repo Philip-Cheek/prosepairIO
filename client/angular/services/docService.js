@@ -36,7 +36,6 @@ angular.module('prosePair').service('docService', function(){
             highlightText = document.selection.createRange().text;
         }
         
-        console.log('HIGHLIGHT TEXT', highlightText)
         return highlightText;
 	}
 

@@ -26,7 +26,6 @@ angular.module('prosePair').service('pollService', function(peerService){
 
 	service.handlePollResult = function(confirm, voter, callback){
 
-		console.log("here is an honest look at currentPoll", currentPoll);
 		if ('title' in currentPoll){
 			var pollStatus = handleTally(confirm, voter);
 
@@ -36,9 +35,6 @@ angular.module('prosePair').service('pollService', function(peerService){
 				var instigator = currentPoll.instigator;
 
 				currentPoll = voterDefault();
-
-				console.log('lets look at hopefully reset', currentPoll);
-
 			
 				if (pollStatus == 'pass'){
 
@@ -58,7 +54,6 @@ angular.module('prosePair').service('pollService', function(peerService){
 			 			callback({'status': 'Rejection', 'instigator': instigator, 'answerKey': rejectTitle()});
 
 			 		}else if (tempPoll == 'fin'){
-			 			console.log('we should reject fin');
 			 			callback(rejectFin());
 			 		}
 
@@ -145,7 +140,6 @@ angular.module('prosePair').service('pollService', function(peerService){
 	 		'titleOwner': false
 		};
 
-		console.log(answerKey);
 	 	return answerKey;
 	}
 

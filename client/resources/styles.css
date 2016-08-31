@@ -85,7 +85,7 @@ body{
   z-index:10000;
   position: fixed;
   width: 50%; 
-  top: 40vh;
+  top: 48vh;
   left: 50%;
   background-color: #fff;
   box-shadow: 4px 4px 80px #000;
@@ -260,7 +260,7 @@ body{
 		bottom:0;
 	}
 .tabSel{
-	color:blue !important;
+	color:blue;
 }
 .blueIcon{
 	color: blue;
@@ -425,4 +425,45 @@ body{
 			padding: 1em;
 		}
 
+	.viewBox .pageBox{
+		border: .3em dotted black;
+		height:35em !important;
+		overflow-y:scroll;
+		z-index: 0 !important;
+		font-size:.85em;
+	}
+
+		.viewBox .pageBox .cBox{
+			margin: .8em;
+			font-size: .9em;
+		}
+
+	.viewBox #pageButts{
+		text-align: center;
+		font-size: 1em;
+		width:6em;
+		margin-top:.35em;
+		margin: 0 auto;
+		background: white;
+		margin-top: .24em;
+		z-index: 2 !important;
+		height:1.8em;
+		border:1px solid gray;
+	}
+
+	.authoredByMod{
+		font-size:.78em;
+		margin-top:-1.95em;
+		text-align: center;
+		margin-bottom: .6em;
+		font-style: italic;
+	}
+
+.lib table *{
+	border: 1px solid;
+}
+
+.lib table{
+	max-width: 45em;
+}
 

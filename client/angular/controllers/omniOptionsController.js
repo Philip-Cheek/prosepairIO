@@ -40,6 +40,11 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 		}
 	})
 
+	$scope.pageFlip = function(page){
+		console.log('page check', page)
+		bookFactory.turnPage(page);
+	}
+
 	$scope.omniSwitch = function(userPut){
 		console.log('userPUt', userPut)
 		$location.path(menuItems[userPut]);
@@ -58,9 +63,9 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 		console.log('path', path)
 		if (path == 'recentSuccess'){
 			bookFactory.viewRecentSuccess();
+			$location.path('/');
 		}else{
 			$location.path(path);
 		}
-		$location.path(path);
 	}
 });

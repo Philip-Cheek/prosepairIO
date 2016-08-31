@@ -50,11 +50,11 @@
 		</table>
 
 		<div id = 'backNextBox'>
-			<button id = 'back'  ng-disabled = 'pNum == 0' ng-click = 'changePage(pNum - 1)'>
+			<button id = 'back'  ng-disabled = 'min' ng-click = 'changePage("backward")'>
 				<i class="fa fa-arrow-left" aria-hidden="true"></i>
 			</button>
 
-			<button id = 'next' ng-disabled = 'prompts.length < 20' ng-click = 'changePage(pNum + 1)'>
+			<button id = 'next' ng-disabled = 'max' ng-click = 'changePage("forward")'>
 				<i class="fa fa-arrow-right" aria-hidden="true"></i>
 			</button>
 		</div>

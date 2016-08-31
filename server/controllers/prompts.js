@@ -26,24 +26,25 @@ module.exports = (function(){
 
 		getPrompts: function(req, res){
 			var type = req.params.type;
-			console.log('type check', type)
-			if (type == "dateAdded"){
-				sortByDate(function(status, prompts){
-					if (!status){
-						res.json({'status': false});
-					}else{
-						res.json({'status': true, 'prompts': prompts})
-					}
-				}, req.params.skipVal);
-			}else if (type == "points"){
-				sortByPoints(function(status, prompts){
-					if (!status){
-						res.json({'status': false});
-					}else{
-						res.json({'status': true, 'prompts': prompts})
-					}
-				}, req.params.skipVal);
-			}
+			Prompt.count().exec(function(err, count){
+				if (type == "dateAdded"){
+					sortByDate(function(status, prompts){
+						if (!status){
+							res.json({'status': false});
+						}else{
+							res.json({'status': true, 'prompts': prompts, 'count': count})
+						}
+					}, req.params.skipVal);
+				}else if (type == "points"){
+					sortByPoints(function(status, prompts){
+						if (!status){
+							res.json({'status': false});
+						}else{
+							res.json({'status': true, 'prompts': prompts, 'count': count})
+						}
+					}, req.params.skipVal);
+				}
+			})
 		},
 
 		addPrompt: function(req, res){
@@ -115,8 +116,7 @@ function sortByPoints(callback, skipVal){
 		skipVal = Number(skipVal);
 	}
 
-	Prompt.find({}).sort({'likeTally':-1}).limit(40)
-	.skip(skipVal)
+	Prompt.find({}).sort({'likeTally':-1}).skip(skipVal).limit(40)
 	.exec(
 		function(err, result){
 			if (err){

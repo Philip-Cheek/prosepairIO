@@ -110,13 +110,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}
 	});
 
-	$scope.$watch(function(){
-		return peerService.showSampleFair();
-	}, function(newVal){
-		console.log('THIS IS SAMPLE FAIR', newVal);
-	})
-
-
 
 	//Functions Triggered By User
 
@@ -263,7 +256,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		intervalFactory.cancelTimer('finTimer');
 
  		if (initEmit){
- 			console.log('we should only be seeing this once');
  			bookFactory.saveBook(info, true);
  			socketFactory.emit('memoBroadcast', {
 				'memo': 'saveBook',
@@ -271,7 +263,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				'body': info
 			});
  		}else{
- 			console.log('we should only be seeing this once');
  			bookFactory.saveBook(info, false);
  		}
  	}
@@ -395,7 +386,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			 		};
 	 			});
 	 		}else{
-	 			console.log('this should be called!', sumPerson)
 	 			$scope.sumExplan = sumPerson + ' has'
 	 		}
 

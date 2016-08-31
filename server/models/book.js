@@ -4,7 +4,10 @@ var BookSchema = new mongoose.Schema({
 	title: String,
 	authors: [],
 	textBody: [],
-	sampleBody: String
+	sampleBody: String,
+	likeTally: Number,
+	likes: Number,
+	dislikes: Number
 },{
 	timestamps: true
 });

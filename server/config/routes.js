@@ -25,7 +25,7 @@ module.exports = function(app){
 		prompts.getRandomPrompt(req, res);
 	})
 
-	app.get('/latestBooks', function(req, res){
+	app.get('/latestBooks/:skipVal', function(req, res){
 		books.getBooks(req, res);
 	});
 }

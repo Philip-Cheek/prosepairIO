@@ -7,13 +7,15 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		if (isValidPrompt(pText)){
 			var userPrompt = promptFactory.cloneNewPrompt($scope.newPrompt);
 
-			promptFactory.addPrompt(userPrompt, function(unShift){
+			promptFactory.addPrompt(userPrompt, function(unShift, min, max){
 				if (unShift){
 					$scope.prompts = unShift;
 				}
-				$scope.pNum = 0;
+				$scope.min = min;
+				$scope.max = max;
+
+				$scope.prompt = '';
 			}, function(newID){
-				console.log('caallllled')
 				var myPrompt = findByID('user');
 				myPrompt._id = newID;
 				console.log(myPrompt);
@@ -34,10 +36,11 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 
 	$scope.sortBy = function(type){
 		$scope.sortInfo.method = type;
+		promptFactory.setNewSortType(type, function(prompts, min, max){
+			$scope.min = min; 
+			$scope.max = max;
 
-		promptFactory.setNewSortType(type, function(pNum, newProm){
-			$scope.pNum = pNum;
-			$scope.prompts = newProm;
+			$scope.prompts = prompts
 		});
 	}
 	
@@ -63,18 +66,18 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		$scope.newPrompt = {}
 		$scope.newPrompt._id = 'user'
 		$scope.charLeft = 220;
-		$scope.pNum = 0;
+		$scope.max = false;
+		$scope.min = true;
 
 		setNewPrompt();
 
-		promptFactory.getPrompts(function(pNum, prompts){
-			$scope.pNum = pNum;
-
+		promptFactory.getPrompts(function(prompts, min, max){
+			$scope.max = max;
+			$scope.min = min;
+			console.log('prompts on frontent', prompts)
 			if (prompts || prompt.length > 0){
 				$scope.prompts = prompts;
 			}
-
-			console.log($scope.pNum)
 		});
 
 	}
@@ -92,14 +95,16 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		}
 	}
 
-	$scope.changePage = function(newP){
+	$scope.changePage = function(dir){
 		var sortInfo = {
 			'method': $scope.sortInfo.method
-		}
-		promptFactory.nextPage(function(nP, prompts){
-			$scope.pNum = nP;
+		};
+
+		promptFactory.switchPage(function(prompts, min, max){
+			$scope.min = min;
+			$scope.max = max;
 			$scope.prompts = prompts;
-		}, sortInfo, newP)
+		}, dir, sortInfo.method);
 	};
 
 	function figureMeOut(){

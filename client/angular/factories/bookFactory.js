@@ -1,26 +1,44 @@
-angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', function ($http, popUpService){
-	var bookFactory = {};
-	var bookList = [];
+angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'listService', function ($http, popUpService, listService){
+	var factory = {};
 
-	bookFactory.getBooks = function(callback, skip){
+	factory.getBooks = function(callback, skip){
 		if (!skip){
 			skip = 0;
 		}
 
-		$http.get('/latestBooks').success(function(result){
+		$http.get('/latestBooks/' + skip).success(function(result){
 			if (result.status){
-				callback(result.books)
+				formatBookList(result.books, result.count, callback);
 			}
 		});
 	}
 
-	bookFactory.saveBook = function(inputInfo, init){
-		console.log('save book reached');
+	factory.switchPage = function(callback, dir, sortInfo){
+		if (!dir){
+			dir = 'start';
+		}
+
+		listService.getCache('books', dir, function(books){
+			var minMax = listService.getMinMax;
+			callback(books, minMax.min, minMax.max);
+		},function(){
+			var skipVal = listService.getSkipVal('books')
+			factory.getBooks(callback, skipVal);
+		});
+
+	}
+
+	factory.nextList = function(dir, callback){
+		listService.getCache('books', dir, callback, function(){
+			var skip = listService.getSkipVal();
+			receiveBooks(callback, skip);
+		});
+	}
+
+
+	factory.saveBook = function(inputInfo, init){
 		var mode = inputInfo.modeRedirect;
 		delete inputInfo.modeRedirect
-
-		console.log('mode has been incorrect for some time', mode);
-		console.log('les look at inputInfo', inputInfo)
 		formatBookDoneModal(inputInfo, function(modalInfo){
 			if (init){
 				$http.post('/saveBookEntry', inputInfo).success(function(result){
@@ -32,32 +50,80 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 		});
 	};
 
-	
-	bookFactory.viewRecentSuccess = function(){
+	factory.viewRecentSuccess = function(){
 		var book = popUpService.getContent();
 		formatViewFromDone(book);
 	};
 
+	factory.viewBook= function(book){
+		formatViewFromObject(book);
+	}
 
-	bookFactory.turnPage = function(modContent){
-		modContent.page += 1;
-		modContent.currentBody = getCurrentBody(modContent.page, modContent.textBody).page;
+
+	factory.turnPage = function(page){
+		var book = popUpService.getContent();
+		console.log("les take a real hard look at book", book)
+		book.page += page;
+		book.currentBody = getCurrentBody(book.page, book.textBody).page;
 	};
 
+	function getAuthorString(book){
+		if (book.authors.length < 3){
+			return book.authors.join(" and ");
+		}else{
+			var authorString = '';
+
+			for (var i = 0; i < book.authors.length - 1; i++){
+				authorString += book.authors[i] + ', '
+			}
+			return authorString + "and " + book.authors[i];
+		}
+	}
+
+	function receiveBooks(callback, skip){
+		if (!skip){
+			skip = 0;
+		}
+
+		$http.get('/latestBooks').success(function(result){
+			if (result.status){
+				formatBookList(result.books, callback);
+			}
+		});
+	}
+
 	function getCurrentBody(page, content, wordCap){
-		console.log("GET CURRENT BODY CALLED");
 		if (!wordCap){
 			wordCap = 500;
 		}
 
-		var words = content.join(' ').split(' ');
-		var start = page * wordCap;
-		var stop = start + 500;
+		var wSkip = page * wordCap;
+		var wLeft = wordCap;
+		var currentPage = [];
+		
+		for (var i = 0; i < content.length && wLeft > 0; i++){
+			var words = content[i].split(' ');
+			var start = wSkip;
+			
+			if (wSkip > 0){
+				if (wSkip - words.length < 0){
+					wSkip = 0;
+				}else{
+					wSkip -= words.length;
+				}
+			}
+			
+			if (wSkip === 0){
+				var par = words.slice(start, start + wLeft)
+				if (par.length > 0){
+					wLeft -= par.length;
+					currentPage.push(par.join(' '))
+				}
+			}
+		}
 
-		var page = words.slice(start, stop).join(' ');
-		var pageCap = Math.ceil(words.length/500);
-
-		return {'page': page, 'cap': pageCap}
+		var cap = Math.ceil(content.join(' ').split(' ').length/wordCap);
+		return {'page': currentPage, 'cap': cap}
 	}
 
 	function getSplitPages(text, wordCap){
@@ -83,24 +149,34 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 	}
 
 	function formatViewFromObject(book){
-		var bookText = book.textBody.join(' ').trim();
-		var authorText = 'by ' + book.authors.joing(', ')
+		console.log('is this a book', book)
+		var bookText = getCurrentBody(0, book.textBody)
+		var authorText = 'by ' + getAuthorString(book);
 
 		book = {
-			'message': 'You are viewing: ',
-			'format': 'view',
-			'title': book.title,
-			'authorString': authorText,
-			'points': 0,
-			'textBody': bookText,
-			'self': true,
-			'page': 0,
-			'currentBody': getCurrentBody(modContent.mContent)
+			'content': {
+				'message': 'You are viewing: ',
+				'format': 'view',
+				'title': book.title,
+				'authorString': authorText,
+				'points': 0,
+				'textBody': book.textBody,
+				'self': true,
+				'page': 0,
+				'currentBody': bookText.page,
+				'cap': bookText.cap,
+				'width': '33em',
+				'height': '38em'
+			},
+			'modalButton': false,
+			'status': true,
+			'buttons': []
 		}
+
+		popUpService.showDialog(book);
 	}
 
 	function formatViewFromDone(modContent){
-		console.log('formatviewfromdone, super done');
 		var currentContent = getCurrentBody(0, modContent.mContent);
 
 		book = {
@@ -115,15 +191,40 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 				'self': true,
 				'page': 0,
 				'currentBody': currentContent.page,
-				'cap': currentContent.cap
+				'cap': currentContent.cap,
+				'width': '33em',
+				'height': '38em'
 			},
 			'modalButton': false,
 			'status': true,
 			'buttons': []
 		}
 
-		console.log('checkDoneBook', book);
 		popUpService.showDialog(book);
+	}
+
+	function formatBookList(books, count, callback){
+		for (var i = 0; i < books.length; i++){
+			books[i].liked = false;
+			books[i].disliked = false;
+			books[i].authorString = getAuthorString(books[i]);
+
+			if(!('createdAt' in books[i])){
+				books[i].dateAdded = listService.cleanDate(false);
+			}else{
+				books[i].dateAdded = listService.cleanDate(books[i].createdAt);
+			}
+		}
+
+		sendBooksToCache(count, books, callback);
+	}
+
+	function sendBooksToCache(count, books, callback){
+		listService.addCache('books', 15, books, count, function(list){
+			console.log('what?!')
+			var minMax = listService.getMinMax;
+			callback(list, minMax.min, minMax.max);
+		})
 	}
 
 	function informModalSuccess(oldModalInfo, mode, id){
@@ -131,7 +232,6 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 
 		for (var key in oldModalInfo){
 			var newKey = key.toString()
-			console.log('keycheck',newKey)
 			switch (newKey){
 				case 'modalButton':
 					duplInfo[newKey] = true;
@@ -142,28 +242,39 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 					};
 					break;
 				case 'buttons':
-					console.log('id needs TO CHECK!!', oldModalInfo.id)
 					duplInfo[newKey] = [
 						{'name': 'Home', 'path': "/"},
 						{'name': 'View', 'path': oldModalInfo.content.id},
 						{'name': 'Next', 'path': "/connect/" + mode}
 					];
-					console.log(duplInfo.buttons);
 				default: 
 					if (newKey != "buttons"){
-						console.log('this should not be called when buttons', newKey)
 						duplInfo[newKey] = oldModalInfo[key];
 					}
 			}
 		}
 
-		console.log('i am so curious about dupl info', duplInfo)
 		popUpService.showDialog(duplInfo);
 
 	}
 
+	function cleanDate(date){
+		if (!date){
+			var d = new Date();
+    		var curr_date = d.getDate();
+    		var curr_month = d.getMonth() + 1; 
+    		var curr_year = d.getFullYear();
+
+    		return curr_date + "-" + curr_month + "-" + curr_year;
+
+		}else{
+			var parts = date.toString().split('T')[0].split('-')
+    		return parts[1] + "-" + parts[2] + "-" + parts[0];
+		}
+    	
+	}
+
 	function formatBookDoneModal(bookInfo, callback){
-		console.log('format book reached');
 
 		var authorString = bookInfo.authors.join(', ');
 		
@@ -180,6 +291,8 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 				{'text': authorString, 'ital': false}
 			],
 			'mContent': bookInfo.textBody,
+			'width': '20em',
+			'height': '30em'
 		}
 
 		var modalInfo = {
@@ -189,15 +302,12 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', fun
 			'content': content,
 		}
 
-		console.log('calling format book modal for the verrrry first time')
-		console.log('modalInfo')
 		popUpService.showDialog(modalInfo);
 
 		if (callback){
-			console.log('what\'s so cool bout this!')
 			callback(modalInfo);
 		}
 	}
 
-	return bookFactory;
+	return factory;
 }]);
