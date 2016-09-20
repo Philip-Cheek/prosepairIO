@@ -1,17 +1,34 @@
 angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'listService', function ($http, popUpService, listService){
 	var factory = {};
+	var characterCap = 1540;
 
-	factory.getBooks = function(callback, skip){
+	factory.getBooks = function(callback, skip, sortType, ascending, newVal){
 		if (!skip){
 			skip = 0;
 		}
+		
+		if (!newVal){
+			newVal = true;
+		}
 
-		$http.get('/latestBooks/' + skip).success(function(result){
+		if (!sortType || sortType == 'Date Added'){
+			sortType = 'createdAt'
+		}else if (sortType == 'Points'){
+			sortType = 'likeTally'
+		}
+
+		var asc = "+";
+		if (ascending){
+			asc = "-";
+		}
+
+		$http.get('/latestBooks/' + skip + '/' + sortType + '/' + asc).success(function(result){
 			if (result.status){
-				formatBookList(result.books, result.count, callback);
+				formatBookList(newVal, result.books, result.count, callback);
 			}
 		});
 	}
+
 
 	factory.switchPage = function(callback, dir, sortInfo){
 		if (!dir){
@@ -23,17 +40,17 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 			callback(books, minMax.min, minMax.max);
 		},function(){
 			var skipVal = listService.getSkipVal('books')
-			factory.getBooks(callback, skipVal);
+			this.getBooks(callback, skipVal, sortInfo.sortType, sortInfo.way, false);
 		});
 
-	}
+	};
 
 	factory.nextList = function(dir, callback){
 		listService.getCache('books', dir, callback, function(){
 			var skip = listService.getSkipVal();
 			receiveBooks(callback, skip);
 		});
-	}
+	};
 
 
 	factory.saveBook = function(inputInfo, init){
@@ -62,8 +79,12 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 
 	factory.turnPage = function(page){
 		var book = popUpService.getContent();
-		console.log("les take a real hard look at book", book)
 		book.page += page;
+		var sum = 0
+		for (var i =0; i < book.currentBody.length; i++){
+			sum += book.currentBody[i].length;
+		}
+		console.log('THIS IS OUR WHAT SHOULD BE SKIPPED',sum);
 		book.currentBody = getCurrentBody(book.page, book.textBody).page;
 	};
 
@@ -92,51 +113,88 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 		});
 	}
 
-	function getCurrentBody(page, content, wordCap){
-		if (!wordCap){
-			wordCap = 500;
-		}
+	function getCurrentBody(page, content, cCap){
+		if (!cCap){
+			cCap = characterCap;
+		}	
 
-		var wSkip = page * wordCap;
-		var wLeft = wordCap;
+		var cLeft = cCap;
 		var currentPage = [];
-		
-		for (var i = 0; i < content.length && wLeft > 0; i++){
-			var words = content[i].split(' ');
-			var start = wSkip;
-			
-			if (wSkip > 0){
-				if (wSkip - words.length < 0){
-					wSkip = 0;
+		var skipAmount = page * cCap;
+
+		for (var i = 0; i < content.length && cLeft > 0; i++){
+			if (skipAmount > 0){
+				if (skipAmount < content[i].length){
+					var appropriate = false;
+					while (!appropriate && skipAmount > 0){
+						var app = [" ", ".", "?", "!", '"', "'"];
+					
+						for (var x = 0; x < app.length; x++){
+							appropriate = content[i][skipAmount] == app[x];
+							if (appropriate){
+								break;
+							}
+						}
+					
+						skipAmount--;
+					}
+					if (skipAmount + 1 < content[i].length){
+						var sum = 0;
+						for (var x = 0; x < i; x++){
+							sum += content[x].length;
+						}
+						
+						var leftP = content[i].substring(skipAmount + 1, skipAmount + 1 + cLeft);
+						currentPage.push(leftP);
+						cLeft -= leftP.length;
+					}
+
+					skipAmount = 0;
 				}else{
-					wSkip -= words.length;
+					skipAmount -= content[i].length;
 				}
-			}
-			
-			if (wSkip === 0){
-				var par = words.slice(start, start + wLeft)
-				if (par.length > 0){
-					wLeft -= par.length;
-					currentPage.push(par.join(' '))
+			}else{
+				if (cLeft < content[i].length){
+					var appropriate = false;
+
+					while (!appropriate && cLeft > 0){
+						var app = [" ", ".", "?", "!", '"', "'"];
+						
+						for (var x = 0; x < app.length; x++){
+							appropriate = content[i][cLeft] == app[x];
+							if (appropriate){
+								break;
+							}
+						}
+						cLeft--;
+					}
 				}
+
+				var newP = content[i].substring(0, cLeft + 1);
+
+				if (newP.length > 0){
+					currentPage.push(newP);
+				}				
+				
+				cLeft -= newP.length;
 			}
 		}
 
-		var cap = Math.ceil(content.join(' ').split(' ').length/wordCap);
-		return {'page': currentPage, 'cap': cap}
+		var cap = Math.ceil(content.join(' ').length/characterCap);
+	 	return {'page': currentPage, 'cap': cap}
 	}
 
 	function getSplitPages(text, wordCap){
 
 		if (!wordCap){
-			wordCap = 650;
+			wordCap = 10;
 		}
 
 		var words = text.split(' ');
 		var start = 0;
 		var pages = [];
 
-		var pageCap = Math.ceil(words.length / 650);
+		var pageCap = Math.ceil(words.length / wordCap);
 
 		while (start < words.length){
 			var sub  = words.slice(start, wordCap);
@@ -149,7 +207,6 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 	}
 
 	function formatViewFromObject(book){
-		console.log('is this a book', book)
 		var bookText = getCurrentBody(0, book.textBody)
 		var authorText = 'by ' + getAuthorString(book);
 
@@ -203,7 +260,7 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 		popUpService.showDialog(book);
 	}
 
-	function formatBookList(books, count, callback){
+	function formatBookList(newVal, books, count, callback){
 		for (var i = 0; i < books.length; i++){
 			books[i].liked = false;
 			books[i].disliked = false;
@@ -216,13 +273,12 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 			}
 		}
 
-		sendBooksToCache(count, books, callback);
+		sendBooksToCache(newVal, count, books, callback);
 	}
 
-	function sendBooksToCache(count, books, callback){
-		listService.addCache('books', 15, books, count, function(list){
-			console.log('what?!')
-			var minMax = listService.getMinMax;
+	function sendBooksToCache(newVal, count, books, callback){
+		listService.addCache(newVal, 'books', 15, books, count, function(list){
+			var minMax = listService.getMinMax('books');
 			callback(list, minMax.min, minMax.max);
 		})
 	}
@@ -307,6 +363,43 @@ angular.module('prosePair').factory('bookFactory', ['$http', 'popUpService', 'li
 		if (callback){
 			callback(modalInfo);
 		}
+	}
+
+	factory.registerFeedback = function(book, positive, updateScope, removeScope){
+		var info = {
+			'bookID': book._id,
+			'disChange': 0,
+			'likeChange': 0
+		}
+
+		if (positive && !prompt.liked){
+			if (prompt.disliked){
+				info.disChange = -1;
+				updateScope(2);
+			}else{
+				info.disChange = 0;
+				updateScope(1);
+			}
+
+			info.likeChange = 1;
+
+		}else if (!positive && !prompt.disliked){
+			if (prompt.liked){
+				info.likeChange = -1;
+				updateScope(-2);
+			}else{
+				info.likeChange = 0;
+				updateScope(-1);
+			}
+
+			info.disChange = 1;
+		}
+
+		$http.post('/addBookFeedback', info).success(function(result){
+			if (result.removed){
+				removeScope();
+			}
+		});
 	}
 
 	return factory;

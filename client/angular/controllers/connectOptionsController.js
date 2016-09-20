@@ -1,27 +1,10 @@
 angular.module('prosePair').controller('connectOptionsController', function($scope, $location, $interval, $routeParams, intervalFactory, socketFactory, peerService, promptFactory){
-
-	$scope.options = {
-		'nicknameEnter': false,
-		'loading': false,
-		'prosepair': true
-	};
 	
 	initConnection();
-	$scope.explanationText = "Select a Mode";
-	$scope.errInfo = {
-		'isError': false,
-		'error': ''
-	};
 
-	$scope.lesConnect = function(){
-		if (!$scope.options.nickname){
-			$scope.options.nicknameEnter = true;
-			$scope.explaationText = "Enter a Nickname";
-		}else{
-			peerService.informMyself($scope.options.nickname);
-			getConnecting();
-		}
-	};
+	$scope.select = function(){
+		$scope.explanationText = "Enter a Nickname"
+	}
 
 	$scope.isRepeat = function(){
 		var nickname = $scope.options.nickname;
@@ -30,6 +13,15 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 			socketFactory.emit('repeatNickname', nickname)
 		}
 	}
+
+	$scope.lesConnect = function(){
+		peerService.informMyself($scope.options.nickname);
+		if ($scope.options.nickname){
+			getConnecting();
+		}
+	}
+
+
 
 	socketFactory.on('nicknameRepeat', function(result){
 		var errorText = ""
@@ -48,6 +40,8 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 		intervalFactory.cancelTimer('ellipsis');
 		peerService.setRoomStage(info.nameList, info.tag, info.mode);
 		promptFactory.giveArenaPrompt(info.prompt);
+
+		console.log('success!', info)
 		$location.path('/prose/' + info.mode)
 
 	});
@@ -66,10 +60,23 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 
 	function initConnection(){
 		var me = peerService.revealMyself();
+		$scope.explanationText = "Select a Mode";
+		$scope.errInfo = {
+			'isError': false,
+			'error': ''
+		};
+
+		$scope.options = {
+			'nicknameEnter': false,
+			'loading': false,
+			'prosepair': false,
+			'lightning': false
+		};
 	
 		if ($routeParams.mode && me){
 			$scope.options.nickname = me;
 			$scope.options.prosepair = $routeParams.mode == 'pair';
+			$scope.options.lightning = !$scope.options.prosepair
 			getConnecting();
 		}
 	}
@@ -92,8 +99,6 @@ angular.module('prosePair').controller('connectOptionsController', function($sco
 	}
 
 	function setLoadingText(loadingString){
-		$scope.options.loading = true;
-
 		intervalFactory.setLoadingEllipsis(loadingString, function(text){
 			$scope.loadingText = text;
 		}, function(){

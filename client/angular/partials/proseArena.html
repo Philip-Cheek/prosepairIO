@@ -1,5 +1,5 @@
 <div id = 'proseArena' ng-controller='proseArenaController'>
-	<div id = 'promptBox'>
+	<div id = 'promptBox'class = 'whiteBox'>
 		<div id = 'contentBox'>
 			<h2>Prompt:</h2>
 			<p id = 'promptText'>{{prompt.text}}</p>
@@ -13,24 +13,24 @@
 	<div id = 'titleBox'>
 		<div id = 'titleRow'>
 			<div id = "titleInput">
-				Title: <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
+				<span id = 'titleStyle'>Title:</span> <input ng-disabled = '!titleAllowed' ng-change = "titleChanging()" type = "text" ng-model = "title">
 			</div>
 
 			<div id = "titlePoll" ng-if = "privatePoll">
-				<button>
-					<i class="fa fa-times" aria-hidden="true" style="color:red;" ng-click = 'titlePoll(false)'></i>
+				<button class = 'poll x'>
+					<i class="fa fa-times" aria-hidden="true" ng-click = 'titlePoll(false)'></i>
 				</button>
-				<button>
-					<i class="fa fa-check" aria-hidden="true" style="color:green;" ng-click = 'titlePoll(true)'></i>
+				<button class = 'poll check'>
+					<i class="fa fa-check" aria-hidden="true" ng-click = 'titlePoll(true)'></i>
 				</button>
 			</div>
 
-			<p class = 'charLeft'><span ng-class = "{'danger': titleLeft < 11}">{{titleLeft}}</span> characters left</p>
+			<p id = 'titleUnder' class = 'charLeft'><span ng-class = "{'danger': titleLeft < 11}">{{titleLeft}}</span> characters left</p>
 		</div>
 	</div>
 
 	<div id = 'nextBox'>
-		<button id = "next" class = "butt" ng-click = "nextConnect()">Next</button>
+		<button id = "next" class = "butt" ng-click = "nextConnect()">Next <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
 	</div>
 
 
@@ -39,7 +39,7 @@
 			<p ng-repeat = "paragraph in bookText">{{paragraph}}</p>
 		</div>
 
-		<div id = 'sideBox'>
+		<div id = 'sideBox' ng-class = '{"sidePair":mode == "pair"}'>
 
 			<div id = 'timeBox' ng-if = '!finMode'>
 				<div id = 'secBox'>
@@ -65,8 +65,8 @@
 			<div class = 'arenaBottom'>
 				<div class = 'arenaCon'>
 					<div id = 'pairMage' ng-if = 'mode == "pair"'>
-						<i id = 'left' class="fa fa-user" aria-hidden="true"></i>
-						<i id = 'right' class="fa fa-user" aria-hidden="true"></i>
+						<i id = 'mleft' class="fa fa-user" aria-hidden="true"></i>
+						<i id = 'mright' class="fa fa-user" aria-hidden="true"></i>
 					</div>
 					<div id = 'lightMage' ng-if = 'mode == "lightning"'>
 						<i class="fa fa-bolt" aria-hidden="true"></i>
@@ -84,7 +84,7 @@
 	<div id = "enterArea">
 
 		<div id = "explanationArea">
-			<p id = "explanationText">{{explanationText}}</p>
+			<i class="fa fa-graduation-cap" aria-hidden="true"></i> {{explanationText}}
 		</div>
 
 		<div id = "explainPoll" ng-if = "openPoll">
@@ -93,24 +93,27 @@
 			<button ng-click="pollAnswer(true)"><i class="fa fa-check" aria-hidden="true"></i></button>
 		</div>
 
-		<div id = "writeBox" ng-if = "!samplePick">
+		<div id = "wBox" ng-if = "!samplePick">
 
 			<textarea id = "sentenceBox" ng-disabled = "!myTurn" ng-model = 'book.input' ng-change = 'userTyping()'>
 			</textarea>
 
-			<p id = "charLeft">{{charLeft}} characters left</p>
+			<p class = "charLeft" id ='inputLeft' ng-class = "{'danger':charLeft < 16}">{{charLeft}} characters left</p>
 
-			<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "parSwitch()">
-				<i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i>
-			</button>
+			<div id = 'enterButtons' ng-if = "myTurn">
+				<div class = 'topBit'>
+					<button id = "paragraph" ng-model = "paragraph" ng-disabled = "bookText.length == 0 || !myTurn" ng-click = "parSwitch()">
+						<i class="fa fa-paragraph" aria-hidden="true" ng-class = "{blueIcon: paragraph}"></i>
+					</button>
+					<button id = "save" ng-click = "finSubmit()">
+						Fin
+					</button>
+				</div>
 
-			<button id = "enter" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">
-				Enter
-			</button>
-
-			<button id = "save" ng-click = "finSubmit()">
-				Fin
-			</button>
+				<button ng-class = "{'customDisabled':!validEntry || book.input < 20}" id = "enterText" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">
+					Enter
+				</button>	
+			</div>
 
 		</div>
 
@@ -123,5 +126,4 @@
 			<button ng-click = "submitBook()">Done</button>
 		</div>
  	</div>
-
 </div>

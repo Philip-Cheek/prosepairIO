@@ -35,17 +35,26 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 	}
 
 	$scope.sortBy = function(type){
-		$scope.sortInfo.method = type;
+		if (type == $scope.sortInfo.method){
+			if ($scope.sortInfo.way == 'ascending'){
+				$scope.sortInfo.way = 'descending';
+			}else if ($scope.sortInfo.way == 'descending'){
+				$scope.sortInfo.way = 'ascending';
+			}
+		}else{
+			$scope.sortInfo.way = 'descending'
+			$scope.sortInfo.method = type;
+		}
+
 		promptFactory.setNewSortType(type, function(prompts, min, max){
 			$scope.min = min; 
 			$scope.max = max;
 
 			$scope.prompts = prompts
-		});
+		}, $scope.sortInfo.way);
 	}
 	
 	$scope.getFeedback = function(prompt, positive){
-		console.log('this will be', prompt)
 		if (prompt._id != "user"){
 			promptFactory.registerFeedback(prompt, positive, function(lInt){
 				prompt.likeTally += lInt;
@@ -63,6 +72,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 		$scope.prompts = [];
 		$scope.sortInfo = {};
 		$scope.sortInfo.method = "Date Added";
+		$scope.sortInfo.way = 'descending';
 		$scope.newPrompt = {}
 		$scope.newPrompt._id = 'user'
 		$scope.charLeft = 220;
@@ -78,7 +88,7 @@ angular.module('prosePair').controller('promptController', function($scope, peer
 			if (prompts || prompt.length > 0){
 				$scope.prompts = prompts;
 			}
-		});
+		}, $scope.sortInfo.method, $scope.sortInfo.way);
 
 	}
 

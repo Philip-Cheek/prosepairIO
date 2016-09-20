@@ -2,14 +2,10 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 	//Initialize Arena App;
 
-	var titleConfirm = false;
-	var first = true;
-
-	$scope.guess = {};
-	$scope.book = {};
-	$scope.prompt = {};
-
+	var titleConfirm, first;
 	initArena();
+
+
 
 	//Listen for Socket Emition From Server
 
@@ -61,6 +57,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.titleAllowed = false;
 		$scope.title = info.titleText;
 		$scope.privatePoll = false;
+		$scope.titleLeft = 30 - $scope.title.length;
 
 		setExplanationScope('titleChange', info.person, function(){
 			$scope.titleAllowed = true;
@@ -106,12 +103,15 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 		}else{
 			$scope.title = "";
+			$scope.titleLeft = 30;
 			$scope.titleAllowed = true;
 		}
 	});
 
 
-	//Functions Triggered By User
+
+
+	//Functions triggered by user
 
 
 	$scope.userTyping = function(){
@@ -221,6 +221,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		}else{
 			$scope.titleAllowed = true;
 			$scope.title = "";
+			$scope.titleLeft = 30;
 		}
 
 		info = {
@@ -251,22 +252,6 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
  		saveBook(info, true);
  	}
 
- 	function saveBook(info, initEmit){
- 		docService.disableHighlightTracking();
- 		intervalFactory.cancelTimer('finTimer');
-
- 		if (initEmit){
- 			bookFactory.saveBook(info, true);
- 			socketFactory.emit('memoBroadcast', {
-				'memo': 'saveBook',
-				'tag': peerService.showTag(),
-				'body': info
-			});
- 		}else{
- 			bookFactory.saveBook(info, false);
- 		}
- 	}
-
  	$scope.pollAnswer = function(confirm){
  		if (pollService.isPollCurrent()){
  			pollToAnswer(confirm);
@@ -294,7 +279,22 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
  	//Worker Functions
 
+ 	function saveBook(info, initEmit){
+ 		docService.disableHighlightTracking();
+ 		intervalFactory.cancelTimer('finTimer');
 
+ 		if (initEmit){
+ 			bookFactory.saveBook(info, true);
+ 			socketFactory.emit('memoBroadcast', {
+				'memo': 'saveBook',
+				'tag': peerService.showTag(),
+				'body': info
+			});
+ 		}else{
+ 			bookFactory.saveBook(info, false);
+ 		}
+ 	}
+ 	
  	function pollToAnswer(confirm){
  		$scope.openPoll = false;
  		setExplanationScope('answerPoll');
@@ -339,6 +339,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 				if (poll == 'title'){
 					if  (pInfo.status == "Rejection"){
 						peerService.clearFair();
+						$scope.titleLeft = 30;
 					}else if (pInfo.status == "Confirm"){
 						titleConfirm = true;
 					}
@@ -463,6 +464,11 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 
 
 	function initArena(){
+		titleConfirm = false;
+		first = false;
+		$scope.guess = {};
+		$scope.book = {};
+		$scope.prompt = {};
 
 		setTimeLeftFromTop();
 

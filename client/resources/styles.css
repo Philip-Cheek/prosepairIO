@@ -1,74 +1,297 @@
+@import 'https://fonts.googleapis.com/css?family=Satisfy|Oranienbaum';
+
 *{
 	padding:0;
-	font-family: "Lucida Console", Monaco, monospace;
+	font-family: 'Oranienbaum', serif;
 	margin:0;
 }
 
 body{
-	height: 100vh;
+	height: 100%;
+	background: #f4f4f4;
 }
+
+button:hover{
+	cursor:pointer;
+}
+
+.customDisabled{
+	opacity:.1;
+}
+
+.curTitle{
+	font-family: 'Satisfy', cursive;
+}
+
+.connectPartial{
+	min-width:30em;
+	max-width:50em;
+	margin:0 auto;
+	height: 80vh;
+}
+	.er{
+		text-align:center;
+		color: red;
+		font-size:.8em;
+		font-style:italic;
+	}
+	.connectPartial h1{
+		text-align: center;
+		margin-bottom: 3%;
+	}
+	.connectPartial input{
+		padding:.5em;
+		font-size: .8em;
+	}
+
+	.connectPartial button{
+		padding:.2em;
+		font-size: 1em;
+	}
+
+	.connectPartial .enter{
+		height:0;
+		overflow: hidden;
+		transition:height .5s;
+		max-width:18em;
+		margin: 0 auto;
+		font-size: 1.3em;
+
+	}
+		.connectPartial .nEnter{
+			height:3em !important;
+			overflow: hidden;
+
+		}
+
+		.connectPartial .nEnter input{
+			height: 1.3em;
+			width:1.3 em;
+		}
+
+	#loadingGear{
+		font-size:30em;
+		text-align: center;
+		opacity:.14;
+	}
+	#connectBoxes{
+		width:95%;
+		margin: 0 auto;
+		height:70%;
+		overflow: hidden;
+	}
+
+		.conBox{
+			display: inline-block;
+			width:47%;
+			border:.3em dashed gray;
+			height: 80%;
+			text-align: center;
+		}
+
+			.conBox button{
+				margin-top:3.3%;
+				font-size: calc(100% * 2);
+				transition:background-color 2s ease, 
+			}
+
+			#proseSelect{
+				margin-right: 3%;
+				vertical-align: top;
+				transition:border .2s ease, margin-right .2s ease, color .2s ease;
+			}
+
+				.pHovered{
+					cursor:pointer;
+					border:.4em dashed #4B77BE;
+					margin-right:.2em !important;
+					color:#D24D57;
+				}
+
+				.pHovered .icon #lP, .pHovered .icon #rP{
+					opacity:.7;
+				}
+
+				.pHovered button{
+					color:#4B77BE;
+					border:0;
+					background: rgba(0,0,0,.0);
+				}
+
+				.pSelect{
+					border:.2em dashed #4B77BE;
+					margin-right:3% !important;
+					background: rgba(75, 119, 190, .08);
+				}
+
+			#lightningSelect{
+				transition:color .1s ease, border .1s ease, margin-left .1s ease;
+			}
+
+				.lHovered{
+					cursor: pointer;
+					color:#F5AB35;
+					border:.4em dashed #D24D57;
+					margin-left: -.7em;
+				}
+
+					.lHovered button{
+						background: rgba(0,0,0,0);
+						border:none;
+						color:#D24D57;
+					}
+
+				.lSelect{
+					border:.2em dashed #D24D57;
+					margin-left:0 !important;
+					background: rgba(210, 77, 87, .1)
+				}
+
+				.icon{
+					font-size: calc(100% * 10);
+					position: relative;
+					height:57%;
+					margin: 6%;
+				}
+
+					#lP{
+						position: absolute;
+						top:-3.5%;
+						left:15%;
+						opacity: .25;
+						transition:opacity .3s ease;
+					}
+
+					#rP{
+						position: absolute;
+						top:1%;
+						left:42%;
+						opacity: .25;
+						transition:opacity .3s ease;
+					}
+
+					.pHovered .icon{
+						opacity:.8;
+					}
+
+					#lL, #rl{
+						position: absolute;
+						font-size:calc(76%);
+						top:12%;
+						opacity: .25;
+						transition:opacity .3s ease;
+					}
+
+
+					#lL{
+						left:12%;
+
+					}
+
+					#mL{
+						position: absolute;
+						left:35%;
+						opacity: .25;
+						transition:opacity .3s ease;
+					}
+
+					#rL{
+						left:63%;
+					}
+
+					.lHovered #lL, .lHovered #rL, .lHovered #mL{
+						opacity:.7;
+					}
+
+
+
+
+#partial{
+	position:absolute;
+	top:6em;
+	width:100%;
+};
+
 #outerContainer{
 	position:relative;
 }
+
+
 #header{
 	height:6em;
 	width: 100%;
-	border-top:4px solid;
-	border-bottom:4px solid;
-	margin:0 auto;
+	background: linear-gradient(#C4313D, #D65C66);
+	z-index:3;
+	box-shadow:	0px 7px 3px 1px rgba(0,0,0,0.3);
+	position:fixed;
+	top:0;
 }
-	#header h1{
-		text-align: center;
-		margin-top:1em;
+	
+	#headContain{
+		position: relative;
+		max-width:80%;
+		margin: 0 auto;
 	}
 
+		#header h1{
+	
+			font-family: 'Satisfy', cursive !important;
+			font-size:2.8em;
+			position:absolute; 
+			top:.6em; 
+		}
 
-#menuRow{
-	border: 2px dashed #444;
-    height: 4em;
-    text-align: justify;
-    -ms-text-justify: distribute-all-lines;
-    text-justify: distribute-all-lines;
-    word-spacing:-10px;
-    max-width:42em;
-    min-width: 26em;
-    margin:0 auto;
-}
+
+		#menuRow{
+			position: absolute;
+			right:0;
+			top:1.2em;
+		}
+
 	.menuItem{
 		width: 6.5em;
     	height: 4em;
     	vertical-align: top;
     	display: inline-block;
-    	*display: inline;
-    	zoom: 1;
     	cursor:pointer;
+    	position:relative;
+    	color:black;
+    	border-radius: 20%;
+    	transition: box-shadow .8s;
 	}
-		#library, #login{
-			background-color: gray;
+		.menuSelected{
+			box-shadow: 5px 8px 2px 2px rgba(0, 0, 0, 0.1);
 		}
 
-		#proseGo, #moreMenu{
-			background-color: lightgray;
-		}
 
 		.menuIcon{
 			font-size: 3.3em;
-			text-align: center;
+			margin-left: .5em;
 			margin-top: .12em;
+			transition: color .3s, opacity .3s;
+		}
+
+		.backIcon{
+			opacity:0.3;
+			position: absolute;
+			font-size:3.3em;
+			color:white;
+			top:.0em;
+			left:0em;
+			z-index:0;
+			/*transition: color .5s, opacity .5s;*/
+
 		}
 
 		.menuAlt{
-			font-size:1em;
-			margin-top:1em;
-			text-align:center;
-		}
+			position: absolute;
+			font-size:1.4em;
+			left:15%;
+			margin-top: 20%;
+			z-index:1;
+			font-family: 'Satisfy', cursive;
 
-	#stretch {
-    	width: 100%;
-    	display: inline-block;
-    	font-size: 0;
-    	line-height: 0
-	}
+		}
 
 
 .dialogDarken {
@@ -110,20 +333,31 @@ body{
 	}
 
 #sentenceBox{
-  width:40em;
-  height:7em;
+  width:32em;
+  height:5em;
+  margin-top: .3em;
   resize:none;
   overflow-y:scroll;
+  padding:.35em;
+  border:none;
+  box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+  padding:.3em;
+  font-size: 1em;
+
 }
 
 #proseBox{
-	width:32.5em;
-    height:20em;
-    border:1px dotted black;
+	width:31.5em;
+    height:19.5em;
+    padding:.35em;
+    background: white;
     overflow-y:scroll;
     display:inline-block;
     vertical-align: top;
     margin:0em;
+    border-radius: 3%;
+    box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+
 }
 
 	#proseBox p{
@@ -132,24 +366,32 @@ body{
 	}
 #sideBox{
 	width:14em;
-	height:20em;
-	border:1px dotted black;
+	height:19.75em;
+	border-radius:2%;
+	border:.35em solid;
 	display:inline-block;
 	vertical-align: top;
 	padding:0em;
 	margin:0em;
-	background-color: lightgray;
+	margin-left: .35em;
 	position:relative;
 }
+	.sidePair{
+		border:.25em dotted;
+		color:#4B77BE;
+		background:rgba(75, 119, 190, .08);
+		box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+
+	}
 	.sideText {
 		font-size: .9em;
 		margin-top: .5em;
+		margin-right: .1em;
 	}
 	#timeBox{
  		width: 10.3em;
   		max-height:6.5em;
   		min-height:5em;
- 		border:.2em solid black;
  		margin: 0 auto;
   		margin-top: 1em;
 	}
@@ -187,22 +429,22 @@ body{
 				margin:0 0 0 0;
 			}
 
-				.arenaBottom #left{
+				.arenaBottom #mleft{
 					position:absolute;
 					font-size:8em;
 					left:.17em;
 					bottom:.1em;
-					color: rgba(0, 0, 0, 0.25)
+					color:#D24D57;
+					opacity:.5;
 				}
-				.arenaBottom #right{
+				.arenaBottom #mright{
 					position:absolute;
 					right:.17em;
 					bottom:0em;
 					font-size:7.5em;
-					opacity:12%;
-					color: rgba(0, 0, 0, 0.25)
+					color:#D24D57;
+					opacity:.5;
 				}
-
 
 
 
@@ -212,11 +454,11 @@ body{
 }
 
 #titleBox{
-	border:1px dotted black;
 	width:32.5em;
 	height:3.89em;
 	display:inline-block;
 	vertical-align: bottom;
+	position:relative;
 }
 
 	#titleBox .charleft{
@@ -232,16 +474,31 @@ body{
 			padding: .4em;
 			font-size: 1em;
 			width:15em;
+			border:none;
+			box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
 		}
 
 	#titleBox #titlePoll{
-		display:inline-block;
+		position:absolute;
+		left:18.5em;
+		top:.4em;
 	}
 		#titlePoll button{
-			height:1.7em;
-			width:1.7em;
 			font-size:1.5em;
+			transition:font-size 1s;
+		}
+
+		#explanationArea{
+			padding:.3em;
+			border-radius:14%;
+			width:31em;
+			background: white;
+			border: .3em solid #4B77BE;
 			margin-top: .2em;
+			margin-bottom: .3em;
+			box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+			color: #4B77BE;
+
 		}
 
 
@@ -250,24 +507,29 @@ body{
 	width:14em;
 	position: relative;
 	height:1.3em;
+	margin-bottom: .45em;
 }
 
 	#nextBox button{
 		position: absolute;
-		right:1em;
+		right:.35em;
 		padding:.8em;
 		font-size: 1em;
 		bottom:0;
+		border-radius:6%;
+		border:none;
+		background: rgba(0,0,0,0);
 	}
 .tabSel{
-	color:blue;
+	color:#4B77BE;
+	text-decoration: underline;
 }
 .blueIcon{
 	color: blue;
 }
 
 .danger{
-	color:red !important;
+	color:#D24D57 !important;
 }
 
 .prompt{
@@ -286,13 +548,16 @@ body{
 			resize:none;
 			padding:1em;
 			margin-top:1em;
+			border:none;
+			box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+
 		}
 
 		#addPromptBox .charWarning{
 			font-size:.8em;
 			color:gray;
 			display:inline-block;
-			margin-left: 21.1em;
+			margin-left: 26em;
 		}
 
 		#addPromptBox button{
@@ -300,6 +565,8 @@ body{
 			font-size:.85em;
 			padding:.4em;
 			margin-top: .5em;
+			border-radius: 10%;
+			background: lightgray;
 		}
 
 	#allPromptBox{
@@ -312,7 +579,6 @@ body{
 			margin-top:.38em;
 		}
 		#allPromptBox tr, #allPromptBox td, #allPromptBox th{
-			border:1px solid black;
 			padding:.5em;
 		}
 
@@ -326,24 +592,35 @@ body{
 			}
 
 		#allPromptBox table tbody tr:nth-child(even){
-			background-color: lightgray;
+			background-color: rgba(75,119,190,.1);
 		}
 
-		#allPromptBox table tbody tr{
-			/*max-width: 15em;*/
+		#allPromptBox table tbody tr td:nth-child(3){
+			min-width:5em;
 		}
+
+		#allPromptBox table tbody tr td:nth-child(2){
+			min-width:33.7em;
+		}
+
+
+		#allPromptBox table tbody tr td{
+			position: relative;
+		}
+
 		.thOption{
-			text-decoration: underline;
+			text-decoration: none;
 			cursor: pointer;
 		}
 
 		#allPromptBox .authoredBy{
 			font-size: .8em;
 			font-style: italic;
-			margin-left: 29em;
+			text-align: right;
+			
 		}
 
-		#likeBox{
+		.likeBox{
 			padding:.1em;
 			font-size: 1.5em;
 			cursor: pointer;
@@ -373,10 +650,12 @@ body{
 	margin: 0 auto;
 }
 
-	#promptBox{
-		width:45em;
+	#proseArena #promptBox{
+		max-width:45em;
 		margin: 0 auto;
+		padding-bottom: 0em;
 		margin-bottom: .7em;
+		min-height:5em;
 	}
 		#promptBox #contentBox{
 			display:inline-block;
@@ -391,15 +670,51 @@ body{
 
 		#promptBox #likelyBox{
 			display:inline-block;
-			font-size:1.7em;
-			height:3em;
 			vertical-align: top;
 			padding-top: 1.2em;
+			font-size:2em;
+			margin-top: -1.3em;
 		}
 
-			#prompt #likelyBox .liking{
-				margin-bottom: .8em
+			#promptBox #likelyBox i{
+				transition:font-size .3s;
+
 			}
+			#promptBox #likelyBox i:hover{
+				transition:font-size .3s;
+				font-size:1.5em;
+				cursor: pointer
+			}
+
+
+
+		#titlePoll .poll{
+			background: none;
+			border:1px lightgray dotted;
+			border-radius: 30%
+		}
+
+		#titleStyle{
+			font-family: 'Satisfy', cursive;
+			font-size: 1.5em
+		}
+
+		#titlePoll .poll:hover{
+			font-size: 3em;
+		}
+
+		.x{
+			color:#C0392B;
+		}
+
+		.check{
+			color:#3FC380;
+		}
+
+		#titleUnder{
+			position: absolute;
+			right:18.3em;
+		}
 
 .modContent{
 	margin:2em;
@@ -435,8 +750,11 @@ body{
 
 		.viewBox .pageBox .cBox{
 			margin: .8em;
-			font-size: .9em;
+			font-size: 1.1em;
 		}
+			.viewBox .pageBox .cBox p{
+				margin-bottom:1em;
+			}
 
 	.viewBox #pageButts{
 		text-align: center;
@@ -459,11 +777,151 @@ body{
 		font-style: italic;
 	}
 
-.lib table *{
-	border: 1px solid;
+.lib{
+	max-width:55em;
+	margin:0 auto;
+}
+.whiteBox{
+	background: white;
+	margin-top: 2%;
+	padding:1.8em;
+	border-radius: 5%;
+	box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+	margin-bottom: 1em;
+}
+	#libBox h1{
+		text-align: center;
+		font-size: 2.6em;
+	}
+
+	/*.lib table *{
+		border:1px solid;
+	}*/
+
+	.lib table th{
+		font-size: 1.8em;
+	}
+
+	.lib table tr td{
+		padding-bottom:1.4em;
+	}
+
+	.lib table th:nth-child(2){
+		text-align: left;
+	}
+
+	.lib table th:nth-child(3){
+		min-width:3em;
+	}
+	.lib table td:first-child{
+		min-width: 3em;
+	}
+
+	.lib h3{
+		color:#4B77BE;
+		font-size:1.6em;
+		transition:font-size .5s;
+		text-decoration: underline;
+	}
+
+	.lib h3:hover{
+		cursor:pointer;
+		font-size:2.3em;
+	}
+
+	.lib .authoredBy{
+		font-style: italic;
+	}
+
+	.pLeft{
+		font-size: 8em;
+	}
+
+	.tally{
+		font-size: 1.3em;
+		text-align: center;
+	}
+
+	.libStar{
+		color:#F7CA18;
+	}
+
+	.lib .adWay{
+		color:pink;
+		font-size: .8em;
+	}
+
+	#bottButton{
+		width:95%;
+		margin: 0 auto;
+		position: relative;
+	}
+		.lib button{
+			font-size: 1em;
+		}
+
+		.lib .bBack{
+			position: absolute;
+			left:0;
+		}
+
+		.lib .bNext{
+			position: absolute;
+			right:0;
+		}
+
+		.lib .likeBox i{
+			transition:font-size .4s;
+		}
+
+		.lib .likeBox i:hover{
+			font-size:1.25em;
+		}
+
+		.conText{
+			color:#4B77BE;
+			text-decoration: underline;
+		}
+
+		.conText:hover{
+			cursor:pointer;
+		}
+
+#wBox .charLeft{
+	margin-left: 24.3em;
 }
 
-.lib table{
-	max-width: 45em;
+#enterButtons{
+	display: inline-block;
+	margin-left:33.5em;
+	margin-top:-5.8em;
 }
+
+#enterButtons button{
+	font-size: 1em;
+	padding:.3em;
+	border:.05em dashed gray;
+	background: none;
+	border-radius: 8%
+}
+	
+#enterButtons #enterText{
+	font-size:1.3em;
+	margin-top: .3em;
+	background: #4B77BE;
+	color:#f4f4f4;
+	border:none;
+	box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+
+}
+
+#pLikeBox i{
+	transition:font-size .3s;
+}
+
+#pLikeBox i:hover{
+	cursor:pointer;
+	font-size:1.5em;
+}
+
 

@@ -11,14 +11,14 @@ var clientManager = {
 clientManager.cleanConnect = function(id){
 	var cleanStatus = (!(id in this.connectMaster));
 	this.connectMaster[id] = true;
+	
 	return cleanStatus;
 }
 
 clientManager.connectClient = function(data, socket, callback){
 	checkSetDataForSocket(data.name, socket);
-	var handledData = handleClientConnect(data.type)
-	console.log('handledData check', handledData)
-	console.log('queeucheck', clientManager[handledData.connectType].length)
+	var handledData = handleClientConnect(data.type);
+	
 	if (handledData.proceed){
 		console.log('proceed')
 		var room = socket.id;
@@ -102,8 +102,6 @@ function handleClientConnect(clientConnect){
 	var info = {
 		'connectType': clientConnect + "Queue"
 	};
-
-	console.log(info.connectType)
 
 	if (info.connectType == "pairQueue"){
 		info.proceed = clientManager[info.connectType].length > 0

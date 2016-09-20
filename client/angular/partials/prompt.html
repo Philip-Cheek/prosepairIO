@@ -1,7 +1,7 @@
 <div class = "prompt" ng-controller = "promptController">
 
 	<div id = "addPromptBox">
-		<h1>Add a prompt!</h1>
+		<h1 class = 'curTitle'>Add a prompt!</h1>
 		<p>{{error}}</p>
 
 		<textarea class = "wideNarrow" type = "text" ng-change = 'userTyping()' ng-model = "newPrompt.text"></textarea>
@@ -10,7 +10,7 @@
 		<button ng-disabled = '!newPrompt.text || newPrompt.text.length < 15' ng-click = "addPrompt()">Add</button>
 	</div>
 
-	<div id = "allPromptBox">
+	<div id = "allPromptBox" class = 'whiteBox'>
 
 		<h1>All Prompts By {{sortInfo.method}}</h1>
 
@@ -20,25 +20,25 @@
 				<th>Prompt</th>
 				<th> 
 					<a ng-click = "sortBy('Points')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Points'}">
-						Points
+						Points<i class = "adWay" ng-if = "sortInfo.method == 'Points'" ng-class="{'fa fa-sort-desc':sortInfo.way == 'descending', 'fa fa-sort-asc':sortInfo.way == 'ascending'}" aria-hidden="true"></i>
 					</span>
 				</th>
 			    <th class = 'dAdded'>
 			    	<a ng-click = "sortBy('Date Added')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Date Added'}">
-			    		Date Added
+			    		Date Added<i ng-if = "sortInfo.method == 'Date Added'" class ='adWay' ng-class= "{'fa fa-sort-desc':sortInfo.way == 'descending', 'fa fa-sort-asc':sortInfo.way == 'ascending'}" aria-hidden="true"></i>
 			    	</a>
 			    </th>
 			</tr>
 			<tr ng-repeat = 'prompt in prompts'>
 				<td>
-					<div id = "likeBox">
+					<div id = "pLikeBox">
 						<i ng-click = "getFeedback(prompt, true)" ng-class= "{'fa fa-thumbs-up': prompt.liked, 'fa fa-thumbs-o-up': !prompt.liked}" aria-hidden="true"></i><br>
 						<i ng-click = "getFeedback(prompt, false)" ng-class= "{'fa fa-thumbs-down': prompt.disliked, 'fa fa-thumbs-o-down': !prompt.disliked}" aria-hidden="true"></i><br>
 					</div>
 
 				</td>
 				<td>
-					{{prompt.text}}
+					<p>{{prompt.text}}</p>
 					<p class = "authoredBy">- by {{prompt.author}}</p>
 				</td>
 				<td>

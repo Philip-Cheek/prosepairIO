@@ -8,6 +8,7 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	$scope.modalShown = false;
 	$scope.modalContent = {};
 	$scope.buttons = [];
+	$scope.location = $location.url();
 
 	$scope.$watch(function(){
 
@@ -16,8 +17,6 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	}, function(newVal, oldVal){
 
 		if (newVal != oldVal){
-
-			console.log("I want to know newVal, popupservice", newVal)
 			$scope.modalContent = newVal.content;
 			$scope.buttons = newVal.buttons;
 			$scope.modalButton = newVal.modalButton
@@ -41,17 +40,15 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	})
 
 	$scope.pageFlip = function(page){
-		console.log('page check', page)
 		bookFactory.turnPage(page);
 	}
 
 	$scope.omniSwitch = function(userPut){
-		console.log('userPUt', userPut)
+		$scope.location = menuItems[userPut];
 		$location.path(menuItems[userPut]);
 	};
 
 	$scope.testModal = function(){
-		console.log("coool!")
     	$scope.modalShown = !$scope.modalShown;
 	};
 
@@ -60,7 +57,6 @@ angular.module('prosePair').controller('omniOptionsController', function($scope,
 	}
 
 	$scope.dialogButtonClicked = function(path){
-		console.log('path', path)
 		if (path == 'recentSuccess'){
 			bookFactory.viewRecentSuccess();
 			$location.path('/');

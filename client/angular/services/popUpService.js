@@ -12,7 +12,6 @@ angular.module('prosePair').service('popUpService', function(){
 		}
 	}
 	service.showDialog = function(info){
-		console.log('dialog called!', info)
 		var infoModal = info;
 		infoModal.status = true;
 		modal = infoModal;

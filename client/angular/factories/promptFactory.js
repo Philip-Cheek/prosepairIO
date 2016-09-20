@@ -12,20 +12,25 @@ angular.module('prosePair').factory('promptFactory', function($http, $location, 
 	}
 
 
-	factory.getPrompts = function(callback, sortType, skipValue){
-		var sType;
+	factory.getPrompts = function(callback, sortType, way, skipValue){
+		var sType, asc;
 		if (!sortType || sortType == 'Date Added'){
-			sType = "dateAdded"
+			sType = "createdAt"
 		}else if (sortType == 'Points'){
-			sType = 'points';
+			sType = 'likeTally';
 		}
 
 		if (!skipValue){
 			skipValue = 0;
 		}
-
+		console.log("WAY:", way)
+		if (way == 'descending'){
+			asc = '/-'
+		}else{
+			asc = '/+'
+		}
 		console.log('stype check',sType, skipValue);
-		$http.get('/getPrompts/' + sType + '/' + skipValue).success(function(result){
+		$http.get('/getPrompts/' + sType + '/' + skipValue + asc).success(function(result){
 			if (result.status){
 
 				var prompts = result.prompts;
@@ -34,7 +39,7 @@ angular.module('prosePair').factory('promptFactory', function($http, $location, 
 			 		factory.formatPrompt(prompts[p]);
 			 	}
 
-				listService.addCache('prompts', 20, prompts, result.count, function(prompts){
+				listService.addCache(true, 'prompts', 20, prompts, result.count, function(prompts){
 					var minMax = listService.getMinMax('prompts');
 					callback(prompts, minMax.min, minMax.max);
 				});
@@ -61,9 +66,9 @@ angular.module('prosePair').factory('promptFactory', function($http, $location, 
 
 	}
 
-	factory.setNewSortType = function(sortType, callback){
+	factory.setNewSortType = function(sortType, callback, way){
 		listService.clearCache('prompts');
-		this.getPrompts(callback, sortType);
+		this.getPrompts(callback, sortType, way);
 	}	
 
 	factory.addPrompt = function(newPrompt, shiftScope, setID){

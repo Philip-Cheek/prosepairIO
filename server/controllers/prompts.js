@@ -24,27 +24,31 @@ module.exports = (function(){
 			});
 		},
 
+
 		getPrompts: function(req, res){
 			var type = req.params.type;
+			var skipVal = Number(req.params.skipVal);
+
+			if (req.params.type){
+				sortType = req.params.type;
+			}
+
+			console.log(req.params.asc)
+			if (req.params.asc == '-'){
+				sortType = '-' + sortType
+			}
+
+			console.log(sortType)
 			Prompt.count().exec(function(err, count){
-				if (type == "dateAdded"){
-					sortByDate(function(status, prompts){
-						if (!status){
-							res.json({'status': false});
-						}else{
-							res.json({'status': true, 'prompts': prompts, 'count': count})
-						}
-					}, req.params.skipVal);
-				}else if (type == "points"){
-					sortByPoints(function(status, prompts){
-						if (!status){
-							res.json({'status': false});
-						}else{
-							res.json({'status': true, 'prompts': prompts, 'count': count})
-						}
-					}, req.params.skipVal);
-				}
-			})
+				Prompt.find({}).sort(sortType).skip(skipVal).exec(function(err, result){
+					if (err){
+						console.log('error on mongo book get', err);
+						res.json({'status': false})
+					}else{
+						res.json({'status': true, 'prompts': result, 'count': count})
+					}
+				});
+			});
 		},
 
 		addPrompt: function(req, res){
@@ -68,12 +72,10 @@ module.exports = (function(){
 		addPromptFeedback: function(req, res){
 			var pID = req.body.promptID;
 
-			console.log('this is req', req.body)
 			Prompt.findOne({'_id': pID}, function(err, result){
 				if (err){
 					console.log('error on add prompt feedback', err);
 				}else{
-					console.log('do we have a result', result);
 					var newLikes = result.likes + req.body.likeChange;
 					var newDislikes = result.dislikes + req.body.disChange;
 					var newTally = newLikes - newDislikes;
@@ -108,49 +110,3 @@ module.exports = (function(){
 		}
 	}
 })();
-
-function sortByPoints(callback, skipVal){
-	if (!skipVal){
-		skipVal = 0
-	}else{
-		skipVal = Number(skipVal);
-	}
-
-	Prompt.find({}).sort({'likeTally':-1}).skip(skipVal).limit(40)
-	.exec(
-		function(err, result){
-			if (err){
-				console.log('err on sort by date with start value', err)
-				callback(false);
-
-			}else{
-				console.log("success on find by date with start v")
-				callback(true, result);
-			}
-		}
-	);
-}
-
-function sortByDate(callback, skipVal){
-	if (!skipVal){
-		skipVal = 0
-	}else{
-		skipVal = Number(skipVal);
-	}
-	console.log('skip CHECK', skipVal)
-
-	Prompt.find({}).sort({'createdAt':-1}).limit(40)
-	.skip(skipVal)
-	.exec(
-		function(err, result){
-			if (err){
-				console.log('err on sort by date with start value', err);
-				callback(false);
-			}else{
-				console.log("success on find by date with start v");
-				callback(true, result);
-
-			}
-		}
-	);
-}

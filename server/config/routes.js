@@ -17,15 +17,19 @@ module.exports = function(app){
 		prompts.addPromptFeedback(req, res);
 	});
 
-	app.get('/getPrompts/:type/:skipVal', function(req, res){
+	app.get('/getPrompts/:type/:skipVal/:asc', function(req, res){
 		prompts.getPrompts(req, res);
 	});
 
 	app.get('/randomPrompt', function(req, res){
 		prompts.getRandomPrompt(req, res);
-	})
+	});
 
-	app.get('/latestBooks/:skipVal', function(req, res){
+	app.get('/latestBooks/:skipVal/:type/:asc', function(req, res){
 		books.getBooks(req, res);
+	});
+
+	app.post('/addBookFeedback', function(req, res){
+		books.addFeedback(req, res);
 	});
 }

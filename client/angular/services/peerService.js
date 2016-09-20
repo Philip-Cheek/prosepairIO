@@ -73,6 +73,8 @@ angular.module('prosePair').service('peerService', function($location, $timeout)
 		instanceTag = tag;
 		currentMode = mode;
 
+		console.log('this should be all set',roomies, instanceTag, currentMode);
+
 		for (var turn in roomies){
 			if (roomies[turn]){
 				personWhoseTurn = turn;

@@ -21,6 +21,7 @@ angular.module('prosePair').service('listService', function(){
 	service.getPageNum = function(name){
 		return cache[name].page;
 	}
+
 	service.clearCache = function(cName, full){
 		if (!full){
 			cache[cName].list = [];
@@ -42,14 +43,11 @@ angular.module('prosePair').service('listService', function(){
 				cache[name].page = 0;
 		}
 
-		console.log(dir)
 		var page = ifCache(name);
 		if (page.status){
 			callback(page.data);
 		}else if (fallback){
 			fallback();
-		}else{
-			console.log('no scenario catch');
 		}
 	}
 
@@ -89,10 +87,11 @@ angular.module('prosePair').service('listService', function(){
 		setShift(cache[cName].list[0], min, max);
 	}
 
-	service.addCache = function(cName, cap, data, total, callback){
-		if (!(cName in cache)){
+	service.addCache = function(newVal, cName, cap, data, total, callback){
+		if (!(cName in cache) || newVal){
 			setCache(cName, cap, total);
 		}
+
 		putIntoCache(cName, data, function(){
 			var list = cache[cName].list[cache[cName].page];
 			callback(list);
@@ -102,12 +101,6 @@ angular.module('prosePair').service('listService', function(){
 	service.getMinMax = function(name){
 		var min = cache[name].page <= 0;
 		var max = cache[name].page == cache[name].list.length - 1 && this.getSkipVal(name) >= cache[name].total;
-
-
-		console.log(cache[name]);
-		console.log('this is page', cache[name].page)
-		console.log('this is max',max)
-		console.log(this.getSkipVal(name))
 
 		return {'max': max, 'min': min};
 	};
@@ -126,7 +119,6 @@ angular.module('prosePair').service('listService', function(){
 
 		}
 
-		console.log(skip)
 		return skip;
 	};
 
@@ -143,6 +135,10 @@ angular.module('prosePair').service('listService', function(){
 	}
 
 	function setCache(cName, cap, total){
+		if (cName in cache){
+			delete cache[cName];
+		}
+
 		cache[cName] = {
 			'list': [],
 			'cap': cap,

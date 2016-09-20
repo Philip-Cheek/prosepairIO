@@ -39,34 +39,37 @@
 		<div id = "outerContainer">
 			<div ng-controller = "omniOptionsController">
 				<div id = "header">
-					<h1>Prose Pair I/O</h1>
-				</div>
-				<div id = 'menuRow'>
+					<div id = 'headContain'>
+						<h1>Prose Pair I/O</h1> 
+						<div id = 'menuRow'>
 
-					<div class = "menuItem" id ='library' ng-click = "omniSwitch('l')" ng-mouseover = "hoverU = true" ng-mouseleave = "hoverU = false">
-						<p class = "menuIcon" ng-if = "!hoverU">
-							<i class = 'fa fa-university' aria-hidden='true'></i>
-						</p>
-						<p ng-if = "hoverU" class = "menuAlt">Browse</p>
-					</div>
+							<div class = "menuItem" id ='library' ng-class = "{'menuSelected':location == '/'}" ng-click = "omniSwitch('l')" ng-mouseover = "hoverU = true" ng-mouseleave = "hoverU = false">
+								<p class = "menuIcon" ng-class = "{'backIcon':hoverU || location == '/'}">
+									<i class = 'fa fa-university' aria-hidden='true'></i>
+								</p>
+								<p ng-if= "hoverU || location == '/'" class = "menuAlt">Browse</p>
+							</div>
 
-					<div class = "menuItem" id="proseGo" ng-click = "omniSwitch('p')" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false">
-						<p class = "menuIcon" ng-if="!hoverP">
-							<i class="fa fa-pencil" aria-hidden="true"></i>
-						</p>
-						<p  ng-if = "hoverP" class = "menuAlt">Prose Go</p>
-					</div>
+							<div class = "menuItem" id="proseGo" ng-click = "omniSwitch('p')" ng-mouseover = "hoverP = true" ng-mouseleave = "hoverP = false" ng-class = "{'menuSelected':location == '/connect'}">
+								<p class = "menuIcon" ng-class = "{'backIcon':hoverP || location == '/connect'}">
 
-					<div class = "menuItem" id="proseGo" ng-click = "omniSwitch('pr')" ng-mouseover = "hoverPr = true" ng-mouseleave = "hoverPr = false">
-						<p class = "menuIcon" ng-if = "!hoverPr">
-							<i class="fa fa-book" aria-hidden="true"></i>
-						</p>
-						<p ng-if = "hoverPr" class = "menuAlt">Prompts</p>
-					</div>
+									<i class="fa fa-pencil" aria-hidden="true"></i>
+								</p>
+								<p  ng-if = "hoverP || location == '/connect'" class = "menuAlt">Prose Go</p>
+							</div>
 
-					<div class = "menuItem" id="moreMenu">
+							<div class = "menuItem" id="proseGo" ng-click = "omniSwitch('pr')" ng-mouseover = "hoverPr = true" ng-mouseleave = "hoverPr = false">
+								<p class = "menuIcon" ng-if = "!hoverPr">
+									<i class="fa fa-book" aria-hidden="true"></i>
+								</p>
+								<p ng-if = "hoverPr" class = "menuAlt">Prompts</p>
+							</div>
+
+							<div class = "menuItem" id="moreMenu">
+							</div>
+						</div>
+
 					</div>
-					<span id = "stretch"></span>
 				</div>
 			
 				<div id = "thing">
@@ -78,7 +81,7 @@
 							<div class = 'viewBox' ng-if = "modalContent.format && modalContent.format == 'view'">
 								<div class = 'pageBox'>
 									<div class = 'cBox'>
-										<p ng-repeat = 'paragraph in modalContent.currentBody track by $index'>{{paragraph}}<span class = 'contText' ng-if= '$index == modalContent.currentBody.length - 1 && modalContent.page < modalContent.cap - 1' ng-click = 'pageFlip(1)'> ...Click to continue...</span></p>
+										<p ng-repeat = 'paragraph in modalContent.currentBody track by $index'>{{paragraph}}<span class = 'conText' ng-if= '$index == modalContent.currentBody.length - 1 && modalContent.page < modalContent.cap - 1' ng-click = 'pageFlip(1)'> ...Click to continue...</span></p>
 									</div>
 								</div>
 
@@ -104,10 +107,11 @@
 					</dialog-directive>
 
   				</div>
-  			
 			</div>
 
-			<div class = 'partial' ng-view = ""></div>
+			<div id = 'partial'>
+				<div ng-view = ""></div>
+			</div>
 			
 		</div>
 	</body>
