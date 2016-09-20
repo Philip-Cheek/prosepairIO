@@ -28,6 +28,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 			docService.docTitleExclaim($scope.myTurn);
 			setTimeLeftFromTop();
 			setBookText(info);
+			docService.scrollToBottom('proseBox');
 
 			if ($scope.bookText.join(' ').length > 10 && !$scope.titleAllowed && !titleConfirm){
 				$scope.titleAllowed = true; 
@@ -469,6 +470,7 @@ angular.module('prosePair').controller('proseArenaController', function($scope, 
 		$scope.guess = {};
 		$scope.book = {};
 		$scope.prompt = {};
+		$scope.validEntry = false;
 
 		setTimeLeftFromTop();
 

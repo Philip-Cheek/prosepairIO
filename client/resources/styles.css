@@ -357,6 +357,7 @@ button:hover{
     margin:0em;
     border-radius: 3%;
     box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+    overflow-y:hidden !important;
 
 }
 
@@ -378,16 +379,36 @@ button:hover{
 }
 	.sidePair{
 		border:.25em dotted;
-		color:#4B77BE;
 		background:rgba(75, 119, 190, .08);
 		box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
-
 	}
+
+	.sideLightning{
+		border:.25em dotted;
+		background:rgba(210, 77, 87, .1);
+		box-shadow:6px 8px 3px -2px rgba(0,0,0,0.25);
+		color:rgba(210, 77, 87, 1)
+	}
+
+		.sideLightning ul li{
+			margin-left: 1em
+		}
+
+	#lightMage{
+		font-size: 12.5em;
+		color:#F5AB35;
+		position:absolute;
+		bottom:5%;
+		left:25%;
+		opacity: .35;
+	}
+
 	.sideText {
 		font-size: .9em;
 		margin-top: .5em;
 		margin-right: .1em;
 	}
+
 	#timeBox{
  		width: 10.3em;
   		max-height:6.5em;
@@ -525,7 +546,7 @@ button:hover{
 	text-decoration: underline;
 }
 .blueIcon{
-	color: blue;
+	color:#4B77BE;
 }
 
 .danger{

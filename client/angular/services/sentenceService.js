@@ -68,20 +68,13 @@ angular.module('prosePair').service('sentenceService', function(){
 	}
 
 	service.validSample = function(book, sample){
-		var paragraph;
-
 		for (var p = 0; p < book.length; p++){
-
-			paragraph = book[p];
-
-			if (paragraph.length < sample.length || paragraph.indexOf(sample) == -1){
-
-				break;
-
+			if (book[p].includes(sample)){
+				return true;
 			}
 		}
 
-		return book.length > 0 && p == book.length;
+		return false;
 	}
 
 	function isLikelyOneSentence(sentence, midway, errors){

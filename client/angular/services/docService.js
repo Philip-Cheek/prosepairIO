@@ -1,6 +1,7 @@
 angular.module('prosePair').service('docService', function(){
 
 	var service = {};
+	var timers = {};
 
 	service.enableHighlightTracking = function(callback){
 		function passHighlight(){
@@ -25,6 +26,32 @@ angular.module('prosePair').service('docService', function(){
 		}else if (eBool && currentTitle.length > exclaim.length && currentTitle.substring(0,exclaim.length) != exclaim){
 			document.title = exclaim + " " + currentTitle;
 		}
+	}
+
+	service.scrollToBottom = function(divID){
+		var div = document.getElementById(divID);
+
+		if (div.offsetHeight >= div.scrollHeight){
+			return;
+		}
+
+		var height = div.scrollHeight
+
+		if ('scroll' in timers){
+			clearInterval(timers.scroll);
+			delete timers.scroll;
+		}
+
+		timers.scroll = setInterval(function(){
+			var change = div.scrollTop + 2;
+			if (change >= height){
+				div.scrollTop = height;
+				clearInterval(timers.scroll);
+				delete timers.scroll;
+			}else{
+				div.scrollTop = change;
+			}
+		}, 17);
 	}
 
 	function trackHighlight(){

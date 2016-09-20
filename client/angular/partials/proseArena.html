@@ -39,7 +39,7 @@
 			<p ng-repeat = "paragraph in bookText">{{paragraph}}</p>
 		</div>
 
-		<div id = 'sideBox' ng-class = '{"sidePair":mode == "pair"}'>
+		<div id = 'sideBox' ng-class = '{"sidePair":mode == "pair", "sideLightning":mode == "lightning"}'>
 
 			<div id = 'timeBox' ng-if = '!finMode'>
 				<div id = 'secBox'>
@@ -82,9 +82,8 @@
 	
 
 	<div id = "enterArea">
-
 		<div id = "explanationArea">
-			<i class="fa fa-graduation-cap" aria-hidden="true"></i> {{explanationText}}
+			<i class="fa fa-graduation-cap" aria-hidden="true"></i> <span ng-class = "{'danger': !validEntry">{{explanationText}}</span>
 		</div>
 
 		<div id = "explainPoll" ng-if = "openPoll">
@@ -110,7 +109,7 @@
 					</button>
 				</div>
 
-				<button ng-class = "{'customDisabled':!validEntry || book.input < 20}" id = "enterText" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">
+				<button ng-class = "{'customDisabled':!validEntry || book.input.length < 20}" id = "enterText" ng-click = "submitTextChunk()" ng-disabled = "!myTurn">
 					Enter
 				</button>	
 			</div>
