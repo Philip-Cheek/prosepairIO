@@ -8,24 +8,24 @@
 
 		<script type='text/javascript' src='/socket.io/socket.io.js'></script>
 
-		<script type='text/javascript' src='angular/app.js'></script>
-		<script type='text/javascript' src='angular/directives/dialogDirective.js'></script>
-		<script type='text/javascript' src='angular/services/listService.js'></script>
-		<script type='text/javascript' src='angular/services/peerService.js'></script>
-		<script type='text/javascript' src='angular/services/pollService.js'></script>
-		<script type='text/javascript' src='angular/services/popUpService.js'></script>
-		<script type='text/javascript' src='angular/services/docService.js'></script>
-		<script type='text/javascript' src='angular/services/sentenceService.js'></script>
-		<script type='text/javascript' src='angular/services/explanationService.js'></script>
-		<script type='text/javascript' src='angular/factories/socketFactory.js'></script>
-		<script type='text/javascript' src='angular/factories/bookFactory.js'></script>
-		<script type='text/javascript' src='angular/factories/promptFactory.js'></script>
-		<script type='text/javascript' src='angular/factories/intervalFactory.js'></script>
-		<script type='text/javascript' src ='angular/controllers/omniOptionsController.js'></script>
-		<script type='text/javascript' src ='angular/controllers/libraryController.js'></script>
-		<script type='text/javascript' src ='angular/controllers/connectOptionsController.js'></script>
-		<script type='text/javascript' src ='angular/controllers/pageArenaController.js'></script>
-		<script type='text/javascript' src ='angular/controllers/promptController.js'></script>
+		<script type='text/javascript' src='app/app.js'></script>
+		<script type='text/javascript' src='app/directives/dialogDirective.js'></script>
+		<script type='text/javascript' src='app/services/listService.js'></script>
+		<script type='text/javascript' src='app/services/peerService.js'></script>
+		<script type='text/javascript' src='app/services/pollService.js'></script>
+		<script type='text/javascript' src='app/services/popUpService.js'></script>
+		<script type='text/javascript' src='app/services/docService.js'></script>
+		<script type='text/javascript' src='app/services/sentenceService.js'></script>
+		<script type='text/javascript' src='app/services/explanationService.js'></script>
+		<script type='text/javascript' src='app/factories/socketFactory.js'></script>
+		<script type='text/javascript' src='app/factories/bookFactory.js'></script>
+		<script type='text/javascript' src='app/factories/promptFactory.js'></script>
+		<script type='text/javascript' src='app/factories/intervalFactory.js'></script>
+		<script type='text/javascript' src ='app/controllers/omniOptionsController.js'></script>
+		<script type='text/javascript' src ='app/controllers/libraryController.js'></script>
+		<script type='text/javascript' src ='app/controllers/connectOptionsController.js'></script>
+		<script type='text/javascript' src ='app/controllers/pageArenaController.js'></script>
+		<script type='text/javascript' src ='app/controllers/promptController.js'></script>
 
 
 		<title>ProsePair I/O</title>
@@ -38,9 +38,11 @@
 	<body ng-app='prosePair'>
 		<div id = "outerContainer">
 			<div ng-controller = "omniOptionsController">
+
 				<div id = "header">
 					<div id = 'headContain'>
 						<h1>Prose Pair I/O</h1> 
+
 						<div id = 'menuRow'>
 
 							<div class = "menuItem" id ='library' ng-class = "{'menuSelected':location == '/'}" ng-click = "omniSwitch('l')" ng-mouseover = "hoverU = true" ng-mouseleave = "hoverU = false">
@@ -58,21 +60,27 @@
 								<p  ng-if = "hoverP || location == '/connect'" class = "menuAlt">Prose Go</p>
 							</div>
 
-							<div class = "menuItem" id="proseGo" ng-click = "omniSwitch('pr')" ng-mouseover = "hoverPr = true" ng-mouseleave = "hoverPr = false">
-								<p class = "menuIcon" ng-if = "!hoverPr">
+							<div class = "menuItem"  ng-class = "{'menuSelected':location == '/prompt'}" id="proseGo" ng-click = "omniSwitch('pr')" ng-mouseover = "hoverPr = true" ng-mouseleave = "hoverPr = false">
+								<p class = "menuIcon" ng-class = "{'backIcon':hoverPr || location == '/prompt'}">
 									<i class="fa fa-book" aria-hidden="true"></i>
 								</p>
-								<p ng-if = "hoverPr" class = "menuAlt">Prompts</p>
+								<p ng-if = "hoverPr || location == '/prompt'" class = "menuAlt">Prompts</p>
 							</div>
 
-							<div class = "menuItem" id="moreMenu">
-							</div>
 						</div>
 
 					</div>
+				</div><!--END HEADER-->
+
+				<div id = 'welcome' ng-if = 'info.welcome'>
+  					<div id = 'welcomeBox' ng-if = 'info.welcome'>
+  						<i ng-click = 'info.welcome = false; offset()' class="fa fa-times-circle" aria-hidden="true"></i>
+						<h2>Welcome, kind stranger, to Prose Pair!</h2>
+						<button ng-click = 'omniSwitch("p");info.welcome = false; offset()'><span class = 'buttText'>Get Started and Play!</span></button>
+					</div>
 				</div>
-			
-				<div id = "thing">
+
+				<div id = "modal">
 					<dialog-directive show='modalShown' width = "{{modalContent.width}}" height = "{{modalContent.height}}">
 						<div class = 'modContent'>
 							<h3>{{modalContent.message}}</h3>
@@ -101,20 +109,16 @@
 									<button class = 'modButt' ng-click = 'dialogButtonClicked(button.path)' ng-repeat = 'button in buttons' ng-click = 'button.path'>
 										{{button.name}}
 									</button>
+								</div>
 							</div>
 						 </div>
 
 					</dialog-directive>
 
-  				</div>
+  				</div><!--END MODAL-->
+
 			</div>
 
-			<div id = 'welcome'ng-if 'welcome'>
-				<div id = 'borderBuddy'>
-					<h2>Thanks for visiting Prose Pair!</h2>
-					<p>Get started and connect with 
-				</div>
-			</div>
 			<div id = 'partial'>
 				<div ng-view = ""></div>
 			</div>

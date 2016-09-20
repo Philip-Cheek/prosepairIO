@@ -1,0 +1,49 @@
+<div ng-controller = 'libraryController' class = 'lib'>
+
+	<div id = 'libBox' class = 'whiteBox'>
+		<h1>Library</h1>
+		<h7>All 'Books' by {{sortInfo.method}}</h7>
+		<table>
+			<tr>
+				<th></th>
+				<th>BookInfo</th> 
+				<th>
+					<a ng-click = "sortBy('Points')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Points'}">
+						Points<i class = "adWay" ng-if = "sortInfo.method == 'Points'" ng-class="{'fa fa-sort-desc':sortInfo.way == 'descending', 'fa fa-sort-asc':sortInfo.way == 'ascending'}" aria-hidden="true"></i>
+					</a>
+				</th>
+			    <th class = 'dAdded'>
+			    	<a ng-click = "sortBy('Date Added')" class = 'thOption' ng-class = "{'tabSel': sortInfo.method == 'Date Added'}">
+			    		Date Added<i class = "adWay" ng-if = "sortInfo.method == 'Date Added'" ng-class="{'fa fa-sort-desc':sortInfo.way == 'descending', 'fa fa-sort-asc':sortInfo.way == 'ascending'}" aria-hidden="true"></i>
+			    	</a>
+			    </th>
+			</tr>
+
+			<tr ng-repeat = 'book in books'>
+				<td>
+					<div class = "likeBox">
+						<i ng-click = "giveFeedback(book, true)" ng-class= "{'fa fa-thumbs-up': book.liked, 'fa fa-thumbs-o-up': !book.liked}" aria-hidden="true"></i><br>
+						<i ng-click = "giveFeedback(book, false)" ng-class= "{'fa fa-thumbs-down': book.disliked, 'fa fa-thumbs-o-down': !book.disliked, sizeBoost:book.liked}" aria-hidden="true"></i><br>
+					</div>
+
+				</td>
+				<td style = 'width:80%'>
+					<h3 ng-click = "viewBook(book)">{{book.title}}</h6>
+					<p class = 'authoredBy'>by {{book.authorString}}</p>
+					<p class = 'sumBook'><b>Sample:</b> {{book.sampleBody}}...</p>
+				</td>
+				<td>
+					<p class = 'tally'>
+						{{book.likeTally}} <i class="libStar smallStar fa fa-star" aria-hidden="true"></i>
+					</p>
+				<td class = 'dAdded'>
+					{{book.dateAdded}}
+				</td>
+			</tr>
+		</table>
+		<div id = 'bottButton'>
+			<button ng-disabled = "min" class = 'bBack'><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button>
+			<button ng-disabled = "max" class = 'bNext'>Next <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+		</div>
+	</div>
+</div>

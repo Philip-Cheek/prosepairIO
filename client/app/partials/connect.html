@@ -1,0 +1,47 @@
+<div class = "connectPartial" ng-controller = "connectOptionsController">
+	<div class = "whiteBox">
+		<h3>{{loadingText}}</h3>
+		<h1 ng-if = "options.loading == false" class = 'explanationType'>{{explanationText}}</h1>
+		<div ng-if = "!options.loading" class = 'connectOptions'>
+				
+				<div class = 'enter' ng-class = "{'nEnter': options.lightning || options.prosepair}">
+					<p class = 'er'>{{errInfo.error}}</p>
+					Nickname: <input type = "text" ng-model = "options.nickname" ng-change = "isRepeat()">
+					<button ng-disabled = "!options.nickname || options.nickname.length < 3 || errInfo.isError" ng-click = 'lesConnect()'>Connect</button>
+				</div>
+
+				<div id = 'connectBoxes'>
+
+					<div id = 'proseSelect' ng-class = "{'pHovered':hPair || options.prosepair, 'pSelect':options.prosepair}" ng-click = 'options.prosepair = true; options.lightning = false; select()' class = "conBox" ng-mouseover = "hPair = true" ng-mouseleave = "hPair = false">
+						<button ng-disabled = "!hPair || options.prosepair" ng-click = 'options.prosepair = true; options.lightning = false'>
+							Prose Pair
+						</button>
+
+						<div class = 'icon'>
+							<i id = 'lP' class="fa fa-user" aria-hidden="true"></i>
+							<i id = 'rP' class="fa fa-user" aria-hidden="true"></i>
+						</div>
+
+						<p>2 players. Sentence by sentence.</p>
+					</div>
+					<div id = 'lightningSelect' class = "conBox" ng-class = "{'lHovered':lPair || options.lightning, 'lSelect':options.lightning}" ng-click = 'options.prosepair = false; select(); options.lightning = true' class = "conBox" ng-mouseover = "lPair = true" ng-mouseleave = "lPair = false">
+						<button ng-disabled = "!lPair || options.lightning" ng-click = 'options.prosepair = false; options.lightning = true'>
+							Lighting Mode
+						</button>
+
+						<div class = 'icon'>
+							<i id = 'lL' class="fa fa-bolt" aria-hidden="true"></i>
+							<i id = 'mL' class="fa fa-bolt" aria-hidden="true"></i>
+							<i id = 'rL' class="fa fa-bolt" aria-hidden="true"></i>
+						</div>
+						<p>3-5 Players. Word by word.</p>
+					</div>
+
+				</div>
+		</div>
+
+	</div>
+	<div ng-if='options.loading' id = "loadingGear">
+		<i class="fa fa-gear fa-spin" aria-hidden="true"></i>
+	</div>
+</div>

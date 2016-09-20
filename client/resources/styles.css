@@ -7,7 +7,7 @@
 }
 
 body{
-	height: 100%;
+	height:100vh;
 	background: #f4f4f4;
 }
 
@@ -23,11 +23,90 @@ button:hover{
 	font-family: 'Satisfy', cursive;
 }
 
+#welcome{
+	max-height:8em;
+	width:80%;
+	max-width: 50em;
+	padding:.6em;
+	margin:0 auto;
+	margin-top: 7em;
+	border:.3em solid #4B77BE;
+	padding:1em;
+	color: #2c3e50;
+	border-radius: 1em;
+	background: repeating-linear-gradient(
+	  120deg,
+	  rgba(75, 119, 190,.4),
+	  rgba(75, 119, 190,.4) 10px,
+	  rgba(75, 119, 190,.2) 10px,
+	  rgba(75, 119, 190,.2) 20px
+	);
+}
+
+	#welcomeBox{
+		background: rgba(255,255,255,.6);
+		padding:1em;
+		text-align: center;
+		position: relative;
+		border-radius: .4em;
+
+	}
+
+		#welcomeBox i{
+			position: absolute;
+			right:-.5em;
+			top:-.63em;
+			font-size: 2.3em;
+			transition:font-size .3s, right .3s, top .3s;
+		}
+
+			#welcomeBox i:hover{
+				font-size: 2.5em;
+				cursor: pointer;
+				right:-.55em;
+				top:-.66em;
+			}
+
+		#welcomeBox button{
+			color:white;
+			font-size: 1.5em;
+			padding:.5em;
+			background:#4B77BE;
+			border:none;
+			border-radius:2em;
+		}
+
+			#welcomeBox button{
+				margin-top: .5em;
+				color:white;
+				font-size: 1.5em;
+				padding:.5em;
+				background:#4B77BE;
+				border:none;
+				border-radius:2em;
+				transition:font-size .3s ease, background .3s, box-shadow .3s;
+ 				box-shadow: 9px 10px 14px -3px rgba(0,0,0,0.75);
+
+			}
+
+				#welcomeBox button .buttText{
+					margin-left: .35em;
+					margin-right: .35em;
+				}
+
+			#welcomeBox button:hover{
+				font-size: 1.8em;
+				background: #2c3e50;
+				box-shadow: 9px 16px 14px 5px rgba(0,0,0,0.75);
+
+/*				margin-top:.3em;
+*/			}
+
 .connectPartial{
 	min-width:30em;
 	max-width:50em;
 	margin:0 auto;
-	height: 80vh;
+	border:1px solid green;
 }
 	.er{
 		text-align:center;
@@ -69,6 +148,7 @@ button:hover{
 			width:1.3 em;
 		}
 
+
 	#loadingGear{
 		font-size:30em;
 		text-align: center;
@@ -76,18 +156,30 @@ button:hover{
 	}
 	#connectBoxes{
 		width:95%;
+		height:40em;
 		margin: 0 auto;
-		height:70%;
-		overflow: hidden;
+		max-height: 18em;
+		margin-bottom: 3em;
+	}
+
+	.conBox p{
+		position: absolute;
+		bottom:.3em;
 	}
 
 		.conBox{
+			position: relative;
 			display: inline-block;
 			width:47%;
 			border:.3em dashed gray;
 			height: 80%;
+			min-height: 20em;
 			text-align: center;
 		}
+			.conBox p{
+				position: absolute;
+				bottom:.8em;
+			}
 
 			.conBox button{
 				margin-top:3.3%;
@@ -100,6 +192,9 @@ button:hover{
 				vertical-align: top;
 				transition:border .2s ease, margin-right .2s ease, color .2s ease;
 			}
+				#proseSelect p{
+					left:20%;
+				}
 
 				.pHovered{
 					cursor:pointer;
@@ -127,6 +222,9 @@ button:hover{
 			#lightningSelect{
 				transition:color .1s ease, border .1s ease, margin-left .1s ease;
 			}
+				#lightningSelect p{
+					left:23%;
+				}
 
 				.lHovered{
 					cursor: pointer;
@@ -207,10 +305,13 @@ button:hover{
 
 
 #partial{
-	position:absolute;
-	top:6em;
 	width:100%;
+	margin-top:1em;
 };
+
+#partial.offset{
+	margin-top:7em;
+}
 
 #outerContainer{
 	position:relative;
