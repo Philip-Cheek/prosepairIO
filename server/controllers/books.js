@@ -1,5 +1,8 @@
 var mongoose = require('mongoose');
-var Book = mongoose.model('Book')
+var sanitize = require('mongo-sanitize');
+
+var Book = mongoose.model('Book');
+
 
 module.exports = (function(){
 	return{
@@ -7,12 +10,16 @@ module.exports = (function(){
 		saveBook: function(req, res){
 			console.log('controller save book reached!');
 
-			var bookInfo = req.body;
+			var bookInfo = {};
 			var lArray = ['likeTally', 'likes', 'dislikes'];
+
+			for (var key in req.body){
+				bookInfo[key] = sanitize(req.body[key]);
+			}
 
 			for (var i = 0; i < lArray.length; i ++){
 				bookInfo[lArray[i]] = 0;
-			};
+			}
 
 			var newBook = new Book(bookInfo);
 			newBook.save(function(err, result){

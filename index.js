@@ -1,13 +1,15 @@
 var express = require('express');
 var path = require('path');
 var app = express();
-var session = require('express-session')
+var session = require('express-session');
+var helmet = require('helmet');
 
 var server = require('http').createServer(app);  
 var bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 app.use(session({secret: 'testingPurposesOnly'}));
+app.use(helmet());
 app.use(express.static(path.join(__dirname, '/client')));
 
 require('./server/config/mongoose.js');

@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
-var Prompt = mongoose.model('Prompt')
+var Prompt = mongoose.model('Prompt');
+var sanitize = require('mongo-sanitize');
 
 module.exports = (function(){
 
@@ -52,7 +53,11 @@ module.exports = (function(){
 		},
 
 		addPrompt: function(req, res){
-			var info = req.body;
+			var info = {};
+
+			for (var key in req.body){
+				info[key] = sanitize(req.body[key]);
+			}
 
 			info.likes = 0;
 			info.dislikes = 0;
